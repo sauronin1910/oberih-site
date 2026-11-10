@@ -325,6 +325,8 @@ a.sponsor:hover img,a.sponsor:focus-visible img{filter:none;opacity:1}
 :root[data-contrast="high"] .hotlines li{border:1px solid #fff}
 .hotlines b{font-family:var(--font-display);font-weight:700;font-size:1.35rem;font-variant-numeric:tabular-nums;letter-spacing:.01em;user-select:all}
 .hotlines span{font-size:max(.88rem,var(--min-small));color:var(--muted);line-height:1.35}
+.hotlines b a{color:inherit;text-decoration:none}
+.hotlines b a:hover{text-decoration:underline}
 
 /* Контакти */
 .contact{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1.5rem;padding-bottom:4.5rem}
@@ -348,6 +350,7 @@ a.sponsor:hover img,a.sponsor:focus-visible img{filter:none;opacity:1}
 .check{display:flex;gap:.6rem;align-items:flex-start;font-size:max(.9rem,var(--min-small));color:var(--muted)}
 .check input{margin-top:.3rem;width:1.1rem;height:1.1rem;flex:none}
 .form-status{font-weight:700;color:var(--ink);background:var(--tint);padding:.75rem 1rem;border-radius:10px}
+.form-status:empty{display:none}
 
 /* Підвал */
 .site-footer{background:var(--brand-deep);color:var(--on-brand-muted);font-size:max(.95rem,var(--min-text));border-top:6px solid transparent;border-image:var(--rainbow) 1}

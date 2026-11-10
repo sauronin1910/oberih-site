@@ -119,7 +119,7 @@
   var closeBtn=nav.querySelector('.drawer-close');
   var backdrop=document.querySelector('.nav-backdrop');
   var mq=window.matchMedia('(max-width:74.99em)');
-  var outside=[].slice.call(document.querySelectorAll('.a11ybar,.site-header,main,.site-footer'));
+  var outside=[].slice.call(document.querySelectorAll('.skip,.a11ybar,.site-header,main,.site-footer'));
   [].forEach.call(nav.querySelectorAll('.drawer-head,.menu > li,.drawer-foot'),function(el,i){el.style.setProperty('--i',i)});
   [].forEach.call(nav.querySelectorAll('.submenu'),function(ul){[].forEach.call(ul.children,function(li,j){li.style.setProperty('--j',j)})});
   var bdTimer;
@@ -183,6 +183,11 @@
     li.addEventListener('mouseleave',function(){
       if(mq.matches||!canHover.matches)return;
       li._t=setTimeout(function(){if(b.getAttribute('aria-expanded')==='true')setSub(b,false);delete b.dataset.hover},200);
+    });
+    // Клавіатура: фокус пішов за межі пункту (Tab далі) — підменю закриваємо
+    li.addEventListener('focusout',function(e){
+      if(mq.matches||(e.relatedTarget&&li.contains(e.relatedTarget)))return;
+      if(e.relatedTarget&&b.getAttribute('aria-expanded')==='true'){setSub(b,false);delete b.dataset.hover}
     });
   });
   document.addEventListener('click',function(e){if(!mq.matches&&!nav.contains(e.target))closeAll()});
@@ -285,7 +290,14 @@
   var form=document.getElementById('ask-form'),st=document.getElementById('form-status');
   if(form)form.addEventListener('submit',function(e){
     e.preventDefault();
-    if(!form.checkValidity()){st.hidden=false;st.textContent='Заповніть усі поля і поставте позначку згоди.';return}
+    // поля з помилкою позначаємо для екранних читачів і ставимо фокус на перше
+    var bad=[].filter.call(form.elements,function(f){
+      if(!f.willValidate)return false;
+      var inv=!f.checkValidity();
+      if(inv)f.setAttribute('aria-invalid','true');else f.removeAttribute('aria-invalid');
+      return inv;
+    });
+    if(bad.length){st.hidden=false;st.textContent='Заповніть усі поля і поставте позначку згоди.';bad[0].focus();return}
     st.hidden=false;st.textContent='Це макет. На готовому сайті запитання надійде на пошту НРЦ «Оберіг».';
     form.reset();
   });

@@ -198,12 +198,21 @@ def build_doc(shell, path, title, description, main_html):
     full_title = f'{title} — НРЦ «Оберіг»'
     if len(full_title) > 70:  # пошуковики обрізають довгі заголовки
         full_title = title
+    if len(description) < 70:  # короткий опис доповнюємо до зручної для пошуковиків довжини
+        sec = path.split('/')[0]
+        sec = next((s['title'] for s in SECTIONS if s['slug'] == sec and not path.endswith('/index.html')), '')
+        if 'Оберіг' in description:
+            description = f'{description} Офіційний сайт закладу, м. Івано-Франківськ.'
+        else:
+            description = f"{description} {sec + ' — ' if sec else ''}{N}, м. Івано-Франківськ."
     d = esc(description.replace(' ', ' '))
     h = head
     h = re.sub(r'<title>.*?</title>', f'<title>{esc(full_title)}</title>', h)
     h = re.sub(r'(<meta name="description" content=")[^"]*"', lambda m: m.group(1) + d + '"', h)
     h = re.sub(r'(<meta property="og:title" content=")[^"]*"', lambda m: m.group(1) + esc(title) + '"', h)
     h = re.sub(r'(<meta property="og:description" content=")[^"]*"', lambda m: m.group(1) + d + '"', h)
+    if path == '404.html':  # сторінку помилки не індексуємо
+        h = h.replace('<meta name="description"', '<meta name="robots" content="noindex">\n<meta name="description"', 1)
     h = re.sub(r'<script type="application/ld\+json">.*?</script>\n', '', h, flags=re.S)  # дані організації — лише на головній
     t = replace_region(top, 'menu', render_menu(path))
     doc = h + t + '<main id="main">\n' + main_html + '</main>' + bottom
