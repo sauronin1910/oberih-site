@@ -177,8 +177,8 @@ a[href^="tel:"]{white-space:nowrap}
 .main-nav.nav-tight .chev{width:.85rem;height:.85rem}
 button[aria-expanded="true"] .chev{transform:rotate(180deg)}
 .submenu{list-style:none;margin:0;padding:.5rem;position:absolute;left:0;top:100%;min-width:290px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:0 0 12px 12px;box-shadow:0 18px 40px -18px rgba(15,22,48,.45);z-index:30;display:block;opacity:0;visibility:hidden;transform:translateY(10px);pointer-events:none;transition:opacity .2s ease,transform .28s var(--ease),visibility 0s linear .28s}
-.submenu a{display:block;padding:.55rem .75rem;border-radius:8px;color:var(--ink);text-decoration:none;font-size:max(.95rem,var(--min-text));line-height:1.35;transition:background-color .15s,padding-left .2s var(--ease)}
-.submenu a:hover{background:var(--tint);text-decoration:none;padding-left:1rem}
+.submenu a{display:block;padding:.55rem .75rem;border-radius:8px;color:var(--ink);text-decoration:none;font-size:max(.95rem,var(--min-text));line-height:1.35;transition:background-color .15s,box-shadow .15s}
+.submenu a:hover{background:var(--tint);text-decoration:none;box-shadow:inset 3px 0 0 var(--accent)}
 button[aria-expanded="true"] + .submenu{opacity:1;visibility:visible;transform:none;pointer-events:auto;transition:opacity .2s ease,transform .28s var(--ease)}
 .drawer-head,.drawer-foot,.nav-backdrop{display:none}
 .menu > li:last-child .submenu,.menu > li:nth-last-child(2) .submenu,.menu > li:nth-last-child(3) .submenu{left:auto;right:0}
@@ -467,7 +467,7 @@ a.sponsor:hover img,a.sponsor:focus-visible img{filter:none;opacity:1}
   .submenu.is-open,button[aria-expanded="true"] + .submenu.is-open{visibility:visible;transition:height .38s var(--ease)}
   .submenu::before,.submenu::after{content:"";display:block;height:.35rem}
   .submenu a{color:var(--on-brand);padding:.7rem .85rem}
-  .submenu a:hover{background:color-mix(in srgb,var(--on-brand) 12%,transparent);padding-left:1.1rem}
+  .submenu a:hover{background:color-mix(in srgb,var(--on-brand) 12%,transparent);box-shadow:inset 3px 0 0 var(--accent)}
   .drawer-foot{display:flex;flex-direction:column;gap:.75rem;margin-top:auto;padding-top:1.75rem}
   .drawer-foot .btn{justify-content:center}
   .drawer-contact{color:var(--on-brand-muted);text-decoration:none;font-weight:700}
