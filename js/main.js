@@ -1,8 +1,45 @@
 (function(){
   var root=document.documentElement;
   // localStorage може бути недоступним (приватний режим) — тоді налаштування просто не запам'ятовуються
-  function save(k,v){try{localStorage.setItem('oberih-'+k,v)}catch{/* ігноруємо */}}
-  function load(k){try{return localStorage.getItem('oberih-'+k)}catch{return null}}
+  // Початкові значення вже прочитав js/prefs.js (зі сховища або з адреси ?prefs=…)
+  var P=window.OBERIH_PREFS||{};
+  function save(k,v){
+    if(load(k)!==v){
+      P[k]=v;P.ts=Date.now().toString(36);
+      try{localStorage.setItem('oberih-'+k,v);localStorage.setItem('oberih-ts',P.ts)}catch{/* ігноруємо */}
+    }
+    carryPrefs();
+  }
+  function load(k){
+    try{var v=localStorage.getItem('oberih-'+k);if(v!==null)return v}catch{/* сховище недоступне */}
+    return P[k]===undefined?null:P[k];
+  }
+  // Перегляд з диска (file://) або без сховища: налаштування передаються між сторінками в адресі
+  function prefsToken(){
+    var t=[],sc=load('scale'),ts=load('ts');
+    if(load('scheme')==='dark')t.push('dark');
+    if(sc==='1.15')t.push('a115');else if(sc==='1.3')t.push('a130');
+    if(load('data-contrast')==='high')t.push('hc');
+    if(load('data-links')==='underline')t.push('ul');
+    if(ts)t.push('t'+ts);
+    return t.join('.');
+  }
+  function withPrefs(u,tok){
+    var h='',i=u.indexOf('#');
+    if(i>-1){h=u.slice(i);u=u.slice(0,i)}
+    u=u.replace(/([?&])prefs=[^&]*(&|$)/,'$1').replace(/[?&]$/,'');
+    return u+(tok?(u.indexOf('?')>-1?'&':'?')+'prefs='+tok:'')+h;
+  }
+  function carryPrefs(){
+    if(!window.OBERIH_CARRY)return;
+    var tok=prefsToken();
+    [].forEach.call(document.querySelectorAll('a[href]'),function(a){
+      var u=a.getAttribute('href');
+      if(/^(#|[a-z][a-z0-9+.-]*:|\/)/i.test(u)||!/\.html?([?#]|$)/i.test(u))return;
+      a.setAttribute('href',withPrefs(u,tok));
+    });
+    try{history.replaceState(history.state,'',withPrefs(location.href,tok))}catch{/* у вбудованому перегляді адресу змінити не можна */}
+  }
   var reduceMotion=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
   // Світла / темна тема (за замовчуванням світла)
@@ -60,6 +97,21 @@
   var s=load('scale');if(s)setScale(s);
   if(load('data-contrast')==='high'){bc.click()}
   if(load('data-links')==='underline'){bl.click()}
+
+  // Інша вкладка змінила налаштування або сторінку повернуто кнопкою «Назад» — оновити без перезавантаження
+  function applyPrefs(){
+    var dark=load('scheme')==='dark';
+    if(dark!==(root.getAttribute('data-scheme')==='dark'))paintTheme(dark);
+    var sc=load('scale')||'1';
+    if(!scaleBtns.some(function(b){return b.dataset.scale===sc&&b.getAttribute('aria-pressed')==='true'}))setScale(sc);
+    [[bc,'data-contrast','high'],[bl,'data-links','underline']].forEach(function(p){
+      if((load(p[1])===p[2])!==(p[0].getAttribute('aria-pressed')==='true'))toggle(p[0],p[1],p[2]);
+    });
+    carryPrefs();
+  }
+  window.addEventListener('storage',function(e){if(!e.key||e.key.indexOf('oberih-')===0)applyPrefs()});
+  window.addEventListener('pageshow',function(e){if(e.persisted)applyPrefs()});
+  carryPrefs();
 
   // Меню
   var nav=document.getElementById('main-nav');
