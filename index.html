@@ -39,7 +39,7 @@
 <section class="a11ybar" aria-label="Контакти та налаштування доступності">
   <div class="wrap">
     <div class="contacts">
-      <a href="tel:+380342550524">(0342) 55-05-24</a>
+      <a class="tel" href="tel:+380342550524">(0342) 55-05-24</a>
       <a href="mailto:nrts.oberih@osvita.if.ua">nrts.oberih@osvita.if.ua</a>
     </div>
     <div class="a11y-tools" role="group" aria-label="Налаштування доступності">
@@ -62,7 +62,7 @@
 <!-- Шапка -->
 <header class="site-header">
   <div class="wrap">
-    <a class="brand" href="#" aria-label="НРЦ «Оберіг» — на головну">
+    <a class="brand" href="index.html" aria-label="НРЦ «Оберіг» — на головну">
       <span class="logo-badge"><img src="img/logo.jpg" alt="Логотип НРЦ «Оберіг»" width="512" height="512"></span>
       <span class="brand-text">
         <small>Комунальний заклад Івано-Франківської міської ради</small>
@@ -71,8 +71,8 @@
     </a>
     <div class="header-right">
       <div class="header-cta">
-        <a class="btn btn-ghost" href="#contacts">Поставити запитання</a>
-        <a class="btn btn-primary" href="#">Вступ до НРЦ «Оберіг»</a>
+        <a class="btn btn-ghost" href="kontakty/index.html">Поставити запитання</a>
+        <a class="btn btn-primary" href="ofitsiina-storinka/pravyla-pryiomu.html">Вступ до НРЦ «Оберіг»</a>
       </div>
       <button class="burger" type="button" aria-expanded="false" aria-controls="main-nav" aria-label="Відкрити меню">
         <span></span><span></span><span></span>
@@ -89,96 +89,100 @@
       <button type="button" class="drawer-close" aria-label="Закрити меню"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <ul class="menu" id="menu">
+      <!-- build:menu -->
       <li>
-        <button type="button" aria-expanded="false">Про НРЦ «Оберіг» <svg class="icon chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+        <button type="button" aria-expanded="false"><span class="lbl">Про нас</span> <svg class="icon chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
         <ul class="submenu">
-          <li><a href="#">Історія та місія</a></li>
-          <li><a href="#">Структура та органи управління</a></li>
-          <li><a href="#">Адміністрація</a></li>
-          <li><a href="#">Педагогічний колектив і фахівці</a></li>
-          <li><a href="#">Кадровий склад</a></li>
-          <li><a href="#">Мова освітнього процесу</a></li>
+          <li><a href="pro-nas/misiya-i-viziya.html">Місія і візія закладу</a></li>
+          <li><a href="pro-nas/struktura-ta-orhany-upravlinnia.html">Структура та органи управління</a></li>
+          <li><a href="pro-nas/administratsiia.html">Адміністрація</a></li>
+          <li><a href="pro-nas/pedahohichnyi-kolektyv.html">Педагогічний колектив</a></li>
+          <li><a href="pro-nas/kadrovyi-sklad.html">Кадровий склад</a></li>
         </ul>
       </li>
       <li>
-        <button type="button" aria-expanded="false">Офіційна сторінка <svg class="icon chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+        <button type="button" aria-expanded="false"><span class="lbl"><span class="ln">Офіційна</span> <span class="ln">сторінка</span></span> <svg class="icon chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
         <ul class="submenu">
-          <li><a href="#">Статут</a></li>
-          <li><a href="#">Ліцензія на освітню діяльність</a></li>
-          <li><a href="#">Стратегія розвитку</a></li>
-          <li><a href="#">Територія обслуговування</a></li>
-          <li><a href="#">Положення про академічну доброчесність</a></li>
-          <li><a href="#">Положення про внутрішню систему якості освіти</a></li>
-          <li><a href="#">Педагогічна рада</a></li>
-          <li><a href="#">Накази</a></li>
+          <li><a href="ofitsiina-storinka/statut.html">Статут</a></li>
+          <li><a href="ofitsiina-storinka/rishennia-pro-stvorennia.html">Рішення про створення закладу</a></li>
+          <li><a href="ofitsiina-storinka/svidotstvo-pro-reiestratsiiu.html">Свідоцтво про державну реєстрацію</a></li>
+          <li><a href="ofitsiina-storinka/litsenziia.html">Ліцензія</a></li>
+          <li><a href="ofitsiina-storinka/polozhennia-pro-akademichnu-dobrochesnist.html">Положення про академічну доброчесність</a></li>
+          <li><a href="ofitsiina-storinka/vnutrishnia-systema-yakosti-osvity.html">Положення про внутрішню систему забезпечення якості освіти</a></li>
+          <li><a href="ofitsiina-storinka/osvitnia-prohrama.html">Освітня програма</a></li>
+          <li><a href="ofitsiina-storinka/terytoriia-obsluhovuvannia.html">Територія обслуговування</a></li>
+          <li><a href="ofitsiina-storinka/pravyla-pryiomu.html">Правила прийому до закладу освіти</a></li>
+          <li><a href="ofitsiina-storinka/mova-navchannia.html">Мова навчання</a></li>
         </ul>
       </li>
       <li>
-        <button type="button" aria-expanded="false">Прозорість <svg class="icon chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+        <button type="button" aria-expanded="false"><span class="lbl"><span class="ln">Прозорість</span> <span class="ln">та відкритість</span></span> <svg class="icon chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
         <ul class="submenu">
-          <li><a href="#">Кошторис і фінансова звітність</a></li>
-          <li><a href="#">Благодійна допомога</a></li>
-          <li><a href="#">Звіт директора</a></li>
-          <li><a href="#">Ліцензований обсяг і кількість учнів</a></li>
-          <li><a href="#">Матеріально-технічна база</a></li>
-          <li><a href="#">Умови доступності</a></li>
-          <li><a href="#">Вакансії</a></li>
-          <li><a href="#">Харчування</a></li>
+          <li><a href="prozorist-ta-vidkrytist/vakansii.html">Вакансії</a></li>
+          <li><a href="prozorist-ta-vidkrytist/materialno-tekhnichne-zabezpechennia.html">Матеріально-технічне забезпечення</a></li>
+          <li><a href="prozorist-ta-vidkrytist/richnyi-zvit.html">Річний звіт</a></li>
+          <li><a href="prozorist-ta-vidkrytist/finansova-zvitnist.html">Фінансова звітність</a></li>
+          <li><a href="prozorist-ta-vidkrytist/litsenzovanyi-obsiah.html">Ліцензований обсяг і кількість здобувачів освіти</a></li>
+          <li><a href="prozorist-ta-vidkrytist/dostupnist-dlia-osib-z-oop.html">Доступність для навчання осіб з ООП</a></li>
+          <li><a href="prozorist-ta-vidkrytist/kharchuvannia.html">Харчування</a></li>
+          <li><a href="prozorist-ta-vidkrytist/bf-bo-nrts-oberih.html">БФ «БО НРЦ-Оберіг»</a></li>
         </ul>
       </li>
       <li>
-        <button type="button" aria-expanded="false">Освітній процес <svg class="icon chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+        <button type="button" aria-expanded="false"><span class="lbl"><span class="ln">Освітня</span> <span class="ln">діяльність</span></span> <svg class="icon chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
         <ul class="submenu">
-          <li><a href="#preschool">Дошкільне відділення</a></li>
-          <li><a href="#">Режим роботи</a></li>
-          <li><a href="#">Розклад уроків і занять</a></li>
-          <li><a href="#">Освітні програми</a></li>
-          <li><a href="#">Річний план роботи</a></li>
-          <li><a href="#">Форми здобуття освіти</a></li>
-          <li><a href="#">Критерії оцінювання</a></li>
-          <li><a href="#">Моніторинг якості освіти</a></li>
-          <li><a href="#">Додаткові освітні послуги</a></li>
-          <li><a href="#">Нова українська школа</a></li>
+          <li><a href="osvitnia-diialnist/rezhym-roboty.html">Режим роботи</a></li>
+          <li><a href="osvitnia-diialnist/rozklad-zaniat.html">Розклад занять</a></li>
+          <li><a href="osvitnia-diialnist/richnyi-plan.html">Річний план</a></li>
+          <li><a href="osvitnia-diialnist/forma-zdobuttia-osvity.html">Форма здобуття освіти</a></li>
+          <li><a href="osvitnia-diialnist/kryterii-otsiniuvannia.html">Критерії оцінювання</a></li>
+          <li><a href="osvitnia-diialnist/monitorynh-yakosti-osvity.html">Моніторинг якості освіти</a></li>
+          <li><a href="osvitnia-diialnist/psykholoho-pedahohichnyi-konsylium.html">Психолого-педагогічний консиліум</a></li>
         </ul>
       </li>
       <li>
-        <button type="button" aria-expanded="false">Реабілітація <svg class="icon chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+        <button type="button" aria-expanded="false"><span class="lbl"><span class="ln">Виховна</span> <span class="ln">робота</span></span> <svg class="icon chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
         <ul class="submenu">
-          <li><a href="#">Фізична терапія</a></li>
-          <li><a href="#">Ерготерапія</a></li>
-          <li><a href="#">Логопедична допомога</a></li>
-          <li><a href="#">Корекційно-розвиткові заняття</a></li>
-          <li><a href="#">Психологічна служба</a></li>
-          <li><a href="#">Медичний супровід</a></li>
+          <li><a href="vykhovna-robota/klasnomu-kerivnyku.html">Класному керівнику</a></li>
+          <li><a href="vykhovna-robota/pravyla-povedinky.html">Правила поведінки здобувачів освіти</a></li>
+          <li><a href="vykhovna-robota/natsionalno-patriotychne-vykhovannia.html">Національно-патріотичне виховання</a></li>
+          <li><a href="vykhovna-robota/pravovykhovna-robota.html">Правовиховна робота</a></li>
+          <li><a href="vykhovna-robota/hurtkova-robota.html">Гурткова робота</a></li>
         </ul>
       </li>
       <li>
-        <button type="button" aria-expanded="false">Батькам <svg class="icon chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+        <button type="button" aria-expanded="false"><span class="lbl"><span class="ln">Дошкільне</span> <span class="ln">відділення</span></span> <svg class="icon chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
         <ul class="submenu">
-          <li><a href="#">Правила прийому</a></li>
-          <li><a href="#">Як зарахувати дитину</a></li>
-          <li><a href="#">Правила поведінки</a></li>
-          <li><a href="#">Згода на фото та відео</a></li>
-          <li><a href="#">Корисна інформація</a></li>
+          <li><a href="doshkilne-viddilennia/polozhennia.html">Положення про дошкільне відділення</a></li>
+          <li><a href="doshkilne-viddilennia/rezhym-roboty.html">Режим роботи дошкільного відділення</a></li>
+          <li><a href="doshkilne-viddilennia/plan-roboty.html">План роботи</a></li>
         </ul>
       </li>
       <li>
-        <button type="button" aria-expanded="false">Безпека та захист <svg class="icon chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+        <button type="button" aria-expanded="false"><span class="lbl"><span class="ln">Реабілітаційне</span> <span class="ln">відділення</span></span> <svg class="icon chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
         <ul class="submenu">
-          <li><a href="#">Протидія булінгу</a></li>
-          <li><a href="#">Як подати заяву про булінг</a></li>
-          <li><a href="#">Куди звернутися по допомогу</a></li>
-          <li><a href="#">Мої права (для дітей)</a></li>
-          <li><a href="#">Безпека в Інтернеті</a></li>
-          <li><a href="#">Захист персональних даних</a></li>
+          <li><a href="reabilitatsiine-viddilennia/polozhennia.html">Положення про реабілітаційне відділення</a></li>
+          <li><a href="reabilitatsiine-viddilennia/korektsiino-rozvytkova-robota.html">Корекційно-розвиткова робота</a></li>
+          <li><a href="reabilitatsiine-viddilennia/psykholohichna-sluzhba.html">Психологічна служба</a></li>
+          <li><a href="reabilitatsiine-viddilennia/medychnyi-suprovid.html">Медичний супровід</a></li>
         </ul>
       </li>
-      <li><a href="#news">Новини</a></li>
-      <li><a href="#contacts">Контакти</a></li>
+      <li>
+        <button type="button" aria-expanded="false"><span class="lbl"><span class="ln">Безпека</span> <span class="ln">та захист</span></span> <svg class="icon chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+        <ul class="submenu">
+          <li><a href="bezpeka-ta-zakhyst/buling.html">Булінг</a></li>
+          <li><a href="bezpeka-ta-zakhyst/bezpeka-v-interneti.html">Безпека в інтернеті</a></li>
+          <li><a href="bezpeka-ta-zakhyst/povitriana-tryvoha.html">Увага! Повітряна тривога!</a></li>
+          <li><a href="bezpeka-ta-zakhyst/posyleni-zakhody-bezpeky.html">Посилені заходи безпеки</a></li>
+        </ul>
+      </li>
+      <li><a href="novyny/index.html"><span class="lbl">Новини</span></a></li>
+      <li><a href="kontakty/index.html"><span class="lbl">Контакти</span></a></li>
+      <!-- /build:menu -->
     </ul>
     <div class="drawer-foot">
-      <a class="btn btn-primary" href="#">Вступ до НРЦ «Оберіг»</a>
-      <a class="drawer-contact" href="tel:+380342550524">(0342) 55-05-24</a>
+      <a class="btn btn-primary" href="ofitsiina-storinka/pravyla-pryiomu.html">Вступ до НРЦ «Оберіг»</a>
+      <a class="drawer-contact tel" href="tel:+380342550524">(0342) 55-05-24</a>
       <a class="drawer-contact" href="mailto:nrts.oberih@osvita.if.ua">nrts.oberih@osvita.if.ua</a>
       <button type="button" class="theme-toggle drawer-theme">
         <svg class="icon i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
@@ -199,8 +203,8 @@
         <h1 id="hero-title">Навчання і реабілітація <em>в одному місці</em></h1>
         <p class="lead">НРЦ «Оберіг» навчає дітей з особливими освітніми потребами, зокрема з порушеннями опорно-рухового апарату. Уроки поєднуємо з фізичною терапією, корекційними заняттями та психологічною підтримкою.</p>
         <div class="actions">
-          <a class="btn btn-primary" href="#">Як вступити до НРЦ «Оберіг»</a>
-          <a class="btn btn-ghost" href="#">Умови доступності</a>
+          <a class="btn btn-primary" href="ofitsiina-storinka/pravyla-pryiomu.html">Як вступити до НРЦ «Оберіг»</a>
+          <a class="btn btn-ghost" href="prozorist-ta-vidkrytist/dostupnist-dlia-osib-z-oop.html">Умови доступності</a>
         </div>
         <ul class="hero-facts">
           <li class="c-sky">Комунальний заклад</li>
@@ -219,12 +223,12 @@
   <nav class="tiles section-quicklinks" aria-label="Швидкі посилання">
     <div class="wrap">
       <ul>
-        <li><a class="tile c-coral" href="#"><span class="ic"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M10 16l4-4-4-4"/><path d="M14 12H4"/></svg></span><strong>Вступ до НРЦ «Оберіг»</strong><span>Правила прийому і документи</span></a></li>
-        <li><a class="tile c-sky" href="#"><span class="ic"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><strong>Розклад</strong><span>Уроки та реабілітаційні заняття</span></a></li>
-        <li><a class="tile c-teal" href="#"><span class="ic"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2"/><path d="M5 8c2 1.5 4.5 2 7 2s5-.5 7-2"/><path d="M12 10v5l-3 6M12 15l3 6"/></svg></span><strong>Реабілітація</strong><span>Фізична терапія, логопед, корекція</span></a></li>
-        <li><a class="tile c-orange" href="#"><span class="ic"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M12 13s-3-1.8-3-3.6a1.6 1.6 0 0 1 3-.8 1.6 1.6 0 0 1 3 .8c0 1.8-3 3.6-3 3.6z"/></svg></span><strong>Психологічна служба</strong><span>Підтримка дітей і батьків</span></a></li>
-        <li><a class="tile c-green" href="#"><span class="ic"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></svg></span><strong>Прозорість</strong><span>Кошторис, звіти, документи</span></a></li>
-        <li><a class="tile c-amber" href="#"><span class="ic"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span><strong>Безпека та захист</strong><span>Булінг, права дитини, допомога</span></a></li>
+        <li><a class="tile c-coral" href="ofitsiina-storinka/pravyla-pryiomu.html"><span class="ic"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M10 16l4-4-4-4"/><path d="M14 12H4"/></svg></span><strong>Вступ до НРЦ «Оберіг»</strong><span>Правила прийому і документи</span></a></li>
+        <li><a class="tile c-sky" href="osvitnia-diialnist/rozklad-zaniat.html"><span class="ic"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><strong>Розклад</strong><span>Уроки та реабілітаційні заняття</span></a></li>
+        <li><a class="tile c-teal" href="reabilitatsiine-viddilennia/index.html"><span class="ic"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2"/><path d="M5 8c2 1.5 4.5 2 7 2s5-.5 7-2"/><path d="M12 10v5l-3 6M12 15l3 6"/></svg></span><strong>Реабілітація</strong><span>Фізична терапія, логопед, корекція</span></a></li>
+        <li><a class="tile c-orange" href="reabilitatsiine-viddilennia/psykholohichna-sluzhba.html"><span class="ic"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M12 13s-3-1.8-3-3.6a1.6 1.6 0 0 1 3-.8 1.6 1.6 0 0 1 3 .8c0 1.8-3 3.6-3 3.6z"/></svg></span><strong>Психологічна служба</strong><span>Підтримка дітей і батьків</span></a></li>
+        <li><a class="tile c-green" href="prozorist-ta-vidkrytist/index.html"><span class="ic"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></svg></span><strong>Прозорість</strong><span>Кошторис, звіти, документи</span></a></li>
+        <li><a class="tile c-amber" href="bezpeka-ta-zakhyst/index.html"><span class="ic"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span><strong>Безпека та захист</strong><span>Булінг, безпека, повітряна тривога</span></a></li>
       </ul>
     </div>
   </nav>
@@ -246,27 +250,27 @@
         <ul class="directions">
           <li class="card card-wide c-amber" id="preschool">
             <svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg>
-            <h3>Дошкільне відділення</h3>
+            <h3><a href="doshkilne-viddilennia/index.html">Дошкільне відділення</a></h3>
             <p>Групи для дітей дошкільного віку: розвиток, корекційні заняття і реабілітація з раннього віку, підготовка до школи.</p>
           </li>
           <li class="card c-sky">
             <svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5c3-1 6-1 8 1 2-2 5-2 8-1v14c-3-1-6-1-8 1-2-2-5-2-8-1z"/><path d="M12 6v14"/></svg>
-            <h3>Навчання</h3>
+            <h3><a href="osvitnia-diialnist/index.html">Навчання</a></h3>
             <p>Загальна середня освіта за освітніми програмами НУШ, адаптованими до потреб кожного учня.</p>
           </li>
           <li class="card c-teal">
             <svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2"/><path d="M5 8c2 1.5 4.5 2 7 2s5-.5 7-2"/><path d="M12 10v5l-3 6M12 15l3 6"/></svg>
-            <h3>Фізична реабілітація</h3>
+            <h3><a href="reabilitatsiine-viddilennia/index.html">Фізична реабілітація</a></h3>
             <p>Фізична терапія та ерготерапія: рух, координація, навички самообслуговування.</p>
           </li>
           <li class="card c-orange">
             <svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="3.5"/><rect x="4" y="13" width="7" height="7" rx="3.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
-            <h3>Корекційна допомога</h3>
+            <h3><a href="reabilitatsiine-viddilennia/korektsiino-rozvytkova-robota.html">Корекційна допомога</a></h3>
             <p>Логопедичні та корекційно-розвиткові заняття індивідуально і в малих групах.</p>
           </li>
           <li class="card c-coral">
             <svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M12 13s-3-1.8-3-3.6a1.6 1.6 0 0 1 3-.8 1.6 1.6 0 0 1 3 .8c0 1.8-3 3.6-3 3.6z"/></svg>
-            <h3>Психологічна підтримка</h3>
+            <h3><a href="reabilitatsiine-viddilennia/psykholohichna-sluzhba.html">Психологічна підтримка</a></h3>
             <p>Консультації для дітей і батьків, адаптація до навчання, розвиток соціальних навичок.</p>
           </li>
         </ul>
@@ -283,7 +287,7 @@
           <h2 id="news-title">Новини</h2>
         </div>
         <div class="sec-actions">
-          <a class="more" href="#">Усі новини <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="more" href="novyny/index.html">Усі новини <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           <div class="slider-arrows">
             <button type="button" class="slider-btn" data-dir="-1" aria-controls="news-track" aria-label="Попередні новини"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
             <button type="button" class="slider-btn" data-dir="1" aria-controls="news-track" aria-label="Наступні новини"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
@@ -300,7 +304,7 @@
           </div>
           <div class="news-body">
             <div class="news-meta"><span class="cat">Події</span><time datetime="2026-10-28">28 жовтня 2026</time></div>
-            <h3><a href="#">Осінній тиждень рухливих ігор: як ми провели його разом</a></h3>
+            <h3><a href="novyny/pryklad-novyny.html">Осінній тиждень рухливих ігор: як ми провели його разом</a></h3>
             <p>Короткий анонс новини з фото. Редактор додає новину в адмінпанелі, і вона з'являється тут автоматично.</p>
           </div>
         </li>
@@ -312,7 +316,7 @@
           </div>
           <div class="news-body">
             <div class="news-meta"><span class="cat">Батькам</span><time datetime="2026-10-21">21 жовтня 2026</time></div>
-            <h3><a href="#">Консультації фахівців для батьків у листопаді</a></h3>
+            <h3><a href="novyny/pryklad-novyny.html">Консультації фахівців для батьків у листопаді</a></h3>
             <p>Графік зустрічей з фізичним терапевтом, логопедом і психологом. Запис за телефоном НРЦ «Оберіг».</p>
           </div>
         </li>
@@ -324,7 +328,7 @@
           </div>
           <div class="news-body">
             <div class="news-meta"><span class="cat">Оголошення</span><time datetime="2026-10-14">14 жовтня 2026</time></div>
-            <h3><a href="#">Оприлюднено кошторис на 2027 рік</a></h3>
+            <h3><a href="novyny/pryklad-novyny.html">Оприлюднено кошторис на 2027 рік</a></h3>
             <p>Документ доступний у розділі «Прозорість та відкритість» відповідно до статті 30 Закону «Про освіту».</p>
           </div>
         </li>
@@ -336,7 +340,7 @@
           </div>
           <div class="news-body">
             <div class="news-meta"><span class="cat">Реабілітація</span><time datetime="2026-10-07">7 жовтня 2026</time></div>
-            <h3><a href="#">Новий сенсорний куточок для занять з ерготерапії</a></h3>
+            <h3><a href="novyny/pryklad-novyny.html">Новий сенсорний куточок для занять з ерготерапії</a></h3>
             <p>Фахівці облаштували простір для розвитку дрібної моторики і координації рухів.</p>
           </div>
         </li>
@@ -349,7 +353,7 @@
           </div>
           <div class="news-body">
             <div class="news-meta"><span class="cat">Свята</span><time datetime="2026-10-01">1 жовтня 2026</time></div>
-            <h3><a href="#">День працівника освіти: дякуємо нашим педагогам</a></h3>
+            <h3><a href="novyny/pryklad-novyny.html">День працівника освіти: дякуємо нашим педагогам</a></h3>
             <p>Учні підготували для вчителів і фахівців НРЦ «Оберіг» концерт та листівки власного виготовлення.</p>
           </div>
         </li>
@@ -361,7 +365,7 @@
           </div>
           <div class="news-body">
             <div class="news-meta"><span class="cat">Батькам</span><time datetime="2026-09-24">24 вересня 2026</time></div>
-            <h3><a href="#">Як записатися на консультацію психолога НРЦ «Оберіг»</a></h3>
+            <h3><a href="novyny/pryklad-novyny.html">Як записатися на консультацію психолога НРЦ «Оберіг»</a></h3>
             <p>Психологічна служба працює для учнів і батьків. Розповідаємо, як домовитися про зустріч.</p>
           </div>
         </li>
@@ -380,17 +384,17 @@
         <p class="eyebrow c-sky">Прозорість та відкритість</p>
         <h2 id="docs-title">Документи НРЦ «Оберіг»</h2>
         <p class="note">Оприлюднюємо документи відповідно до статті 30 Закону України «Про освіту» не пізніше ніж через 10 робочих днів після затвердження.</p>
-        <a class="btn btn-ghost" href="#">Усі документи</a>
+        <a class="btn btn-ghost" href="ofitsiina-storinka/index.html">Усі документи</a>
       </div>
       <ul class="doc-list">
-        <li><a href="#"><svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span>Статут<small>Офіційна сторінка</small></span><em class="pdf">PDF</em></a></li>
-        <li><a href="#"><svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span>Ліцензія<small>Офіційна сторінка</small></span><em class="pdf">PDF</em></a></li>
-        <li><a href="#"><svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span>Кошторис і фінансовий звіт<small>Прозорість</small></span><em class="pdf">PDF</em></a></li>
-        <li><a href="#"><svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span>Звіт директора<small>Прозорість</small></span><em class="pdf">PDF</em></a></li>
-        <li><a href="#"><svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span>Правила прийому<small>Батькам</small></span><em class="pdf">PDF</em></a></li>
-        <li><a href="#"><svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span>Умови доступності<small>Прозорість</small></span><em class="pdf">PDF</em></a></li>
-        <li><a href="#"><svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span>План протидії булінгу<small>Безпека та захист</small></span><em class="pdf">PDF</em></a></li>
-        <li><a href="#"><svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span>Вакансії<small>Прозорість</small></span><em class="pdf">PDF</em></a></li>
+        <li><a href="ofitsiina-storinka/statut.html"><svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span>Статут<small>Офіційна сторінка</small></span><em class="pdf">PDF</em></a></li>
+        <li><a href="ofitsiina-storinka/litsenziia.html"><svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span>Ліцензія<small>Офіційна сторінка</small></span><em class="pdf">PDF</em></a></li>
+        <li><a href="prozorist-ta-vidkrytist/finansova-zvitnist.html"><svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span>Фінансова звітність<small>Прозорість та відкритість</small></span><em class="pdf">PDF</em></a></li>
+        <li><a href="prozorist-ta-vidkrytist/richnyi-zvit.html"><svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span>Річний звіт<small>Прозорість та відкритість</small></span><em class="pdf">PDF</em></a></li>
+        <li><a href="ofitsiina-storinka/pravyla-pryiomu.html"><svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span>Правила прийому<small>Офіційна сторінка</small></span><em class="pdf">PDF</em></a></li>
+        <li><a href="prozorist-ta-vidkrytist/dostupnist-dlia-osib-z-oop.html"><svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span>Доступність для осіб з ООП<small>Прозорість та відкритість</small></span><em class="pdf">PDF</em></a></li>
+        <li><a href="bezpeka-ta-zakhyst/buling.html"><svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span>Протидія булінгу<small>Безпека та захист</small></span><em class="pdf">PDF</em></a></li>
+        <li><a href="prozorist-ta-vidkrytist/vakansii.html"><svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span>Вакансії<small>Прозорість та відкритість</small></span><em class="pdf">PDF</em></a></li>
       </ul>
     </div>
   </section>
@@ -404,9 +408,9 @@
           <h2 id="safety-title">Якщо дитину кривдять, є кому допомогти</h2>
           <p>Повідомити про булінг можна класному керівнику, психологу або директору НРЦ «Оберіг». Заяви розглядаємо конфіденційно.</p>
           <div class="links">
-            <a href="#">Як подати заяву про булінг</a>
-            <a href="#">Мої права (для дітей)</a>
-            <a href="#">Безпека в Інтернеті</a>
+            <a href="bezpeka-ta-zakhyst/buling.html">Протидія булінгу</a>
+            <a href="bezpeka-ta-zakhyst/povitriana-tryvoha.html">Увага! Повітряна тривога!</a>
+            <a href="bezpeka-ta-zakhyst/bezpeka-v-interneti.html">Безпека в інтернеті</a>
           </div>
         </div>
         <ul class="hotlines">
@@ -428,7 +432,7 @@
           <h2 id="welcome-title">У НРЦ «Оберіг» кожна дитина серед друзів</h2>
           <p>Діти вчаться, граються і займаються разом, а фахівці дбають, щоб кожному було комфортно. Розкажемо, як вступити до НРЦ «Оберіг», і відповімо на ваші запитання.</p>
           <div class="actions">
-            <a class="btn btn-primary" href="#">Правила прийому</a>
+            <a class="btn btn-primary" href="ofitsiina-storinka/pravyla-pryiomu.html">Правила прийому</a>
             <a class="btn btn-ghost" href="#contacts">Поставити запитання</a>
           </div>
         </div>
@@ -446,7 +450,7 @@
           <h2 id="sponsors-title">Наші спонсори</h2>
           <p>Дякуємо всім, хто підтримує дітей НРЦ «Оберіг». Звіти про отриману допомогу оприлюднюємо в розділі «Прозорість та відкритість».</p>
         </div>
-        <a class="more" href="#">Звіт про благодійну допомогу <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <a class="more" href="prozorist-ta-vidkrytist/finansova-zvitnist.html">Звіт про благодійну допомогу <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
       </div>
       <ul class="sponsors">
         <li class="sponsor"><span class="sponsor-ph"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg>Логотип спонсора</span></li>
@@ -468,7 +472,7 @@
           <h2 id="contacts-title">Контакти</h2>
           <dl>
             <div><dt>Адреса</dt><dd>вул. Гната Хоткевича, 52-А, м. Івано-Франківськ, 76020</dd></div>
-            <div><dt>Телефон</dt><dd><a href="tel:+380342550524">(0342) 55-05-24</a></dd></div>
+            <div><dt>Телефон</dt><dd><a class="tel" href="tel:+380342550524">(0342) 55-05-24</a></dd></div>
             <div><dt>Електронна пошта</dt><dd><a href="mailto:nrts.oberih@osvita.if.ua">nrts.oberih@osvita.if.ua</a></dd></div>
             <div><dt>Директор</dt><dd>Шестопалова Галина Любомирівна</dd></div>
           </dl>
@@ -501,23 +505,24 @@
       <span class="logo-badge"><img src="img/logo.jpg" alt="" width="512" height="512"></span>
       <p>Комунальний заклад «Навчально-реабілітаційний центр „Оберіг“» Івано-Франківської міської ради</p>
     </div>
+    <!-- build:footer -->
     <div>
-      <h2 class="foot-title">Про НРЦ «Оберіг»</h2>
-      <ul><li><a href="#">Структура та управління</a></li><li><a href="#">Педагогічний колектив</a></li><li><a href="#preschool">Дошкільне відділення</a></li><li><a href="#">Реабілітація</a></li><li><a href="#sponsors">Наші спонсори</a></li><li><a href="#news">Новини</a></li></ul>
+      <h2 class="foot-title">Про нас</h2>
+      <ul><li><a href="pro-nas/misiya-i-viziya.html">Місія і візія</a></li><li><a href="pro-nas/administratsiia.html">Адміністрація</a></li><li><a href="pro-nas/pedahohichnyi-kolektyv.html">Педагогічний колектив</a></li><li><a href="novyny/index.html">Новини</a></li><li><a href="index.html#sponsors">Наші спонсори</a></li></ul>
     </div>
     <div>
       <h2 class="foot-title">Документи</h2>
-      <ul><li><a href="#">Статут і ліцензія</a></li><li><a href="#">Кошторис і звітність</a></li><li><a href="#">Умови доступності</a></li><li><a href="#">Вакансії</a></li></ul>
+      <ul><li><a href="ofitsiina-storinka/statut.html">Статут</a></li><li><a href="ofitsiina-storinka/litsenziia.html">Ліцензія</a></li><li><a href="ofitsiina-storinka/pravyla-pryiomu.html">Правила прийому</a></li><li><a href="prozorist-ta-vidkrytist/finansova-zvitnist.html">Фінансова звітність</a></li><li><a href="prozorist-ta-vidkrytist/vakansii.html">Вакансії</a></li></ul>
     </div>
     <div>
-      <h2 class="foot-title">Батькам</h2>
-      <ul><li><a href="#">Правила прийому</a></li><li><a href="#">Протидія булінгу</a></li><li><a href="#">Захист персональних даних</a></li><li><a href="#contacts">Контакти</a></li></ul>
+      <h2 class="foot-title">Відділення</h2>
+      <ul><li><a href="doshkilne-viddilennia/index.html">Дошкільне відділення</a></li><li><a href="reabilitatsiine-viddilennia/index.html">Реабілітаційне відділення</a></li><li><a href="bezpeka-ta-zakhyst/index.html">Безпека та захист</a></li><li><a href="kontakty/index.html">Контакти</a></li></ul>
     </div>
+    <!-- /build:footer -->
   </div>
   <div class="foot-bottom">
     <div class="wrap">
       <span>© 2026 НРЦ «Оберіг». Матеріали сайту використовуються з посиланням на джерело.</span>
-      <nav aria-label="Службові посилання"><a href="#">Політика конфіденційності</a><a href="#">Карта сайту</a></nav>
     </div>
   </div>
 </footer>

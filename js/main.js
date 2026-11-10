@@ -231,7 +231,7 @@
 
   // Форма (у макеті нікуди не надсилає)
   var form=document.getElementById('ask-form'),st=document.getElementById('form-status');
-  form.addEventListener('submit',function(e){
+  if(form)form.addEventListener('submit',function(e){
     e.preventDefault();
     if(!form.checkValidity()){st.hidden=false;st.textContent='Заповніть усі поля і поставте позначку згоди.';return}
     st.hidden=false;st.textContent='Це макет. На готовому сайті запитання надійде на пошту НРЦ «Оберіг».';
