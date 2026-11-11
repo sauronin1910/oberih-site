@@ -436,6 +436,27 @@ a.sponsor:hover img,a.sponsor:focus-visible img{filter:none;opacity:1}
   .news-grid{grid-template-columns:minmax(0,1fr)}
 }
 
+/* ── Прелоадер: клас ставить js/prefs.js (без JS заставки немає) ── */
+@property --pl-a{syntax:"<angle>";inherits:false;initial-value:0deg}
+html.preload::before{content:"";position:fixed;inset:0;z-index:1000;background:radial-gradient(circle at 88% 10%,var(--coral-bg) 0,transparent 34%),radial-gradient(circle at 8% 88%,var(--teal-bg) 0,transparent 32%),radial-gradient(circle at 50% 50%,var(--sky-bg) 0,transparent 42%),var(--bg)}
+html.preload body::after{content:"";position:fixed;left:50%;top:50%;z-index:1001;width:8rem;height:8rem;margin:-4rem 0 0 -4rem;box-sizing:border-box;border-radius:50%;border:6px solid transparent;
+  background:url(../img/logo-192.jpg) center/70% no-repeat padding-box,linear-gradient(#fff,#fff) padding-box,
+    conic-gradient(from var(--pl-a),var(--coral) 0 14%,transparent 0 16.66%,var(--orange) 0 30.66%,transparent 0 33.33%,#f2b33d 0 47.33%,transparent 0 50%,var(--green) 0 64%,transparent 0 66.66%,var(--teal) 0 80.66%,transparent 0 83.33%,var(--sky) 0 97.33%,transparent 0) border-box;
+  box-shadow:0 28px 60px -28px rgba(15,22,48,.55);animation:pl-spin 1.4s linear infinite,pl-breath 2.4s ease-in-out infinite}
+@keyframes pl-spin{to{--pl-a:360deg}}
+@keyframes pl-breath{50%{scale:1.06}}
+@keyframes pl-in{from{opacity:0}}
+@keyframes pl-out{to{opacity:0}}
+@keyframes pl-out-logo{to{opacity:0;scale:.8}}
+/* заставка при першому відкритті сайту — з'являється одразу; на інших сторінках — лише якщо вантаження затяглося */
+html.preload-intro body::after{animation:pl-spin 1.4s linear infinite,pl-breath 2.4s ease-in-out infinite,pl-in .35s ease-out both}
+html.preload-quiet::before{animation:pl-in .3s .4s both}
+html.preload-quiet body::after{animation:pl-spin 1.4s linear infinite,pl-in .3s .4s both}
+html.preload-out::before{animation:pl-out .45s .1s both;pointer-events:none}
+html.preload-out body::after{animation:pl-spin 1.4s linear infinite,pl-out-logo .4s cubic-bezier(.4,0,.2,1) both;pointer-events:none}
+@media (prefers-reduced-motion:reduce){html.preload body::after{animation:none}html.preload-quiet body::after{animation:pl-in .3s .4s both}html.preload-out body::after{animation:pl-out .3s both}}
+@media print{html.preload::before,html.preload body::after{display:none}}
+
 /* ── Адаптив ── */
 @media (max-width:73.75em){
   .tiles ul{grid-template-columns:repeat(3,minmax(0,1fr))}
