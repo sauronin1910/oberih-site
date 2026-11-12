@@ -171,6 +171,7 @@ class Command(BaseCommand):
                         raw_blocks, todo_text
                     )
                     is_published = not is_only_placeholder
+                    docs_first = bool(raw_blocks and raw_blocks[0][0] == "docs")
                     if not is_published:
                         stats["pages_draft"] += 1
                         warnings_list.append(
@@ -185,6 +186,7 @@ class Command(BaseCommand):
                         lead=page_dict.get("lead", ""),
                         meta_description="",
                         is_published=is_published,
+                        docs_first=docs_first,
                         order=page_order,
                     )
                     stats["pages_created"] += 1

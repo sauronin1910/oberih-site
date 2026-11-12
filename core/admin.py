@@ -293,7 +293,7 @@ class PageAdmin(SimpleHistoryAdmin):
                     "title",
                     "slug",
                     "lead",
-                    "is_published",
+                    ("is_published", "docs_first"),
                     "order",
                 ),
                 "description": "Основні налаштування сторінки. Нижче у згорнутих блоках редагуються тексти, документи та працівники.",

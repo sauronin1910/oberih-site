@@ -1,6 +1,7 @@
 """Моделі даних сайту КЗ «НРЦ «Оберіг»»."""
 from io import BytesIO
 from pathlib import Path
+import re
 import uuid
 
 from django.core.exceptions import ValidationError
@@ -67,6 +68,21 @@ def homepage_image_upload_to(instance, filename: str) -> str:
 
 def sponsor_logo_upload_to(instance, filename: str) -> str:
     return _safe_filename("sponsors", filename)
+
+
+def validate_phone_number(value: str):
+    """Перевіряє, що номер телефону містить коректні символи та достатню кількість цифр для tel:-посилання."""
+    if not value:
+        return
+    if not re.match(r"^[0-9+\-() \t]+$", value):
+        raise ValidationError(
+            "Номер телефону може містити лише цифри, пробіли, дужки, дефіс та знак «+»."
+        )
+    digits = re.sub(r"\D", "", value)
+    if not (10 <= len(digits) <= 13):
+        raise ValidationError(
+            "Вкажіть повний номер телефону з кодом міста або оператора (від 10 до 12 цифр, наприклад: (0342) 55-05-24 або +380342550524)."
+        )
 
 
 # --- Валідатори та обробка файлів ---
@@ -162,6 +178,7 @@ class SiteSettings(models.Model):
         "Телефон",
         max_length=50,
         default="(0342) 55-05-24",
+        validators=[validate_phone_number],
         help_text="Основний контактний номер телефону закладу (показується в шапці, меню та контактах).",
     )
     email = models.EmailField(
@@ -207,6 +224,18 @@ class SiteSettings(models.Model):
 
     def __str__(self) -> str:
         return "Загальні налаштування сайту НРЦ «Оберіг»"
+
+    @property
+    def phone_tel(self) -> str:
+        """Повертає номер у міжнародному форматі для атрибута href='tel:...' (наприклад, +380342550524)."""
+        digits = re.sub(r"\D", "", self.phone or "")
+        if not digits:
+            return ""
+        if len(digits) == 10 and digits.startswith("0"):
+            return f"+38{digits}"
+        if len(digits) == 12 and digits.startswith("380"):
+            return f"+{digits}"
+        return f"+{digits}"
 
     def clean(self):
         super().clean()
@@ -276,6 +305,25 @@ class Section(models.Model):
     def __str__(self) -> str:
         return self.title
 
+    def get_absolute_url(self) -> str:
+        return f"/{self.slug}/"
+
+    @property
+    def menu_lines(self) -> tuple[str, str] | None:
+        """Ділить довгу назву розділу на два рядки для меню ПК (як у build_pages.py), без HTML."""
+        words = (self.title or "").split()
+        if len(words) < 2 or len(self.title) <= 8:
+            return None
+        best = None
+        for i in range(1, len(words)):
+            if len(words[i - 1]) <= 2:
+                continue
+            a, b = " ".join(words[:i]), " ".join(words[i:])
+            w = max(len(a), len(b))
+            if best is None or w < best[0]:
+                best = (w, a, b)
+        return (best[1], best[2]) if best else None
+
 
 # --- 3. Внутрішня сторінка ---
 class Page(models.Model):
@@ -314,6 +362,11 @@ class Page(models.Model):
         default=True,
         help_text="Якщо зняти позначку, сторінка буде чернеткою і не показуватиметься відвідувачам.",
     )
+    docs_first = models.BooleanField(
+        "Показувати документи перед текстом",
+        default=False,
+        help_text="Увімкніть, якщо список PDF-документів має відображатися зверху сторінки перед текстовими блоками.",
+    )
     order = models.PositiveIntegerField(
         "Порядок у розділі",
         default=0,
@@ -340,6 +393,26 @@ class Page(models.Model):
 
     def __str__(self) -> str:
         return f"{self.section.title} — {self.title}"
+
+    def get_absolute_url(self) -> str:
+        return f"/{self.section.slug}/{self.slug}/"
+
+    @property
+    def seo_title(self) -> str:
+        full_title = f"{self.title} — НРЦ «Оберіг»"
+        return full_title if len(full_title) <= 70 else self.title
+
+    @property
+    def seo_description(self) -> str:
+        desc = (self.meta_description or self.lead or "").strip()
+        if len(desc) < 70:
+            if "Оберіг" in desc:
+                desc = f"{desc} Офіційний сайт закладу, м. Івано-Франківськ."
+            else:
+                sec_title = self.section.title if self.section_id else ""
+                prefix = f"{sec_title} — " if sec_title else ""
+                desc = f"{desc} {prefix}НРЦ «Оберіг», м. Івано-Франківськ."
+        return desc.replace("\u00a0", " ").strip()
 
 
 # --- 4. Контентний блок сторінки ---

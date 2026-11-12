@@ -1,0 +1,7 @@
+{% for block in blocks %}{% if block.block_type == 'p' %}      <p>{{ block.text }}</p>
+{% elif block.block_type == 'h2' %}      <h2>{{ block.text }}</h2>
+{% elif block.block_type == 'notice' %}      <p class="notice"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg><span>{{ block.text }}</span></p>
+{% elif block.block_type == 'table' %}      <section class="table-wrap" tabindex="0" aria-label="{{ block.data.caption }}"><table class="data-table"><caption>{{ block.data.caption }}</caption><thead><tr>{% for col in block.data.columns %}<th scope="col">{{ col }}</th>{% endfor %}</tr></thead><tbody>{% for row in block.data.rows %}<tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>{% endfor %}</tbody></table></section>
+{% elif block.block_type == 'steps' %}      <ol class="steps">{% for item in block.data %}<li>{{ item }}</li>{% endfor %}</ol>
+{% elif block.block_type == 'list' %}      <ul class="bullets">{% for item in block.data %}<li>{{ item }}</li>{% endfor %}</ul>
+{% endif %}{% endfor %}
