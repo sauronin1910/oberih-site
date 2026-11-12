@@ -73,6 +73,14 @@ fonts/          шрифти Nunito і Unbounded (SIL Open Font License)
 
 - Внутрішні сторінки за ТЗ: хлібні крихти, бічне меню розділу, блоки документів (PDF), таблиці, картки працівників, кроки, сторінка 404.
 
+## Тема WordPress (гілка `wordpress`)
+
+Тема лежить у `wp-theme/oberih/`. Щоб побачити її на локальному WordPress (LocalWP), папку підключають у `wp-content/themes` як зв’язок (junction) — тоді правки в репозиторії одразу видно на сайті:
+
+```
+mklink /J "<сайт>\app\public\wp-content\themes\oberih" "D:\site\oberih-site\wp-theme\oberih"
+```
+
 ## Як оновити сторінки
 
 Структура меню і зміст-приклади записані в `tools/site_map.py`. Після зміни виконайте з кореня репозиторію:

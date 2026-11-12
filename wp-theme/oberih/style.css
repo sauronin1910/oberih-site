@@ -1,0 +1,12 @@
+/*
+Theme Name: Оберіг
+Theme URI: https://github.com/sauronin1910/oberih-site
+Author: Serhii
+Description: Легка тема сайту НРЦ «Оберіг» (Івано-Франківськ). Доступність WCAG 2.2 AA, світла і темна тема, панель доступності.
+Version: 0.1.0
+Requires at least: 6.5
+Requires PHP: 8.0
+Text Domain: oberih
+*/
+
+/* Стилі сайту — у css/style.css макета; їх буде підключено у functions.php на наступному кроці. */
