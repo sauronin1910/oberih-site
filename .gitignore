@@ -1,4 +1,26 @@
+# Python та віртуальне середовище
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# Секрети та локальні налаштування
+.env
+.env.local
+
+# Зібрана статика та завантажені медіафайли
+/staticfiles/
+/media/
+
+# Логи та бази даних розробки
+*.log
+db.sqlite3
+
+# Системні файли та редактори
 .DS_Store
 Thumbs.db
 *.zip
-__pycache__/
+.idea/
+.vscode/
