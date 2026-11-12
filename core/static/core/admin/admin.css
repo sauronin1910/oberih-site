@@ -1,0 +1,49 @@
+/* Окремі стилі виключно для /admin-panel/ (не перетинаються з публічним сайтом) */
+
+.oberih-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.oberih-badge--published {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #86efac;
+}
+
+.oberih-badge--draft {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fcd34d;
+}
+
+.oberih-consent-yes {
+    color: #15803d;
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.oberih-consent-no {
+    color: #b91c1c;
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.inline-group .description {
+    background: #f0f9ff;
+    border-left: 4px solid #0284c7;
+    padding: 10px 14px;
+    margin: 8px 0 12px;
+    color: #0c4a6e;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.oberih-hidden-field {
+    display: none !important;
+}
+

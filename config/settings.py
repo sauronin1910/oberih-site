@@ -66,6 +66,9 @@ DATABASES = {
         "HOST": config("DB_HOST", default="127.0.0.1"),
         "PORT": config("DB_PORT", default="5432"),
         "CONN_MAX_AGE": config("DB_CONN_MAX_AGE", default=60, cast=int),
+        "OPTIONS": {
+            "connect_timeout": 5,
+        },
     }
 }
 

@@ -319,12 +319,17 @@ class Page(models.Model):
         default=0,
         help_text="Порядковий номер сторінки в меню розділу (менше число — вище у списку).",
     )
+    updated_at = models.DateTimeField(
+        "Оновлено",
+        auto_now=True,
+        help_text="Дата і час останнього збереження сторінки.",
+    )
 
     history = HistoricalRecords(verbose_name="Історія змін")
 
     class Meta:
-        verbose_name = "Сторінка"
-        verbose_name_plural = "Сторінки"
+        verbose_name = "Сторінка сайту"
+        verbose_name_plural = "Сторінки сайту"
         ordering = ["section__order", "order", "id"]
         constraints = [
             models.UniqueConstraint(
@@ -497,6 +502,8 @@ class Document(models.Model):
     file = models.FileField(
         "PDF-файл",
         upload_to=document_upload_to,
+        blank=True,
+        null=True,
         validators=[
             FileExtensionValidator(
                 allowed_extensions=["pdf"],
@@ -504,7 +511,7 @@ class Document(models.Model):
             ),
             validate_pdf_file,
         ],
-        help_text=f"Завантажте файл у форматі PDF (максимальний розмір — {MAX_PDF_SIZE_MB} МБ).",
+        help_text=f"Лише PDF, до {MAX_PDF_SIZE_MB} МБ. Якщо файл ще готується, поле можна залишити порожнім.",
     )
     order = models.PositiveIntegerField(
         "Порядок у списку",
@@ -520,12 +527,17 @@ class Document(models.Model):
     history = HistoricalRecords(verbose_name="Історія змін")
 
     class Meta:
-        verbose_name = "Документ (PDF)"
-        verbose_name_plural = "Документи (PDF)"
+        verbose_name = "Документ"
+        verbose_name_plural = "Документи"
         ordering = ["order", "id"]
 
     def __str__(self) -> str:
         return f"{self.title} ({self.page.title})"
+
+    @property
+    def has_file(self) -> bool:
+        """Повертає True, якщо до документа прикріплено реальний PDF-файл."""
+        return bool(self.file and self.file.name)
 
 
 # --- 6. Працівник закладу ---
@@ -561,7 +573,9 @@ class Person(models.Model):
     full_name = models.CharField(
         "Прізвище, ім'я та по батькові",
         max_length=200,
-        help_text="Повне ПІБ працівника.",
+        blank=True,
+        default="",
+        help_text="Повне ПІБ працівника (можна залишити порожнім для заготовки посади, поки немає згоди).",
     )
     photo = models.ImageField(
         "Фотографія",
@@ -578,12 +592,9 @@ class Person(models.Model):
         help_text="Необов'язкове фото працівника (формат JPG або PNG, стискається автоматично).",
     )
     consent_given = models.BooleanField(
-        "Наявна письмова згода на публікацію персональних даних",
+        "Є письмова згода на оприлюднення",
         default=False,
-        help_text=(
-            "ОБОВ'ЯЗКОВО: позначте лише за наявності письмової згоди працівника. "
-            "Без цієї позначки картка працівника на сайті НЕ показується."
-        ),
+        help_text="Без цієї галочки людина НЕ показується на сайті.",
     )
     order = models.PositiveIntegerField(
         "Порядок відображення",
@@ -602,7 +613,20 @@ class Person(models.Model):
 
     def __str__(self) -> str:
         status = "опубліковано" if self.consent_given else "без згоди — приховано"
-        return f"{self.full_name} — {self.position} ({status})"
+        name_part = self.full_name if self.full_name else "ПІБ не вказано"
+        return f"{name_part} — {self.position} ({status})"
+
+    def clean(self):
+        super().clean()
+        if self.consent_given and not (self.full_name and self.full_name.strip()):
+            raise ValidationError(
+                {
+                    "full_name": (
+                        "Щоб показувати працівника на сайті (увімкнути згоду), "
+                        "необхідно вказати його прізвище, ім'я та по батькові."
+                    )
+                }
+            )
 
     def save(self, *args, **kwargs):
         if self.photo:
@@ -662,10 +686,7 @@ class NewsItem(models.Model):
             ),
             validate_image_file,
         ],
-        help_text=(
-            "Необов'язкове фото до новини (JPG або PNG). "
-            "Увага: фото з дітьми публікуються виключно за письмової згоди батьків!"
-        ),
+        help_text="Фото дітей лише за письмовою згодою батьків (формат JPG або PNG, до 10 МБ).",
     )
     is_published = models.BooleanField(
         "Опубліковано на сайті",
@@ -966,8 +987,8 @@ class ContactMessage(models.Model):
     history = HistoricalRecords(verbose_name="Історія змін")
 
     class Meta:
-        verbose_name = "Звернення з форми"
-        verbose_name_plural = "Звернення з форми"
+        verbose_name = "Звернення"
+        verbose_name_plural = "Звернення"
         ordering = ["-created_at", "-id"]
 
     def __str__(self) -> str:
