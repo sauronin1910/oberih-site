@@ -724,8 +724,15 @@ class HomePage(models.Model):
     hero_title = models.CharField(
         "Перший екран: головний заголовок",
         max_length=255,
-        default="Навчання і реабілітація в одному місці",
-        help_text="Головний заголовок (H1) на першому екрані сайту.",
+        default="Навчання і реабілітація",
+        help_text="Основна частина головного заголовка (H1) на першому екрані сайту.",
+    )
+    hero_title_em = models.CharField(
+        "Перший екран: виділена частина заголовка (курсив)",
+        max_length=150,
+        blank=True,
+        default="в одному місці",
+        help_text="Частина заголовка H1, що виділяється кольоровим курсивом (можна залишити порожнім).",
     )
     hero_lead = models.TextField(
         "Перший екран: підзаголовок (опис)",
@@ -735,6 +742,24 @@ class HomePage(models.Model):
             "та психологічною підтримкою."
         ),
         help_text="Пояснювальний текст під головним заголовком першого екрана.",
+    )
+    hero_fact_1 = models.CharField(
+        "Перший екран: плашка-факт 1 (блакитна)",
+        max_length=100,
+        default="Комунальний заклад",
+        help_text="Короткий факт під кнопками першого екрана.",
+    )
+    hero_fact_2 = models.CharField(
+        "Перший екран: плашка-факт 2 (бірюзова)",
+        max_length=100,
+        default="Навчання безоплатне",
+        help_text="Другий короткий факт під кнопками першого екрана.",
+    )
+    hero_fact_3 = models.CharField(
+        "Перший екран: плашка-факт 3 (коралова)",
+        max_length=100,
+        default="Безбар'єрне середовище",
+        help_text="Третій короткий факт під кнопками першого екрана.",
     )
 
     # Секція «Про НРЦ «Оберіг»» (#about)
@@ -767,6 +792,27 @@ class HomePage(models.Model):
         blank=True,
         default="Тексти на цій сторінці тимчасові. Їх замінить опис НРЦ «Оберіг» від адміністрації.",
         help_text="Виділений блок-цитата під текстом «Про нас» (можна залишити порожнім).",
+    )
+    about_quote_note = models.CharField(
+        "Блок «Про нас»: підпис під цитатою",
+        max_length=150,
+        blank=True,
+        default="Примітка до макета",
+        help_text="Дрібний підпис під цитатою у блоці «Про нас» (необов'язково).",
+    )
+
+    # Секція «Новини» (#news)
+    news_eyebrow = models.CharField(
+        "Блок «Новини»: надзаголовок",
+        max_length=150,
+        default="Життя НРЦ «Оберіг»",
+        help_text="Малий підпис над заголовком секції новин на головній сторінці.",
+    )
+    news_title = models.CharField(
+        "Блок «Новини»: заголовок",
+        max_length=200,
+        default="Новини",
+        help_text="Заголовок секції новин на головній сторінці.",
     )
 
     # Секція «Документи» (#documents)
@@ -914,6 +960,8 @@ class Sponsor(models.Model):
     logo = models.ImageField(
         "Логотип",
         upload_to=sponsor_logo_upload_to,
+        blank=True,
+        null=True,
         validators=[
             FileExtensionValidator(
                 allowed_extensions=ALLOWED_IMAGE_EXTENSIONS,
@@ -921,7 +969,7 @@ class Sponsor(models.Model):
             ),
             validate_image_file,
         ],
-        help_text="Зображення логотипа у форматі PNG або JPG (стискається автоматично).",
+        help_text="Зображення логотипа у форматі PNG або JPG (стискається автоматично). Якщо логотип ще готується, залиште порожнім.",
     )
     url = models.URLField(
         "Посилання на сайт спонсора",
@@ -944,6 +992,11 @@ class Sponsor(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+    @property
+    def has_logo(self) -> bool:
+        """Повертає True, якщо для спонсора завантажено файл логотипа."""
+        return bool(self.logo and self.logo.name)
 
     def save(self, *args, **kwargs):
         if self.logo:

@@ -490,7 +490,13 @@ class HomePageAdmin(SingletonModelAdmin):
         (
             "1. Перший екран (Героїчний блок)",
             {
-                "fields": ("hero_eyebrow", "hero_title", "hero_lead"),
+                "fields": (
+                    "hero_eyebrow",
+                    "hero_title",
+                    "hero_title_em",
+                    "hero_lead",
+                    ("hero_fact_1", "hero_fact_2", "hero_fact_3"),
+                ),
             },
         ),
         (
@@ -501,23 +507,30 @@ class HomePageAdmin(SingletonModelAdmin):
                     "about_title",
                     "about_text",
                     "about_quote",
+                    "about_quote_note",
                 ),
             },
         ),
         (
-            "3. Блок «Документи»",
+            "3. Блок «Новини»",
+            {
+                "fields": ("news_eyebrow", "news_title"),
+            },
+        ),
+        (
+            "4. Блок «Документи»",
             {
                 "fields": ("docs_eyebrow", "docs_title", "docs_note"),
             },
         ),
         (
-            "4. Блок «Безпека та захист»",
+            "5. Блок «Безпека та захист»",
             {
                 "fields": ("safety_eyebrow", "safety_title", "safety_text"),
             },
         ),
         (
-            "5. Блок «Запрошуємо»",
+            "6. Блок «Запрошуємо»",
             {
                 "fields": (
                     "welcome_eyebrow",
@@ -528,7 +541,7 @@ class HomePageAdmin(SingletonModelAdmin):
             },
         ),
         (
-            "6. Блок «Наші спонсори»",
+            "7. Блок «Наші спонсори»",
             {
                 "fields": (
                     "sponsors_eyebrow",
@@ -564,7 +577,17 @@ class SiteSettingsAdmin(SingletonModelAdmin):
 # --- 9. Спонсори (Sponsor) ---
 @admin.register(Sponsor)
 class SponsorAdmin(SimpleHistoryAdmin):
-    list_display = ("name", "url", "order")
+    list_display = ("name", "logo_status", "url", "order")
     list_editable = ("order",)
     search_fields = ("name", "url")
     fields = ("name", "logo", "url", "order")
+
+    @admin.display(description="Логотип")
+    def logo_status(self, obj: Sponsor):
+        if obj.has_logo:
+            return format_html(
+                '<span style="color:#15803d;font-weight:600;">✔ Завантажено</span>'
+            )
+        return format_html(
+            '<span style="color:#92400e;">Ще не завантажено</span>'
+        )
