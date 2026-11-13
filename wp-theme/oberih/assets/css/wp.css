@@ -1,0 +1,15 @@
+/* Стилі, потрібні лише у WordPress. Стилі макета — у style.css (копія з кореня репозиторію, вручну не правити). */
+
+/* Панель адміністратора WordPress (видно лише тим, хто увійшов): зсуваємо липкі шапку й меню під неї */
+.admin-bar .main-nav{top:calc(env(safe-area-inset-top,0px) + 32px)}
+@media (max-width:74.99em){
+  .admin-bar .site-header{top:calc(env(safe-area-inset-top,0px) + 32px)}
+  .admin-bar .main-nav{top:32px}
+}
+@media (max-width:782px){
+  .admin-bar .site-header{top:calc(env(safe-area-inset-top,0px) + 46px)}
+  .admin-bar .main-nav{top:46px}
+}
+@media (max-width:600px){
+  #wpadminbar{position:fixed}
+}
