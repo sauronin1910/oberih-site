@@ -10,6 +10,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Запасний заголовок для новини без назви: «Новина від 14.11.2026».
+ * Без заголовка картка й посилання були б порожні для читача екрана. В адмінці лишається «(без назви)».
+ *
+ * @param string      $title Заголовок.
+ * @param int|WP_Post $post  Запис.
+ * @return string
+ */
+function oberih_untitled_post( $title, $post = 0 ) {
+	if ( is_admin() || '' !== trim( wp_strip_all_tags( (string) $title ) ) || ! $post || 'post' !== get_post_type( $post ) ) {
+		return $title;
+	}
+	/* translators: %s: дата публікації */
+	return sprintf( __( 'Новина від %s', 'oberih' ), get_the_date( 'd.m.Y', $post ) );
+}
+add_filter( 'the_title', 'oberih_untitled_post', 10, 2 );
+add_filter( 'single_post_title', 'oberih_untitled_post', 10, 2 );
+
+/**
  * Картка новини (запис WordPress) у розмітці макета.
  *
  * @param WP_Post $post  Запис.

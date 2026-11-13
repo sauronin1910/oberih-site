@@ -19,6 +19,7 @@
 
   form.addEventListener('submit',function(e){
     e.preventDefault();
+    if(form.getAttribute('aria-busy'))return;   // уже надсилаємо — повторне натискання ігноруємо
     // перевірка у браузері — ті самі правила, що й на сервері
     var bad=[].filter.call(form.elements,function(f){
       return f.willValidate&&f.type!=='hidden'&&f.name!=='website'&&!f.checkValidity();
@@ -26,8 +27,10 @@
     mark(bad);
     if(bad.length){say(MSG_INVALID);return}
 
-    btn.disabled=true;form.setAttribute('aria-busy','true');say('Надсилаємо…');
-    fetch(form.action,{method:'POST',body:new FormData(form),credentials:'same-origin',headers:{'Accept':'application/json'}})
+    // aria-disabled замість disabled: фокус лишається на кнопці
+    btn.setAttribute('aria-disabled','true');form.setAttribute('aria-busy','true');say('Надсилаємо…');
+    // getAttribute: поле name="action" у формі затіняє властивість form.action
+    fetch(form.getAttribute('action'),{method:'POST',body:new FormData(form),credentials:'same-origin',headers:{'Accept':'application/json'}})
       .then(function(r){return r.json()})
       .then(function(d){
         say(d.message||MSG_NET);
@@ -35,6 +38,6 @@
         if(d.ok)form.reset();
       })
       .catch(function(){say(MSG_NET)})
-      .then(function(){btn.disabled=false;form.removeAttribute('aria-busy')});
+      .then(function(){btn.removeAttribute('aria-disabled');form.removeAttribute('aria-busy')});
   });
 })();
