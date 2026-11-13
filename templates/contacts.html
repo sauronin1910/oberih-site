@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Контакти — НРЦ «Оберіг»{% endblock %}
+{% block meta_description %}Адреса, телефон, електронна пошта НРЦ «Оберіг» і форма запитання. Офіційний сайт закладу, м. Івано-Франківськ.{% endblock %}
+{% block og_title %}Контакти{% endblock %}
+{% block og_description %}Адреса, телефон, електронна пошта НРЦ «Оберіг» і форма запитання. Офіційний сайт закладу, м. Івано-Франківськ.{% endblock %}
+{% block content %}  <section class="page-hero" aria-labelledby="page-title">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="Хлібні крихти"><ol><li><a href="/">Головна</a></li><li><span aria-current="page">Контакти</span></li></ol></nav>
+      <p class="eyebrow c-sky">НРЦ «Оберіг»</p>
+      <h1 id="page-title">Контакти</h1>
+      <p class="lead">Адреса, телефон, електронна пошта та форма запитання.</p>
+    </div>
+  </section>
+  <section class="block page-contacts" aria-labelledby="contacts-title">
+    <div class="wrap">
+      <div class="contact">
+        <div class="contact-info">
+          <h2 id="contacts-title">Як з нами зв’язатися</h2>
+          <dl>
+            <div><dt>Адреса</dt><dd>{{ site_settings.address }}</dd></div>
+            <div><dt>Телефон</dt><dd><a class="tel" href="tel:{{ site_settings.phone_tel }}">{{ site_settings.phone }}</a></dd></div>
+            <div><dt>Електронна пошта</dt><dd><a href="mailto:{{ site_settings.email }}">{{ site_settings.email }}</a></dd></div>
+            <div><dt>Директор</dt><dd>{{ site_settings.director_name }}</dd></div>
+          </dl>
+          <div class="map">
+            <a href="{{ site_settings.map_url }}" target="_blank" rel="noopener">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+              Відкрити на карті<span class="sr-only"> (відкриється в новій вкладці)</span>
+            </a>
+          </div>
+        </div>
+        <form class="form" id="ask-form" method="post" action="/kontakty/" novalidate>
+          {% csrf_token %}
+          <div class="field" hidden aria-hidden="true"><label for="f-website">Вебсайт</label><input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+          <h2>Поставити запитання</h2>
+          <p class="hint">Відповімо на вказану електронну пошту.</p>
+          <div class="field"><label for="f-name">Ваше ім'я</label><input id="f-name" name="name" type="text" autocomplete="name"{% if form_values.name %} value="{{ form_values.name }}"{% endif %}{% if error_field == 'name' %} aria-invalid="true"{% endif %} required></div>
+          <div class="field"><label for="f-email">Електронна пошта</label><input id="f-email" name="email" type="email" autocomplete="email"{% if form_values.email %} value="{{ form_values.email }}"{% endif %}{% if error_field == 'email' %} aria-invalid="true"{% endif %} required></div>
+          <div class="field"><label for="f-msg">Запитання</label><textarea id="f-msg" name="message"{% if error_field == 'message' %} aria-invalid="true"{% endif %} required>{{ form_values.message }}</textarea></div>
+          <label class="check"><input id="f-consent" name="consent" type="checkbox"{% if form_values.consent %} checked{% endif %}{% if error_field == 'consent' %} aria-invalid="true"{% endif %} required>Погоджуюся на обробку персональних даних для відповіді на запитання. Згоду можна відкликати будь-коли.</label>
+          <div><button class="btn btn-primary" type="submit">Надіслати</button></div>
+          <p class="form-status" id="form-status" role="status">{{ form_status_message }}</p>
+        </form>
+      </div>
+{% if site_settings.schedule_notice %}      <p class="notice"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg><span>{{ site_settings.schedule_notice }}</span></p>
+{% endif %}    </div>
+  </section>
+{% endblock %}
+

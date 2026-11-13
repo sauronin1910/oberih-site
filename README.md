@@ -101,10 +101,11 @@ SECURE_HSTS_SECONDS=0
 python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
 ```
 
-### 4. Застосування міграцій та створення адміністратора
+### 4. Застосування міграцій, таблиця кешу та створення адміністратора
 
 ```powershell
 python manage.py migrate
+python manage.py createcachetable
 python manage.py createsuperuser
 ```
 
@@ -119,10 +120,31 @@ python manage.py runserver
 
 ---
 
+## Розгортання на сервері (Production)
+
+1. **Створення таблиці кешу в PostgreSQL:**
+   Для роботи спільного ліміту форми звернень між усіма робочими процесами Gunicorn обов'язково виконайте:
+   ```bash
+   python manage.py migrate
+   python manage.py createcachetable
+   ```
+   *(Якщо таблиця кешу раптом не створена або недоступна, форма не падає — помилка лише логується, а звернення зберігається в базу даних).*
+
+2. **Робота за Nginx (`TRUST_X_FORWARDED_FOR`):**
+   На сервері за reverse-proxy (Nginx) у файлі `.env` обов'язково увімкніть:
+   ```ini
+   TRUST_X_FORWARDED_FOR=True
+   ```
+   та переконайтеся, що в конфігурації Nginx передається `proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;`.
+   При `TRUST_X_FORWARDED_FOR=True` Django бере **останній** запис із `X-Forwarded-For` (який додає безпосередньо Nginx, тому клієнт не може його підробити). Якщо залишити `False` за проксі-сервером, усі відвідувачі матимуть `REMOTE_ADDR=127.0.0.1` і ліміт форми заблокує всіх одночасно.
+
+---
+
 ## Основні команди
 
 - `python manage.py check` — перевірка конфігурації та моделей на помилки.
 - `python manage.py makemigrations` — створення нових міграцій при зміні моделей.
 - `python manage.py migrate` — застосування міграцій до бази даних PostgreSQL.
+- `python manage.py createcachetable` — створення таблиці кешу в PostgreSQL для спільного ліміту форми звернень.
 - `python manage.py collectstatic` — збирання статики у `STATIC_ROOT` для продакшену.
 - `python manage.py check --deploy` — перевірка готовності налаштувань безпеки до продакшену (при `DEBUG=False`).

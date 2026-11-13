@@ -28,10 +28,11 @@ from django.conf import settings  # noqa: E402
 from django.db import transaction  # noqa: E402
 from django.test import Client  # noqa: E402
 
-from core.models import HomePage, NewsItem, Sponsor  # noqa: E402
+from core.models import HomePage, NewsItem, SiteSettings, Sponsor  # noqa: E402
 
 DEFAULT_PAGES = [
     "index.html",
+    "kontakty/index.html",
     "pro-nas/struktura-ta-orhany-upravlinnia.html",
     "pro-nas/administratsiia.html",
     "ofitsiina-storinka/statut.html",
@@ -87,6 +88,16 @@ HOME_JS_HOOKS = [
     'class="contact"',
     'id="ask-form"',
     'id="form-status"',
+]
+
+CONTACTS_JS_HOOKS = [
+    'class="contact"',
+    'id="ask-form"',
+    'id="form-status"',
+    'id="f-name"',
+    'id="f-email"',
+    'id="f-msg"',
+    'id="f-consent"',
 ]
 
 
@@ -192,6 +203,15 @@ def fetch_with_temp_data(client: Client, rel_html_path: str, url: str, old_url: 
                     url="",
                     order=i,
                 )
+        elif norm == "kontakty/index.html":
+            ss = SiteSettings.objects.first()
+            if ss:
+                ss.schedule_notice = (
+                    "Графік роботи та прийому громадян надасть адміністрація."
+                )
+                ss.save()
+            if not Sponsor.objects.exists():
+                Sponsor.objects.create(name="Логотип спонсора", order=1)
         elif norm == "novyny/index.html":
             _setup_demo_news_in_tx()
             if not Sponsor.objects.exists():
@@ -299,11 +319,12 @@ def compare_page(client: Client, rel_html_path: str) -> None:
 
     # Перевірка JS-хуків
     norm_path = rel_html_path.replace("\\", "/")
-    hooks_to_check = (
-        REQUIRED_JS_HOOKS + HOME_JS_HOOKS
-        if norm_path == "index.html"
-        else REQUIRED_JS_HOOKS
-    )
+    if norm_path == "index.html":
+        hooks_to_check = REQUIRED_JS_HOOKS + HOME_JS_HOOKS
+    elif norm_path == "kontakty/index.html":
+        hooks_to_check = REQUIRED_JS_HOOKS + CONTACTS_JS_HOOKS
+    else:
+        hooks_to_check = REQUIRED_JS_HOOKS
     missing_hooks = [h for h in hooks_to_check if h not in gen_html]
     if missing_hooks:
         print(f"[ПОМИЛКА JS-ХУКІВ] Відсутні селектори: {missing_hooks}")
@@ -351,7 +372,12 @@ def compare_page(client: Client, rel_html_path: str) -> None:
         )
         print(
             "  • <main> (#contacts): у форму #ask-form додано method=\"post\" action=\"/kontakty/\", "
-            "прихований csrfmiddlewaretoken та name=\"consent\" у чекбокс згоди."
+            "прихований csrfmiddlewaretoken, приховане honeypot-поле website (hidden) та name=\"consent\" у чекбокс згоди."
+        )
+    elif norm_path == "kontakty/index.html":
+        print(
+            "  • <main> (#ask-form): у форму додано method=\"post\" action=\"/kontakty/\", "
+            "прихований csrfmiddlewaretoken, приховане honeypot-поле website (hidden) та name=\"consent\" у чекбокс згоди."
         )
     elif norm_path == "pro-nas/administratsiia.html":
         print("  • <main>: картки працівників мають consent_given=False до отримання письмових згод.")

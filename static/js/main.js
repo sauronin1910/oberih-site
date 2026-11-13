@@ -286,10 +286,12 @@
     });
   })();
 
-  // Форма (у макеті нікуди не надсилає)
+  // Форма звернення
   var form=document.getElementById('ask-form'),st=document.getElementById('form-status');
   if(form)form.addEventListener('submit',function(e){
     e.preventDefault();
+    var btn=form.querySelector('[type="submit"]');
+    if(btn&&btn.disabled)return;
     // поля з помилкою позначаємо для екранних читачів і ставимо фокус на перше
     var bad=[].filter.call(form.elements,function(f){
       if(!f.willValidate)return false;
@@ -298,7 +300,38 @@
       return inv;
     });
     if(bad.length){st.hidden=false;st.textContent='Заповніть усі поля і поставте позначку згоди.';bad[0].focus();return}
-    st.hidden=false;st.textContent='Це макет. На готовому сайті запитання надійде на пошту НРЦ «Оберіг».';
-    form.reset();
+    if(btn)btn.disabled=true;
+    var errMsg='Не вдалося надіслати запитання через технічну помилку. Спробуйте ще раз або зателефонуйте нам.';
+    fetch(form.action||'/kontakty/',{
+      method:'POST',
+      body:new FormData(form),
+      headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'},
+      credentials:'same-origin'
+    }).then(function(res){
+      var ct=res.headers.get('content-type')||'';
+      if(ct.indexOf('application/json')===-1){
+        st.hidden=false;st.textContent=errMsg;return;
+      }
+      return res.json().then(function(d){
+        if(res.ok&&d&&d.ok){
+          st.hidden=false;
+          st.textContent=d.message||'Дякуємо! Ваше запитання надіслано.';
+          form.reset();
+        }else if((res.status===400||res.status===429)&&d&&d.message){
+          st.hidden=false;
+          st.textContent=d.message;
+          if(d.field&&form.elements[d.field]){
+            form.elements[d.field].setAttribute('aria-invalid','true');
+            form.elements[d.field].focus();
+          }
+        }else{
+          st.hidden=false;st.textContent=errMsg;
+        }
+      });
+    }).catch(function(){
+      st.hidden=false;st.textContent=errMsg;
+    }).finally(function(){
+      if(btn)btn.disabled=false;
+    });
   });
 })();

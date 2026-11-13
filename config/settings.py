@@ -105,6 +105,22 @@ STORAGES = {
     },
 }
 
+# --- Кеш у базі даних PostgreSQL (спільний для всіх процесів Gunicorn, зокрема для ліміту форми) ---
+# Таблиця створюється командою: python manage.py createcachetable
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "oberih_cache_table",
+    }
+}
+
+# --- Захист форми звернень від спаму та перевантаження ---
+CONTACT_RATE_LIMIT_COUNT = config("CONTACT_RATE_LIMIT_COUNT", default=3, cast=int)
+CONTACT_RATE_LIMIT_PERIOD = config("CONTACT_RATE_LIMIT_PERIOD", default=600, cast=int)
+# Увімкніть True на сервері за довіреним reverse-proxy (Nginx), який передає X-Forwarded-For,
+# щоб брати останній IP із заголовка замість 127.0.0.1 проксі-сервера.
+TRUST_X_FORWARDED_FOR = config("TRUST_X_FORWARDED_FOR", default=False, cast=bool)
+
 # --- Електронна пошта ---
 EMAIL_BACKEND = config(
     "EMAIL_BACKEND",
@@ -116,7 +132,12 @@ EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
 EMAIL_USE_SSL = config("EMAIL_USE_SSL", default=False, cast=bool)
 EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
+# Таймаут з'єднання з поштовим сервером (у секундах): потрібний, щоб зависання або
+# недоступність зовнішнього SMTP-сервера не блокували робочий процес Gunicorn назавжди.
+EMAIL_TIMEOUT = config("EMAIL_TIMEOUT", default=10, cast=int)
 DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="noreply@oberih.if.ua")
+# Отримувач сповіщень із форми «Поставити запитання» (якщо порожньо — береться SiteSettings.email)
+CONTACT_NOTIFY_EMAIL = config("CONTACT_NOTIFY_EMAIL", default="").strip()
 
 # --- Налаштування безпеки для продакшену (активні за замовчуванням при DEBUG=False) ---
 X_FRAME_OPTIONS = "DENY"

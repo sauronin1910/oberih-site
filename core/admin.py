@@ -394,17 +394,21 @@ class NewsItemAdmin(SimpleHistoryAdmin):
 
 # --- 4. Звернення з форми зворотного зв'язку (ContactMessage) ---
 @admin.register(ContactMessage)
-class ContactMessageAdmin(SimpleHistoryAdmin):
+class ContactMessageAdmin(admin.ModelAdmin):
     list_display = ("created_at", "name", "email", "is_read")
     list_editable = ("is_read",)
     list_filter = ("is_read", "created_at")
     search_fields = ("name", "email", "message")
+    ordering = ("-created_at", "-id")
     readonly_fields = ("created_at", "name", "email", "message", "consent_given")
     fields = ("created_at", "name", "email", "message", "consent_given", "is_read")
     actions = ["mark_as_read"]
 
     def has_add_permission(self, request):
         return False
+
+    def has_delete_permission(self, request, obj=None):
+        return True
 
     @admin.action(description="Позначити вибрані звернення як прочитані")
     def mark_as_read(self, request, queryset):
@@ -568,6 +572,7 @@ class SiteSettingsAdmin(SingletonModelAdmin):
                     "director_name",
                     "map_url",
                     "footer_text",
+                    "schedule_notice",
                 ),
             },
         ),

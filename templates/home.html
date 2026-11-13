@@ -236,6 +236,7 @@
         </div>
         <form class="form" id="ask-form" method="post" action="/kontakty/" novalidate>
           {% csrf_token %}
+          <div class="field" hidden aria-hidden="true"><label for="f-website">Вебсайт</label><input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
           <h2>Поставити запитання</h2>
           <p class="hint">Відповімо на вказану електронну пошту.</p>
           <div class="field"><label for="f-name">Ваше ім'я</label><input id="f-name" name="name" type="text" autocomplete="name" required></div>

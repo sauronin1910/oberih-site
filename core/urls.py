@@ -20,11 +20,15 @@ urlpatterns = [
         views.redirect_news_detail_html,
         name="redirect_news_detail_html",
     ),
-    # 2. Новини (розташовані ПЕРЕД загальним <slug:section_slug>/, щоб не виникало конфліктів)
+    # 2. Новини та Контакти (розташовані ПЕРЕД загальним <slug:section_slug>/, щоб не виникало конфліктів)
     path("novyny/", views.news_list, name="news_list"),
     path("novyny/<slug:slug>/", views.news_detail, name="news_detail"),
-    # УВАГА: Маршрути сторінки контактів (kontakty/index.html та kontakty/)
-    # додаються на наступному кроці САМЕ ТУТ — ПЕРЕД загальними маршрутами <slug:section_slug>/.
+    path(
+        "kontakty/index.html",
+        views.redirect_contacts_html,
+        name="redirect_contacts_html",
+    ),
+    path("kontakty/", views.contacts, name="contacts"),
     # 3. Редіректи та чисті URL розділів і внутрішніх сторінок
     path(
         "<slug:section_slug>/index.html",

@@ -2,14 +2,20 @@
 from datetime import date
 from io import StringIO
 import json
+import logging
 import re
 
+from django.contrib.auth.models import User
+from django.core import mail
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
+from django.core.mail.backends.base import BaseEmailBackend
 from django.core.management import call_command
-from django.test import TestCase, override_settings
+from django.test import Client, TestCase, override_settings
 
 from .models import (
     Block,
+    ContactMessage,
     Document,
     HomePage,
     NewsItem,
@@ -19,6 +25,14 @@ from .models import (
     SiteSettings,
     Sponsor,
 )
+
+
+class FailingEmailBackend(BaseEmailBackend):
+    """Тестовий поштовий бекенд, який завжди кидає виняток при спробі надіслати лист."""
+
+    def send_messages(self, email_messages):
+        raise RuntimeError("Тестовий збій SMTP-сервера")
+
 
 TEST_STORAGES = {
     "default": {
@@ -331,6 +345,7 @@ class PublicSiteTests(TestCase):
             ("/pro-nas/misiya-i-viziya.html", "/pro-nas/misiya-i-viziya/"),
             ("/novyny/index.html", "/novyny/"),
             ("/novyny/pryklad-novyny.html", "/novyny/pryklad-novyny/"),
+            ("/kontakty/index.html", "/kontakty/"),
         ]
         for old_url, expected_target in cases:
             with self.subTest(old_url=old_url):
@@ -593,8 +608,8 @@ class ImportedSiteMapPagesTests(TestCase):
         raw_hrefs = re.findall(r'<a\b[^>]*\bhref="(/[^"]*)"', html)
         unique_urls = []
         for href in raw_hrefs:
-            # Пропускаємо якірні посилання (/#sponsors) та /kontakty/ (реалізується на 7-му кроці)
-            if href.startswith("/#") or href == "/kontakty/":
+            # Пропускаємо лише якірні посилання (/#sponsors)
+            if href.startswith("/#"):
                 continue
             if href not in unique_urls:
                 unique_urls.append(href)
@@ -617,3 +632,436 @@ class ImportedSiteMapPagesTests(TestCase):
         print(
             f"\n[Перевірка посилань головної] Успішно перевірено внутрішніх посилань (200 OK): {len(unique_urls)}"
         )
+
+
+@override_settings(STORAGES=TEST_STORAGES)
+class ContactsAndFormTests(TestCase):
+    """Перевірка сторінки контактів (/kontakty/), обробки форми #ask-form, захисту від спаму та адмінки звернень."""
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("createcachetable", stdout=StringIO())
+        SiteSettings.objects.update_or_create(
+            pk=1,
+            defaults={
+                "phone": "(0342) 55-05-24",
+                "email": "nrts.oberih@osvita.if.ua",
+                "address": "вул. Гната Хоткевича, 52-А, м. Івано-Франківськ, 76020",
+                "director_name": "Шестопалова Галина Любомирівна",
+                "schedule_notice": "",
+            },
+        )
+
+    def setUp(self):
+        cache.clear()
+        mail.outbox.clear()
+
+    def test_contacts_page_get_and_schedule_notice_and_sent_param(self):
+        """GET /kontakty/ відповідає 200, має один <h1>, без сирих тегів; перевірка schedule_notice та ?sent=1."""
+        response = self.client.get("/kontakty/")
+        self.assertEqual(response.status_code, 200)
+        html = response.content.decode("utf-8")
+
+        self.assertEqual(len(re.findall(r"<h1\b", html)), 1)
+        self.assertEqual(html.count("</h1>"), 1)
+        self.assertNotIn("{{", html)
+        self.assertNotIn("{%", html)
+        self.assertIn('<h1 id="page-title">Контакти</h1>', html)
+        self.assertIn('<h2 id="contacts-title">Як з нами зв’язатися</h2>', html)
+        # За замовчуванням schedule_notice порожнє — плашки p.notice немає
+        self.assertNotIn('class="notice"', html)
+        self.assertIn('<p class="form-status" id="form-status" role="status"></p>', html)
+
+        # Коли schedule_notice заповнено — плашка з'являється
+        ss = SiteSettings.objects.get(pk=1)
+        ss.schedule_notice = "Прийом громадян: щовівторка з 10:00 до 13:00."
+        ss.save(update_fields=["schedule_notice"])
+        resp_notice = self.client.get("/kontakty/")
+        self.assertEqual(resp_notice.status_code, 200)
+        html_notice = resp_notice.content.decode("utf-8")
+        self.assertIn("Прийом громадян: щовівторка з 10:00 до 13:00.", html_notice)
+
+        # ?sent=1 виводить фіксований рядок з коду, а довільний вміст ?sent=... ніколи не виводиться
+        resp_sent = self.client.get("/kontakty/?sent=1")
+        html_sent = resp_sent.content.decode("utf-8")
+        self.assertIn(
+            "Дякуємо! Ваше запитання надіслано. Відповімо на вказану електронну пошту.",
+            html_sent,
+        )
+
+        resp_xss = self.client.get("/kontakty/?sent=<script>alert(1)</script>")
+        html_xss = resp_xss.content.decode("utf-8")
+        self.assertNotIn("<script>alert(1)</script>", html_xss)
+        self.assertNotIn("alert(1)", html_xss)
+        self.assertIn('<p class="form-status" id="form-status" role="status"></p>', html_xss)
+
+    def test_valid_post_creates_message_and_sends_email_json_and_redirect(self):
+        """Валідний POST створює ContactMessage, надсилає лист із Reply-To і повертає успіх (JSON для fetch та 303 без JS)."""
+        payload = {
+            "name": "Оксана Ковальчук",
+            "email": "oksana.kovalchuk@example.com",
+            "message": "Добрий день! Підкажіть, будь ласка, які документи потрібні для вступу?",
+            "consent": "on",
+            "website": "",
+        }
+
+        # 1. Запит від fetch (AJAX) -> 200 JSON
+        resp_json = self.client.post(
+            "/kontakty/",
+            data=payload,
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+            REMOTE_ADDR="198.51.100.10",
+        )
+        self.assertEqual(resp_json.status_code, 200)
+        data = resp_json.json()
+        self.assertTrue(data["ok"])
+        self.assertIn("Дякуємо!", data["message"])
+
+        self.assertEqual(ContactMessage.objects.count(), 1)
+        msg = ContactMessage.objects.first()
+        self.assertEqual(msg.name, "Оксана Ковальчук")
+        self.assertEqual(msg.email, "oksana.kovalchuk@example.com")
+        self.assertTrue(msg.consent_given)
+        self.assertFalse(msg.is_read)
+
+        self.assertEqual(len(mail.outbox), 1)
+        sent_email = mail.outbox[0]
+        self.assertIn("Оксана Ковальчук", sent_email.subject)
+        self.assertEqual(sent_email.reply_to, ["oksana.kovalchuk@example.com"])
+        self.assertEqual(sent_email.to, ["nrts.oberih@osvita.if.ua"])
+
+        # 2. Звичайний браузерний POST (без JS) -> 303 редірект на /kontakty/?sent=1#ask-form
+        resp_html = self.client.post(
+            "/kontakty/",
+            data={
+                "name": "Петро Мельник",
+                "email": "petro@example.com",
+                "message": "Запитання без JavaScript.",
+                "consent": "on",
+            },
+            REMOTE_ADDR="198.51.100.11",
+        )
+        self.assertEqual(resp_html.status_code, 303)
+        self.assertEqual(resp_html.headers.get("Location"), "/kontakty/?sent=1#ask-form")
+        self.assertEqual(ContactMessage.objects.count(), 2)
+        self.assertEqual(len(mail.outbox), 2)
+
+    def test_invalid_post_rejections_without_db_records(self):
+        """Без згоди, з порожнім текстом/ім'ям, з некоректним email або завеликим текстом — 400 з українським повідомленням і без запису в БД."""
+        invalid_cases = [
+            (
+                "без згоди",
+                {
+                    "name": "Іван",
+                    "email": "ivan@example.com",
+                    "message": "Питання",
+                },
+                "consent",
+                "згоди",
+            ),
+            (
+                "порожній текст",
+                {
+                    "name": "Іван",
+                    "email": "ivan@example.com",
+                    "message": "   ",
+                    "consent": "on",
+                },
+                "message",
+                "текст запитання",
+            ),
+            (
+                "порожнє ім'я",
+                {
+                    "name": "   ",
+                    "email": "ivan@example.com",
+                    "message": "Питання",
+                    "consent": "on",
+                },
+                "name",
+                "ім’я",
+            ),
+            (
+                "некоректний email",
+                {
+                    "name": "Іван",
+                    "email": "ne-email-adresa",
+                    "message": "Питання",
+                    "consent": "on",
+                },
+                "email",
+                "електронної пошти",
+            ),
+            (
+                "завеликий текст (> 2000 символів)",
+                {
+                    "name": "Іван",
+                    "email": "ivan@example.com",
+                    "message": "А" * 2001,
+                    "consent": "on",
+                },
+                "message",
+                "2000",
+            ),
+            (
+                "завелике ім'я (> 150 символів)",
+                {
+                    "name": "І" * 151,
+                    "email": "ivan@example.com",
+                    "message": "Питання",
+                    "consent": "on",
+                },
+                "name",
+                "150",
+            ),
+        ]
+
+        for label, payload, expected_field, expected_word in invalid_cases:
+            with self.subTest(case=label):
+                resp = self.client.post(
+                    "/kontakty/",
+                    data=payload,
+                    HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+                )
+                self.assertEqual(resp.status_code, 400)
+                data = resp.json()
+                self.assertFalse(data["ok"])
+                self.assertEqual(data["field"], expected_field)
+                self.assertIn(expected_word, data["message"].lower())
+
+                # Перевірка також для звичайного POST без JS
+                resp_nojs = self.client.post("/kontakty/", data=payload)
+                self.assertEqual(resp_nojs.status_code, 400)
+                self.assertIn(
+                    expected_word,
+                    resp_nojs.content.decode("utf-8").lower(),
+                )
+
+        self.assertEqual(ContactMessage.objects.count(), 0)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_honeypot_silently_ignored(self):
+        """Заповнений honeypot (website) тихо ігнорується без запису в базу і без відправлення листа."""
+        payload = {
+            "name": "Спам Бот",
+            "email": "bot@example.com",
+            "message": "Рекламне повідомлення",
+            "consent": "on",
+            "website": "https://spam-casino.example",
+        }
+        resp = self.client.post(
+            "/kontakty/",
+            data=payload,
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.json()["ok"])
+        self.assertEqual(ContactMessage.objects.count(), 0)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_rate_limit_and_x_forwarded_for_and_cache_fail_open(self):
+        """Перевищення ліміту (3 за 10 хв) дає 429; перевірка останнього IP у X-Forwarded-For та відкритої відмови кешу."""
+        valid_data = {
+            "name": "Марія",
+            "email": "maria@example.com",
+            "message": "Тестове запитання для перевірки ліміту.",
+            "consent": "on",
+        }
+
+        # Перші 3 запити з однієї IP-адреси проходять успішно
+        for i in range(3):
+            resp = self.client.post(
+                "/kontakty/",
+                data=valid_data,
+                HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+                REMOTE_ADDR="203.0.113.55",
+            )
+            self.assertEqual(resp.status_code, 200, f"Запит #{i + 1} мав пройти успішно.")
+
+        self.assertEqual(ContactMessage.objects.count(), 3)
+
+        # 4-й запит з тієї самої IP-адреси блокується зі статусом 429
+        resp_4th = self.client.post(
+            "/kontakty/",
+            data=valid_data,
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+            REMOTE_ADDR="203.0.113.55",
+        )
+        self.assertEqual(resp_4th.status_code, 429)
+        self.assertFalse(resp_4th.json()["ok"])
+        self.assertIn("забагато", resp_4th.json()["message"].lower())
+        self.assertEqual(ContactMessage.objects.count(), 3)
+
+        # Перевірка TRUST_X_FORWARDED_FOR=True: береться ОСТАННІЙ запис X-Forwarded-For (доданий проксі),
+        # тому підробка першого запису клієнтом не обходить ліміт для 203.0.113.55
+        with override_settings(TRUST_X_FORWARDED_FOR=True):
+            resp_xff = self.client.post(
+                "/kontakty/",
+                data=valid_data,
+                HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+                REMOTE_ADDR="127.0.0.1",
+                HTTP_X_FORWARDED_FOR="1.2.3.4, 9.9.9.9, 203.0.113.55",
+            )
+            self.assertEqual(resp_xff.status_code, 429)
+            self.assertEqual(ContactMessage.objects.count(), 3)
+
+        # Перевірка «відмови відкрито»: якщо таблиця кешу недоступна, форма не падає і зберігає звернення
+        broken_caches = {
+            "default": {
+                "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+                "LOCATION": "nonexistent_cache_table_xyz",
+            }
+        }
+        with override_settings(CACHES=broken_caches):
+            with self.assertLogs("core.views", level=logging.ERROR):
+                resp_fail_open = self.client.post(
+                    "/kontakty/",
+                    data=valid_data,
+                    HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+                    REMOTE_ADDR="203.0.113.99",
+                )
+            self.assertEqual(resp_fail_open.status_code, 200)
+            self.assertEqual(ContactMessage.objects.count(), 4)
+
+    @override_settings(EMAIL_BACKEND="core.tests.FailingEmailBackend")
+    def test_email_failure_does_not_lose_saved_message_or_return_error(self):
+        """Збій надсилання пошти НЕ втрачає запис у БД і НЕ повертає помилку користувачеві."""
+        payload = {
+            "name": "Тарас Бондар",
+            "email": "taras@example.com",
+            "message": "Дуже важливе звернення, яке не можна втратити при збої пошти.",
+            "consent": "on",
+        }
+        with self.assertLogs("core.views", level=logging.ERROR):
+            resp = self.client.post(
+                "/kontakty/",
+                data=payload,
+                HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+                REMOTE_ADDR="198.51.100.77",
+            )
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.json()["ok"])
+        self.assertEqual(ContactMessage.objects.count(), 1)
+        saved = ContactMessage.objects.first()
+        self.assertEqual(saved.name, "Тарас Бондар")
+        self.assertEqual(
+            saved.message,
+            "Дуже важливе звернення, яке не можна втратити при збої пошти.",
+        )
+
+    def test_header_injection_rejected(self):
+        """Спроба Header Injection (символи переведення рядка в імені або email) відхиляється зі статусом 400."""
+        injection_cases = [
+            {
+                "name": "Іван\r\nBcc: attacker@example.com",
+                "email": "ivan@example.com",
+                "message": "Текст",
+                "consent": "on",
+            },
+            {
+                "name": "Іван",
+                "email": "ivan@example.com\nCc: attacker@example.com",
+                "message": "Текст",
+                "consent": "on",
+            },
+        ]
+        for payload in injection_cases:
+            resp = self.client.post(
+                "/kontakty/",
+                data=payload,
+                HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+            )
+            self.assertEqual(resp.status_code, 400)
+            self.assertFalse(resp.json()["ok"])
+
+        self.assertEqual(ContactMessage.objects.count(), 0)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_csrf_without_token_rejected(self):
+        """POST-запит без CSRF-токена відхиляється зі статусом 403 Forbidden."""
+        csrf_client = Client(enforce_csrf_checks=True)
+        resp = csrf_client.post(
+            "/kontakty/",
+            data={
+                "name": "Іван",
+                "email": "ivan@example.com",
+                "message": "Запит без CSRF токена.",
+                "consent": "on",
+            },
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(resp.status_code, 403)
+        self.assertEqual(ContactMessage.objects.count(), 0)
+
+    def test_admin_contact_message_readonly_and_permissions(self):
+        """Адмінка не дозволяє створювати звернення або змінювати текст/відправника, але дозволяє позначати прочитаним і видаляти."""
+        admin_user = User.objects.create_superuser(
+            username="admin_test",
+            email="admin@example.com",
+            password="StrongTestPassword123!",
+        )
+        self.client.force_login(admin_user)
+
+        # 1. Створення нового звернення через адмінку заборонене (403)
+        resp_add_get = self.client.get("/admin-panel/core/contactmessage/add/")
+        self.assertEqual(resp_add_get.status_code, 403)
+        resp_add_post = self.client.post(
+            "/admin-panel/core/contactmessage/add/",
+            data={"name": "Хтось", "email": "a@b.com", "message": "Текст"},
+        )
+        self.assertEqual(resp_add_post.status_code, 403)
+
+        # 2. Спроба змінити name, email, message через POST у change_view не змінює ці поля (вони readonly),
+        #    тоді як прапорець is_read оновлюється
+        msg = ContactMessage.objects.create(
+            name="Початкове Ім'я",
+            email="original@example.com",
+            message="Початковий незмінний текст звернення.",
+            consent_given=True,
+            is_read=False,
+        )
+        resp_change = self.client.post(
+            f"/admin-panel/core/contactmessage/{msg.pk}/change/",
+            data={
+                "name": "Підроблене Ім'я",
+                "email": "hacked@example.com",
+                "message": "Підроблений текст звернення.",
+                "consent_given": "",
+                "is_read": "on",
+                "_save": "Зберегти",
+            },
+        )
+        self.assertEqual(resp_change.status_code, 302)
+        msg.refresh_from_db()
+        self.assertEqual(msg.name, "Початкове Ім'я")
+        self.assertEqual(msg.email, "original@example.com")
+        self.assertEqual(msg.message, "Початковий незмінний текст звернення.")
+        self.assertTrue(msg.consent_given)
+        self.assertTrue(msg.is_read)
+
+        # 3. Масова дія mark_as_read позначає непрочитані звернення як прочитані
+        msg2 = ContactMessage.objects.create(
+            name="Другий Відправник",
+            email="second@example.com",
+            message="Друге звернення.",
+            consent_given=True,
+            is_read=False,
+        )
+        resp_action = self.client.post(
+            "/admin-panel/core/contactmessage/",
+            data={
+                "action": "mark_as_read",
+                "_selected_action": [str(msg2.pk)],
+            },
+        )
+        self.assertEqual(resp_action.status_code, 302)
+        msg2.refresh_from_db()
+        self.assertTrue(msg2.is_read)
+
+        # 4. Видалення звернення (персональних даних) дозволене
+        resp_del = self.client.post(
+            f"/admin-panel/core/contactmessage/{msg.pk}/delete/",
+            data={"post": "yes"},
+        )
+        self.assertEqual(resp_del.status_code, 302)
+        self.assertFalse(ContactMessage.objects.filter(pk=msg.pk).exists())

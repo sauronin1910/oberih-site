@@ -215,6 +215,16 @@ class SiteSettings(models.Model):
         default="© 2026 НРЦ «Оберіг». Матеріали сайту використовуються з посиланням на джерело.",
         help_text="Короткий підпис у найнижчій частині всіх сторінок сайту.",
     )
+    schedule_notice = models.CharField(
+        "Примітка про графік роботи (на сторінці контактів)",
+        max_length=500,
+        blank=True,
+        default="",
+        help_text=(
+            "Необов'язкова інформаційна плашка під формою на сторінці «Контакти» "
+            "(наприклад, графік роботи та прийому громадян). Якщо залишити порожнім — не показується."
+        ),
+    )
 
     history = HistoricalRecords(verbose_name="Історія змін")
 
@@ -1220,7 +1230,8 @@ class ContactMessage(models.Model):
     )
     message = models.TextField(
         "Текст запитання",
-        help_text="Зміст звернення або запитання відвідувача.",
+        max_length=2000,
+        help_text="Зміст звернення або запитання відвідувача (максимум 2000 символів).",
     )
     consent_given = models.BooleanField(
         "Надано згоду на обробку персональних даних",
@@ -1237,8 +1248,6 @@ class ContactMessage(models.Model):
         default=False,
         help_text="Позначте після того, як адміністрація прочитала звернення та надала відповідь.",
     )
-
-    history = HistoricalRecords(verbose_name="Історія змін")
 
     class Meta:
         verbose_name = "Звернення"
