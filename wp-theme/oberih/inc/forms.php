@@ -139,7 +139,14 @@ function oberih_handle_ask() {
 			)
 		);
 		$headers = array( 'Reply-To: ' . str_replace( array( "\r", "\n", '<', '>', '"' ), '', $name ) . ' <' . $email . '>' );
-		if ( ! wp_mail( $to, $subject, $body, $headers ) ) {
+		// Відправник у листі — назва сайту, а не «WordPress» (лише для цього листа).
+		$from_name = static function () {
+			return wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
+		};
+		add_filter( 'wp_mail_from_name', $from_name );
+		$sent = wp_mail( $to, $subject, $body, $headers );
+		remove_filter( 'wp_mail_from_name', $from_name );
+		if ( ! $sent ) {
 			$code = 'mail';
 		}
 	}
