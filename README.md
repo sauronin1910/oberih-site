@@ -80,7 +80,14 @@ fonts/          шрифти Nunito і Unbounded (SIL Open Font License)
 ```
 style.css, functions.php   опис теми, підключення стилів і скриптів
 header.php, footer.php     шапка, меню й підвал — розмітка з макета
-index.php                  запасний шаблон (оформлення внутрішньої сторінки)
+front-page.php             головна (генерується з index.html: python tools/build_wp_front.py)
+page.php                   сторінка: огляд розділу (плитки) або сторінка з крихтами й бічним меню
+page-kontakty.php, 404.php контакти з формою; сторінку не знайдено
+index.php                  запасний шаблон (новини, архіви — поки що)
+inc/navigation.php         розділ, колір, «хлібні крихти», бічне меню, плитки розділу
+inc/content.php            блоки змісту в стилі макета: «Примітка», списки, кроки, таблиці
+inc/front.php              стрічка новин на головній
+template-parts/            новини-приклади й блок контактів (генеруються з index.html)
 inc/menu.php               меню: кнопки-підменю, назви у два рядки, меню підвалу
 inc/helpers.php            контакти, адреси сторінок і файлів
 assets/                    копії css, js, fonts, img з кореня репозиторію + wp.css (стилі лише для WordPress)
@@ -104,7 +111,9 @@ mklink /J "<сайт>\app\public\wp-content\themes\oberih" "D:\site\oberih-site\
 wp eval-file D:\site\oberih-site\tools\wp-seed\seed.php
 ```
 
-Якщо змінився `tools/site_map.py`, спершу оновіть дані для скрипта: `python tools/export_site_map.py`.
+Якщо змінився `tools/site_map.py`, спершу оновіть дані для скрипта: `python tools/export_site_map.py`. Скрипт також кладе зміст-заготовку в сторінки, де змісту ще немає (заповнені сторінки не чіпає).
+
+Зміст сторінок редагують у звичайному редакторі WordPress. Документ PDF — блок «Файл»; примітка — абзац зі стилем «Примітка»; нумерований список показується як кроки; таблиця — блок «Таблиця» з підписом.
 
 ## Як оновити сторінки
 

@@ -71,11 +71,13 @@ function oberih_render_block( $html, $block ) {
 				$caption = trim( $m[1] );
 				$html    = str_replace( $m[0], '', $html );
 			}
-			$p = new WP_HTML_Tag_Processor( $html );
-			if ( $p->next_tag( 'figure' ) ) {
+			// <figure> -> <section> з назвою: область з прокруткою, доступна з клавіатури (як у макеті).
+			$html = preg_replace( '/^(\s*)<figure\b/', '$1<section', $html, 1 );
+			$html = preg_replace( '/<\/figure>(\s*)$/', '</section>$1', $html, 1 );
+			$p    = new WP_HTML_Tag_Processor( $html );
+			if ( $p->next_tag( 'section' ) ) {
 				$p->add_class( 'table-wrap' );
 				$p->set_attribute( 'tabindex', '0' );
-				$p->set_attribute( 'role', 'region' );
 				$p->set_attribute( 'aria-label', $caption ? wp_strip_all_tags( $caption ) : __( 'Таблиця', 'oberih' ) );
 			}
 			if ( $p->next_tag( 'table' ) ) {

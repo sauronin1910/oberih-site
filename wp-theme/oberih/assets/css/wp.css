@@ -29,3 +29,9 @@
 .page-body figure{margin:0}
 .page-body .wp-element-caption{color:var(--muted);font-size:max(.9rem,var(--min-small));margin-top:.4rem}
 .section-intro-text{margin-bottom:1.5rem}
+
+/* Таблиця (блок «Таблиця») — як у макеті: прибираємо рамки й відступи, які додає WordPress */
+.page-body .table-wrap.wp-block-table{margin:0}
+.page-body .data-table.has-fixed-layout{table-layout:auto}
+.page-body .data-table thead{border-bottom:0}
+.page-body .data-table th,.page-body .data-table td{border:0;border-top:1px solid var(--line)}
