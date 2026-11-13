@@ -1,11 +1,16 @@
 """Представлення (views) для сторінок сайту КЗ «НРЦ «Оберіг»»."""
+import json
+
+from django.conf import settings
 from django.core.paginator import Paginator
 from django.http import HttpResponsePermanentRedirect
 from django.shortcuts import get_object_or_404, render
+from django.templatetags.static import static
 
-from .models import NewsItem, Page, Section
+from .models import HomePage, NewsItem, Page, Section, SiteSettings, Sponsor
 
 NEWS_PER_PAGE = 6
+HOME_NEWS_LIMIT = 6
 
 PLACEHOLDER_DOT_SETS = (
     ("d1", "d2"),
@@ -15,6 +20,68 @@ PLACEHOLDER_DOT_SETS = (
     ("d9", "d10", "d11"),
     ("d12", "d13"),
 )
+
+
+def home(request):
+    """Відображає головну сторінку сайту (/)."""
+    home_page = HomePage.objects.first() or HomePage()
+    site_settings = SiteSettings.objects.first() or SiteSettings()
+    news_items = list(
+        NewsItem.objects.filter(is_published=True).order_by(
+            "-published_date", "-id"
+        )[:HOME_NEWS_LIMIT]
+    )
+    for idx, item in enumerate(news_items):
+        item.placeholder_dots = PLACEHOLDER_DOT_SETS[
+            idx % len(PLACEHOLDER_DOT_SETS)
+        ]
+
+    sponsors = list(Sponsor.objects.order_by("order", "id"))
+
+    site_url = getattr(settings, "SITE_URL", "")
+    base_url = (
+        site_url if site_url else request.build_absolute_uri("/").rstrip("/")
+    )
+    logo_path = static("img/logo.jpg")
+    logo_url = (
+        f"{base_url}{logo_path}" if logo_path.startswith("/") else logo_path
+    )
+
+    address_data = {
+        "@type": "PostalAddress",
+        "streetAddress": site_settings.street_address,
+        "addressLocality": "Івано-Франківськ",
+        "addressRegion": "Івано-Франківська область",
+    }
+    if site_settings.postal_code:
+        address_data["postalCode"] = site_settings.postal_code
+    address_data["addressCountry"] = "UA"
+
+    schema_data = {
+        "@context": "https://schema.org",
+        "@type": "EducationalOrganization",
+        "name": (
+            "Комунальний заклад «Навчально-реабілітаційний центр „Оберіг“» "
+            "Івано-Франківської міської ради"
+        ),
+        "alternateName": "НРЦ «Оберіг»",
+        "url": f"{base_url}/",
+        "address": address_data,
+        "telephone": site_settings.phone_tel,
+        "email": site_settings.email,
+        "logo": logo_url,
+    }
+    json_ld = json.dumps(schema_data, ensure_ascii=False).replace("</", r"<\/")
+
+    context = {
+        "home_page": home_page,
+        "news_items": news_items,
+        "sponsors": sponsors,
+        "json_ld": json_ld,
+        "current_section_slug": None,
+        "current_page_slug": None,
+    }
+    return render(request, "home.html", context)
 
 
 def section_detail(request, section_slug: str):

@@ -5,10 +5,11 @@
 Запуск із кореня проєкту:
     python tools/compare_html.py
 або для конкретних файлів:
-    python tools/compare_html.py pro-nas/index.html novyny/index.html novyny/pryklad-novyny.html
+    python tools/compare_html.py index.html
 """
 from datetime import date
 import difflib
+import json
 import os
 from pathlib import Path
 import re
@@ -27,9 +28,10 @@ from django.conf import settings  # noqa: E402
 from django.db import transaction  # noqa: E402
 from django.test import Client  # noqa: E402
 
-from core.models import NewsItem  # noqa: E402
+from core.models import HomePage, NewsItem, Sponsor  # noqa: E402
 
 DEFAULT_PAGES = [
+    "index.html",
     "pro-nas/struktura-ta-orhany-upravlinnia.html",
     "pro-nas/administratsiia.html",
     "ofitsiina-storinka/statut.html",
@@ -38,7 +40,7 @@ DEFAULT_PAGES = [
     "novyny/pryklad-novyny.html",
 ]
 
-# Обов'язкові хуки для js/main.js та js/prefs.js на кожній внутрішній сторінці
+# Обов'язкові базові хуки для js/main.js та js/prefs.js на кожній сторінці
 REQUIRED_JS_HOOKS = [
     'class="skip"',
     'class="a11ybar"',
@@ -62,6 +64,29 @@ REQUIRED_JS_HOOKS = [
     'class="nav-backdrop"',
     'id="main"',
     'class="site-footer"',
+]
+
+# Додаткові хуки main.js специфічно для головної сторінки (слайдер, поява блоків, форма)
+HOME_JS_HOOKS = [
+    'id="news-slider"',
+    'id="news-track"',
+    'class="slider-dots"',
+    'class="slider-btn"',
+    'data-dir="-1"',
+    'data-dir="1"',
+    'class="sec-head"',
+    'class="about-text"',
+    'class="directions"',
+    'class="docs-band section-documents"',
+    'class="doc-list"',
+    'class="safety"',
+    'class="hotlines"',
+    'class="sponsors"',
+    'class="welcome-text"',
+    'class="welcome-art"',
+    'class="contact"',
+    'id="ask-form"',
+    'id="form-status"',
 ]
 
 
@@ -128,12 +153,49 @@ def resolve_urls(rel_html_path: str) -> tuple[str, str]:
     raise ValueError(f"Непідтримуваний шлях еталонного файлу: {rel_html_path}")
 
 
-def fetch_with_temp_news_if_needed(client: Client, rel_html_path: str, url: str, old_url: str):
-    """Виконує запит до Django у відкочуваній транзакції, якщо потрібно тимчасово опублікувати демо-новини."""
+def _setup_demo_news_in_tx():
+    """Тимчасово (у межах відкочуваної транзакції) приводить 6 демо-новин до еталону макета."""
+    demo_colors = {
+        "osinnii-tyzhden-rukhlyvykh-ihor-iak-my-provely-ioho-razom": "coral",
+        "konsultatsii-fakhivtsiv-dlia-batkiv-u-lystopadi": "teal",
+        "opryliudneno-koshtorys-na-2027-rik": "sky",
+        "novyi-sensornyi-kutochok-dlia-zaniat-z-erhoterapii": "green",
+        "den-pratsivnyka-osvity-diakuiemo-nashym-pedahoham": "orange",
+        "iak-zapysatysia-na-konsultatsiiu-psykholoha-nrts-oberih": "teal",
+    }
+    NewsItem.objects.all().update(is_published=True, photo="")
+    for slug, color in demo_colors.items():
+        NewsItem.objects.filter(slug=slug).update(accent_color=color)
+
+
+def fetch_with_temp_data(client: Client, rel_html_path: str, url: str, old_url: str):
+    """Виконує запит до Django у відкочуваній транзакції, тимчасово створюючи дані макета без зміни реальної БД."""
     norm = rel_html_path.replace("\\", "/")
     with transaction.atomic():
-        if norm == "novyny/index.html":
-            NewsItem.objects.all().update(is_published=True)
+        if norm == "index.html":
+            _setup_demo_news_in_tx()
+            hp = HomePage.objects.first()
+            if hp:
+                hp.about_quote = (
+                    "Тексти на цій сторінці тимчасові. Їх замінить опис НРЦ «Оберіг» від адміністрації."
+                )
+                hp.about_quote_note = "Примітка до макета"
+                hp.sponsors_note = (
+                    "Логотипи — приклад. Справжні з'являться після погодження зі спонсорами."
+                )
+                hp.save()
+            Sponsor.objects.all().delete()
+            for i in range(1, 7):
+                Sponsor.objects.create(
+                    name="Логотип спонсора",
+                    logo="",
+                    url="",
+                    order=i,
+                )
+        elif norm == "novyny/index.html":
+            _setup_demo_news_in_tx()
+            if not Sponsor.objects.exists():
+                Sponsor.objects.create(name="Логотип спонсора", order=1)
         elif norm == "novyny/pryklad-novyny.html":
             NewsItem.objects.update_or_create(
                 slug="pryklad-novyny",
@@ -150,10 +212,59 @@ def fetch_with_temp_news_if_needed(client: Client, rel_html_path: str, url: str,
                     "is_published": True,
                 },
             )
+            if not Sponsor.objects.exists():
+                Sponsor.objects.create(name="Логотип спонсора", order=1)
+        else:
+            if not Sponsor.objects.exists():
+                Sponsor.objects.create(name="Логотип спонсора", order=1)
+
         response = client.get(url, HTTP_HOST="127.0.0.1:8000", secure=True)
         redirect_resp = client.get(old_url, HTTP_HOST="127.0.0.1:8000", secure=True)
         transaction.set_rollback(True)
     return response, redirect_resp
+
+
+def compare_json_ld(ref_html: str, gen_html: str) -> None:
+    """Порівнює блок JSON-LD (<script type="application/ld+json">) між еталоном і Django."""
+    m_ref = re.search(
+        r'<script type="application/ld\+json">\s*(.*?)\s*</script>',
+        ref_html,
+        re.S,
+    )
+    m_gen = re.search(
+        r'<script type="application/ld\+json">\s*(.*?)\s*</script>',
+        gen_html,
+        re.S,
+    )
+    print("-" * 78)
+    print("[5. JSON-LD (schema.org EducationalOrganization)]:")
+    if not m_ref or not m_gen:
+        print("  [ПОМИЛКА] Блок JSON-LD не знайдено!")
+        return
+    try:
+        ref_data = json.loads(m_ref.group(1))
+        gen_data = json.loads(m_gen.group(1))
+    except json.JSONDecodeError as exc:
+        print(f"  [ПОМИЛКА JSON] Невалідний JSON-LD: {exc}")
+        return
+
+    print("  Статус JSON: ВАЛІДНИЙ JSON в обох випадках")
+    ref_pretty = json.dumps(ref_data, ensure_ascii=False, indent=2, sort_keys=True).splitlines()
+    gen_pretty = json.dumps(gen_data, ensure_ascii=False, indent=2, sort_keys=True).splitlines()
+    diff = list(
+        difflib.unified_diff(
+            ref_pretty,
+            gen_pretty,
+            fromfile="Еталон JSON-LD",
+            tofile="Django JSON-LD",
+            lineterm="",
+        )
+    )
+    if not diff:
+        print("  Порівняння JSON-LD: ІДЕНТИЧНО")
+    else:
+        for line in diff:
+            print(f"  {line}")
 
 
 def compare_page(client: Client, rel_html_path: str) -> None:
@@ -169,7 +280,7 @@ def compare_page(client: Client, rel_html_path: str) -> None:
         return
 
     ref_html = ref_file.read_text(encoding="utf-8")
-    response, redirect_resp = fetch_with_temp_news_if_needed(
+    response, redirect_resp = fetch_with_temp_data(
         client, rel_html_path, url, old_url
     )
 
@@ -187,11 +298,17 @@ def compare_page(client: Client, rel_html_path: str) -> None:
     gen_html = response.content.decode("utf-8")
 
     # Перевірка JS-хуків
-    missing_hooks = [h for h in REQUIRED_JS_HOOKS if h not in gen_html]
+    norm_path = rel_html_path.replace("\\", "/")
+    hooks_to_check = (
+        REQUIRED_JS_HOOKS + HOME_JS_HOOKS
+        if norm_path == "index.html"
+        else REQUIRED_JS_HOOKS
+    )
+    missing_hooks = [h for h in hooks_to_check if h not in gen_html]
     if missing_hooks:
         print(f"[ПОМИЛКА JS-ХУКІВ] Відсутні селектори: {missing_hooks}")
     else:
-        print(f"Перевірка хуків main.js / prefs.js: УСІ {len(REQUIRED_JS_HOOKS)} ПРИСУТНІ")
+        print(f"Перевірка хуків main.js / prefs.js: УСІ {len(hooks_to_check)} ПРИСУТНІ")
 
     ref_zones = split_sections(ref_html)
     gen_zones = split_sections(gen_html)
@@ -216,12 +333,27 @@ def compare_page(client: Client, rel_html_path: str) -> None:
             print(f"[{zone_name}] ЗНАЙДЕНО РОЗБІЖНОСТІ:")
             for line in diff:
                 print(f"  {line}")
+
+    if norm_path == "index.html":
+        compare_json_ld(ref_html, gen_html)
+
     print("-" * 78)
     print("Пояснення очікуваних розбіжностей із демо-еталоном:")
     print("  • <head>: додано бойові теги <link rel=\"canonical\"> та <meta property=\"og:url\">.")
     print("  • Меню: сторінка «Медичний супровід» має is_published=False (чернетка), тому прихована.")
-    norm_path = rel_html_path.replace("\\", "/")
-    if norm_path == "pro-nas/administratsiia.html":
+    if norm_path == "index.html":
+        print(
+            "  • JSON-LD: у <head> додано абсолютний 'url' та абсолютний шлях 'logo' на основі SITE_URL."
+        )
+        print(
+            "  • <main> (#news): прибрано демо-мітки <span class=\"tag\">Приклад</span>, "
+            "а картки новин ведуть на власні чисті URL /novyny/<slug>/."
+        )
+        print(
+            "  • <main> (#contacts): у форму #ask-form додано method=\"post\" action=\"/kontakty/\", "
+            "прихований csrfmiddlewaretoken та name=\"consent\" у чекбокс згоди."
+        )
+    elif norm_path == "pro-nas/administratsiia.html":
         print("  • <main>: картки працівників мають consent_given=False до отримання письмових згод.")
     elif norm_path == "novyny/index.html":
         print(

@@ -1,13 +1,24 @@
 """Автоматичні тести публічної частини та моделей сайту КЗ «НРЦ «Оберіг»»."""
 from datetime import date
 from io import StringIO
+import json
 import re
 
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.test import TestCase, override_settings
 
-from .models import Block, Document, NewsItem, Page, Person, Section, SiteSettings
+from .models import (
+    Block,
+    Document,
+    HomePage,
+    NewsItem,
+    Page,
+    Person,
+    Section,
+    SiteSettings,
+    Sponsor,
+)
 
 TEST_STORAGES = {
     "default": {
@@ -327,6 +338,148 @@ class PublicSiteTests(TestCase):
                 self.assertEqual(resp.status_code, 301)
                 self.assertEqual(resp.headers.get("Location"), expected_target)
 
+    def test_home_page_basic_and_empty_news_and_sponsors(self):
+        """Головна (/) відповідає 200, має один <h1>, без сирих тегів; без новин показує p.notice, без спонсорів ховає #sponsors."""
+        NewsItem.objects.all().delete()
+        Sponsor.objects.all().delete()
+        HomePage.objects.get_or_create(pk=1)
+
+        response = self.client.get("/")
+        self.assertEqual(response.status_code, 200)
+        html = response.content.decode("utf-8")
+
+        self.assertEqual(len(re.findall(r"<h1\b", html)), 1)
+        self.assertEqual(html.count("</h1>"), 1)
+        self.assertNotIn("{{", html)
+        self.assertNotIn("{%", html)
+
+        # За відсутності опублікованих новин показується p.notice і немає #news-slider та .slider-arrows
+        self.assertIn("Поки що новин немає.", html)
+        self.assertNotIn('id="news-slider"', html)
+        self.assertNotIn('class="slider-arrows"', html)
+
+        # За відсутності спонсорів секція #sponsors і посилання в підвалі приховані
+        self.assertNotIn('id="sponsors"', html)
+        self.assertNotIn('href="/#sponsors"', html)
+
+    def test_home_page_news_slider_with_1_and_multiple_items_and_drafts(self):
+        """Чернетки новин не потрапляють на /; при 1 новині немає стрілок, при 3+ є слайди, .slider-dots і .slider-arrows."""
+        NewsItem.objects.all().delete()
+        NewsItem.objects.create(
+            title="Чернетка для головної",
+            slug="chernetka-dlia-holovnoi",
+            category="Оголошення",
+            accent_color="sky",
+            published_date=date(2026, 10, 30),
+            summary="Анонс чернетки.",
+            body="Текст чернетки.",
+            is_published=False,
+        )
+        NewsItem.objects.create(
+            title="Перша опублікована новина на головній",
+            slug="persha-novyna-holovna",
+            category="Події",
+            accent_color="coral",
+            published_date=date(2026, 10, 28),
+            summary="Анонс першої новини.",
+            body="Текст першої новини.",
+            is_published=True,
+        )
+
+        # 1 опублікована новина: є #news-slider з 1 карткою, але немає .slider-arrows
+        resp_one = self.client.get("/")
+        self.assertEqual(resp_one.status_code, 200)
+        html_one = resp_one.content.decode("utf-8")
+        self.assertIn('id="news-slider"', html_one)
+        self.assertIn("Перша опублікована новина на головній", html_one)
+        self.assertNotIn("Чернетка для головної", html_one)
+        self.assertEqual(len(re.findall(r'<li class="news-card\b', html_one)), 1)
+        self.assertNotIn('class="slider-arrows"', html_one)
+
+        # Додаємо ще 2 опубліковані новини (разом 3)
+        for idx in (2, 3):
+            NewsItem.objects.create(
+                title=f"Опублікована новина {idx}",
+                slug=f"opublikovana-novyna-{idx}",
+                category="Навчання",
+                accent_color="teal",
+                published_date=date(2026, 10, 20 + idx),
+                summary=f"Анонс новини {idx}.",
+                body=f"Текст новини {idx}.",
+                is_published=True,
+            )
+
+        resp_three = self.client.get("/")
+        self.assertEqual(resp_three.status_code, 200)
+        html_three = resp_three.content.decode("utf-8")
+        self.assertEqual(len(re.findall(r'<li class="news-card\b', html_three)), 3)
+        self.assertIn('class="slider-arrows"', html_three)
+        self.assertIn('class="slider-dots"', html_three)
+        self.assertNotIn("Чернетка для головної", html_three)
+
+    def test_home_page_sponsor_without_logo(self):
+        """Спонсор без завантаженого логотипа відображається на головній без помилки й вмикає розділ #sponsors."""
+        Sponsor.objects.all().delete()
+        Sponsor.objects.create(
+            name="Благодійний партнер без логотипа",
+            order=1,
+        )
+        response = self.client.get("/")
+        self.assertEqual(response.status_code, 200)
+        html = response.content.decode("utf-8")
+        self.assertIn('id="sponsors"', html)
+        self.assertIn('href="/#sponsors"', html)
+        self.assertIn(
+            '<span class="sponsor-ph"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">'
+            '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/>'
+            '<path d="M21 16l-5-5-9 9"/></svg>Благодійний партнер без логотипа</span>',
+            html,
+        )
+
+    @override_settings(SITE_URL="https://oberih.if.ua")
+    def test_home_page_json_ld_and_unusual_address_format(self):
+        """JSON-LD на головній є валідним JSON і не ламається, якщо формат адреси у SiteSettings нестандартний."""
+        response = self.client.get("/")
+        self.assertEqual(response.status_code, 200)
+        html = response.content.decode("utf-8")
+        m = re.search(
+            r'<script type="application/ld\+json">\s*(.*?)\s*</script>',
+            html,
+            re.DOTALL,
+        )
+        self.assertIsNotNone(m, "На головній сторінці не знайдено блок JSON-LD.")
+        data = json.loads(m.group(1))
+        self.assertEqual(data["@type"], "EducationalOrganization")
+        self.assertEqual(data["url"], "https://oberih.if.ua/")
+        self.assertEqual(
+            data["logo"], "https://oberih.if.ua/static/img/logo.jpg"
+        )
+        self.assertEqual(
+            data["address"]["streetAddress"], "вул. Гната Хоткевича, 52-А"
+        )
+        self.assertEqual(data["address"]["postalCode"], "76020")
+
+        # Нестандартний формат адреси без ", м." та без 5-цифрового індексу
+        settings_obj = SiteSettings.objects.get(pk=1)
+        settings_obj.address = "Івано-Франківськ, вул. Тестова будинок 10"
+        settings_obj.save(update_fields=["address"])
+
+        resp_custom = self.client.get("/")
+        self.assertEqual(resp_custom.status_code, 200)
+        html_custom = resp_custom.content.decode("utf-8")
+        m_custom = re.search(
+            r'<script type="application/ld\+json">\s*(.*?)\s*</script>',
+            html_custom,
+            re.DOTALL,
+        )
+        self.assertIsNotNone(m_custom)
+        data_custom = json.loads(m_custom.group(1))
+        self.assertEqual(
+            data_custom["address"]["streetAddress"],
+            "Івано-Франківськ, вул. Тестова будинок 10",
+        )
+        self.assertNotIn("postalCode", data_custom["address"])
+
 
 @override_settings(STORAGES=TEST_STORAGES)
 class ImportedSiteMapPagesTests(TestCase):
@@ -335,6 +488,7 @@ class ImportedSiteMapPagesTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         call_command("import_site_map", stdout=StringIO())
+        call_command("import_home", stdout=StringIO())
 
     def test_all_published_pages_render_valid_html(self):
         """Усі опубліковані сторінки з import_site_map відповідають 200, мають один <h1> і не мають сирих тегів."""
@@ -422,4 +576,44 @@ class ImportedSiteMapPagesTests(TestCase):
         print(
             f"\n[Перевірка import_site_map] Успішно перевірено неопублікованих сторінок (404): {len(unpublished_pages)} "
             f"({', '.join(p.get_absolute_url() for p in unpublished_pages)})"
+        )
+
+    def test_all_internal_links_on_home_page_return_200(self):
+        """Усі внутрішні посилання <a href="/..."> на головній сторінці (/) відповідають 200."""
+        # Опублікуємо одну новину, щоб на головній також перевірялося посилання з картки новини
+        first_news = NewsItem.objects.first()
+        if first_news:
+            first_news.is_published = True
+            first_news.save(update_fields=["is_published"])
+
+        resp_home = self.client.get("/")
+        self.assertEqual(resp_home.status_code, 200)
+        html = resp_home.content.decode("utf-8")
+
+        raw_hrefs = re.findall(r'<a\b[^>]*\bhref="(/[^"]*)"', html)
+        unique_urls = []
+        for href in raw_hrefs:
+            # Пропускаємо якірні посилання (/#sponsors) та /kontakty/ (реалізується на 7-му кроці)
+            if href.startswith("/#") or href == "/kontakty/":
+                continue
+            if href not in unique_urls:
+                unique_urls.append(href)
+
+        self.assertGreater(
+            len(unique_urls),
+            15,
+            "Очікується щонайменше 15 унікальних внутрішніх посилань на головній сторінці.",
+        )
+
+        for url in unique_urls:
+            with self.subTest(url=url):
+                resp = self.client.get(url)
+                self.assertEqual(
+                    resp.status_code,
+                    200,
+                    f"Внутрішнє посилання {url} на головній сторінці повернуло {resp.status_code} замість 200.",
+                )
+
+        print(
+            f"\n[Перевірка посилань головної] Успішно перевірено внутрішніх посилань (200 OK): {len(unique_urls)}"
         )

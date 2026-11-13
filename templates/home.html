@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}НРЦ «Оберіг» — навчання та реабілітація дітей, Івано-Франківськ{% endblock %}
+{% block meta_description %}Комунальний заклад «НРЦ „Оберіг“» Івано-Франківської міської ради: навчання та комплексна реабілітація дітей з особливими освітніми потребами.{% endblock %}
+{% block og_title %}Навчально-реабілітаційний центр «Оберіг»{% endblock %}
+{% block og_description %}Навчання та комплексна реабілітація дітей з особливими освітніми потребами. Івано-Франківськ, {{ site_settings.street_address }}.{% endblock %}
+{% block extra_head %}
+<script type="application/ld+json">
+{{ json_ld|safe }}
+</script>{% endblock %}
+{% block content %}  <!-- Героїчний блок -->
+  <section class="hero section-intro" id="intro" aria-labelledby="hero-title">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">{% if "·" in home_page.hero_eyebrow %}{{ home_page.hero_eyebrow }}{% else %}{{ home_page.hero_eyebrow }} · {{ site_settings.street_address }}{% endif %}</p>
+        <h1 id="hero-title">{{ home_page.hero_title }}{% if home_page.hero_title_em %} <em>{{ home_page.hero_title_em }}</em>{% endif %}</h1>
+        <p class="lead">{{ home_page.hero_lead }}</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="/ofitsiina-storinka/pravyla-pryiomu/">Як вступити до НРЦ «Оберіг»</a>
+          <a class="btn btn-ghost" href="/prozorist-ta-vidkrytist/dostupnist-dlia-osib-z-oop/">Умови доступності</a>
+        </div>
+        <ul class="hero-facts">
+          <li class="c-sky">{{ home_page.hero_fact_1 }}</li>
+          <li class="c-teal">{{ home_page.hero_fact_2 }}</li>
+          <li class="c-coral">{{ home_page.hero_fact_3 }}</li>
+        </ul>
+      </div>
+      <div class="art" aria-hidden="true">
+        <span class="ball b1"></span><span class="ball b2"></span><span class="ball b3"></span><span class="ball b4"></span><span class="ball b5"></span>
+        <div class="big"><img src="{% static 'img/logo.jpg' %}" alt="" width="512" height="512"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Швидкі посилання -->
+  <nav class="tiles section-quicklinks" aria-label="Швидкі посилання">
+    <div class="wrap">
+      <ul>
+        <li><a class="tile c-coral" href="/ofitsiina-storinka/pravyla-pryiomu/"><span class="ic"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M10 16l4-4-4-4"/><path d="M14 12H4"/></svg></span><strong>Вступ до НРЦ «Оберіг»</strong><span>Правила прийому і документи</span></a></li>
+        <li><a class="tile c-sky" href="/osvitnia-diialnist/rozklad-zaniat/"><span class="ic"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><strong>Розклад</strong><span>Уроки та реабілітаційні заняття</span></a></li>
+        <li><a class="tile c-teal" href="/reabilitatsiine-viddilennia/"><span class="ic"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2"/><path d="M5 8c2 1.5 4.5 2 7 2s5-.5 7-2"/><path d="M12 10v5l-3 6M12 15l3 6"/></svg></span><strong>Реабілітація</strong><span>Фізична терапія, логопед, корекція</span></a></li>
+        <li><a class="tile c-orange" href="/reabilitatsiine-viddilennia/psykholohichna-sluzhba/"><span class="ic"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M12 13s-3-1.8-3-3.6a1.6 1.6 0 0 1 3-.8 1.6 1.6 0 0 1 3 .8c0 1.8-3 3.6-3 3.6z"/></svg></span><strong>Психологічна служба</strong><span>Підтримка дітей і батьків</span></a></li>
+        <li><a class="tile c-green" href="/prozorist-ta-vidkrytist/"><span class="ic"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></svg></span><strong>Прозорість</strong><span>Кошторис, звіти, документи</span></a></li>
+        <li><a class="tile c-amber" href="/bezpeka-ta-zakhyst/"><span class="ic"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span><strong>Безпека та захист</strong><span>Булінг, безпека, повітряна тривога</span></a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Про НРЦ «Оберіг» -->
+  <section class="block section-about" id="about" aria-labelledby="about-title">
+    <div class="wrap">
+      <div class="about">
+        <div class="about-text">
+          <p class="eyebrow c-teal">{{ home_page.about_eyebrow }}</p>
+          <h2 id="about-title">{{ home_page.about_title }}</h2>
+{% for para in home_page.about_paragraphs %}          <p>{{ para }}</p>
+{% endfor %}{% if home_page.about_quote %}          <div class="quote">
+            {{ home_page.about_quote }}
+{% if home_page.about_quote_note %}            <small>{{ home_page.about_quote_note }}</small>
+{% endif %}          </div>
+{% endif %}        </div>
+        <ul class="directions">
+          <li class="card card-wide c-amber" id="preschool">
+            <svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg>
+            <h3><a href="/doshkilne-viddilennia/">Дошкільне відділення</a></h3>
+            <p>Групи для дітей дошкільного віку: розвиток, корекційні заняття і реабілітація з раннього віку, підготовка до школи.</p>
+          </li>
+          <li class="card c-sky">
+            <svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5c3-1 6-1 8 1 2-2 5-2 8-1v14c-3-1-6-1-8 1-2-2-5-2-8-1z"/><path d="M12 6v14"/></svg>
+            <h3><a href="/osvitnia-diialnist/">Навчання</a></h3>
+            <p>Загальна середня освіта за освітніми програмами НУШ, адаптованими до потреб кожного учня.</p>
+          </li>
+          <li class="card c-teal">
+            <svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2"/><path d="M5 8c2 1.5 4.5 2 7 2s5-.5 7-2"/><path d="M12 10v5l-3 6M12 15l3 6"/></svg>
+            <h3><a href="/reabilitatsiine-viddilennia/">Фізична реабілітація</a></h3>
+            <p>Фізична терапія та ерготерапія: рух, координація, навички самообслуговування.</p>
+          </li>
+          <li class="card c-orange">
+            <svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="3.5"/><rect x="4" y="13" width="7" height="7" rx="3.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
+            <h3><a href="/reabilitatsiine-viddilennia/korektsiino-rozvytkova-robota/">Корекційна допомога</a></h3>
+            <p>Логопедичні та корекційно-розвиткові заняття індивідуально і в малих групах.</p>
+          </li>
+          <li class="card c-coral">
+            <svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M12 13s-3-1.8-3-3.6a1.6 1.6 0 0 1 3-.8 1.6 1.6 0 0 1 3 .8c0 1.8-3 3.6-3 3.6z"/></svg>
+            <h3><a href="/reabilitatsiine-viddilennia/psykholohichna-sluzhba/">Психологічна підтримка</a></h3>
+            <p>Консультації для дітей і батьків, адаптація до навчання, розвиток соціальних навичок.</p>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Новини -->
+  <section class="block section-news" id="news" aria-labelledby="news-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <p class="eyebrow c-coral">{{ home_page.news_eyebrow }}</p>
+          <h2 id="news-title">{{ home_page.news_title }}</h2>
+        </div>
+        <div class="sec-actions">
+          <a class="more" href="{% url 'core:news_list' %}">Усі новини <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+{% if news_items|length > 1 %}          <div class="slider-arrows">
+            <button type="button" class="slider-btn" data-dir="-1" aria-controls="news-track" aria-label="Попередні новини"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <button type="button" class="slider-btn" data-dir="1" aria-controls="news-track" aria-label="Наступні новини"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+          </div>
+{% endif %}        </div>
+      </div>
+{% if news_items %}      <section class="slider" id="news-slider" aria-roledescription="карусель" aria-label="Стрічка новин">
+      <ul class="news" id="news-track" tabindex="0">
+{% for item in news_items %}        <li class="news-card c-{{ item.accent_color }}">
+{% if item.photo %}          <div class="news-img">
+            <img src="{{ item.photo.url }}" alt="{{ item.title }}" loading="lazy">
+          </div>
+{% else %}          <div class="news-img" role="img" aria-label="Місце для фото новини">
+{% for d in item.placeholder_dots %}            <i class="{{ d }}"></i>
+{% endfor %}          </div>
+{% endif %}          <div class="news-body">
+            <div class="news-meta"><span class="cat">{{ item.category }}</span><time datetime="{{ item.published_date|date:'Y-m-d' }}">{{ item.published_date_uk }}</time></div>
+            <h3><a href="{% url 'core:news_detail' slug=item.slug %}">{{ item.title }}</a></h3>
+            <p>{{ item.summary }}</p>
+          </div>
+        </li>
+{% endfor %}      </ul>
+      <div class="slider-foot">
+        <div class="slider-dots" role="group" aria-label="Вибір слайда"></div>
+      </div>
+      </section>
+{% else %}      <p class="notice"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg><span>Поки що новин немає.</span></p>
+{% endif %}    </div>
+  </section>
+
+  <!-- Документи -->
+  <section class="docs-band section-documents" id="documents" aria-labelledby="docs-title">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow c-sky">{{ home_page.docs_eyebrow }}</p>
+        <h2 id="docs-title">{{ home_page.docs_title }}</h2>
+        <p class="note">{{ home_page.docs_note }}</p>
+        <a class="btn btn-ghost" href="/ofitsiina-storinka/">Усі документи</a>
+      </div>
+      <ul class="doc-list">
+        <li><a href="/ofitsiina-storinka/statut/"><svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span>Статут<small>Офіційна сторінка</small></span><em class="pdf">PDF</em></a></li>
+        <li><a href="/ofitsiina-storinka/litsenziia/"><svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span>Ліцензія<small>Офіційна сторінка</small></span><em class="pdf">PDF</em></a></li>
+        <li><a href="/prozorist-ta-vidkrytist/finansova-zvitnist/"><svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span>Фінансова звітність<small>Прозорість та відкритість</small></span><em class="pdf">PDF</em></a></li>
+        <li><a href="/prozorist-ta-vidkrytist/richnyi-zvit/"><svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span>Річний звіт<small>Прозорість та відкритість</small></span><em class="pdf">PDF</em></a></li>
+        <li><a href="/ofitsiina-storinka/pravyla-pryiomu/"><svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span>Правила прийому<small>Офіційна сторінка</small></span><em class="pdf">PDF</em></a></li>
+        <li><a href="/prozorist-ta-vidkrytist/dostupnist-dlia-osib-z-oop/"><svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span>Доступність для осіб з ООП<small>Прозорість та відкритість</small></span><em class="pdf">PDF</em></a></li>
+        <li><a href="/bezpeka-ta-zakhyst/buling/"><svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span>Протидія булінгу<small>Безпека та захист</small></span><em class="pdf">PDF</em></a></li>
+        <li><a href="/prozorist-ta-vidkrytist/vakansii/"><svg class="icon ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span>Вакансії<small>Прозорість та відкритість</small></span><em class="pdf">PDF</em></a></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Безпека та захист -->
+  <section class="block section-safety" id="safety" aria-labelledby="safety-title">
+    <div class="wrap">
+      <div class="safety">
+        <div>
+          <p class="eyebrow">{{ home_page.safety_eyebrow }}</p>
+          <h2 id="safety-title">{{ home_page.safety_title }}</h2>
+          <p>{{ home_page.safety_text }}</p>
+          <div class="links">
+            <a href="/bezpeka-ta-zakhyst/buling/">Протидія булінгу</a>
+            <a href="/bezpeka-ta-zakhyst/povitriana-tryvoha/">Увага! Повітряна тривога!</a>
+            <a href="/bezpeka-ta-zakhyst/bezpeka-v-interneti/">Безпека в інтернеті</a>
+          </div>
+        </div>
+        <ul class="hotlines">
+          <li><b><a class="tel" href="tel:116111">116 111</a></b><span>Національна дитяча гаряча лінія, безкоштовно</span></li>
+          <li><b><a class="tel" href="tel:1547">1547</a></b><span>Урядова лінія: насильство, булінг, торгівля людьми</span></li>
+          <li><b><a class="tel" href="tel:0800501720">0 800 50 17 20</a></b><span>Уповноважений Верховної Ради з прав людини</span></li>
+          <li><b><a class="tel" href="tel:102">102</a></b><span>Національна поліція</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Запрошення -->
+  <section class="block section-welcome" id="welcome" aria-labelledby="welcome-title">
+    <div class="wrap">
+      <div class="welcome">
+        <div class="welcome-text">
+          <p class="eyebrow c-orange">{{ home_page.welcome_eyebrow }}</p>
+          <h2 id="welcome-title">{{ home_page.welcome_title }}</h2>
+          <p>{{ home_page.welcome_text }}</p>
+          <div class="actions">
+            <a class="btn btn-primary" href="/ofitsiina-storinka/pravyla-pryiomu/">Правила прийому</a>
+            <a class="btn btn-ghost" href="#contacts">Поставити запитання</a>
+          </div>
+        </div>
+        <img class="welcome-art" src="{% if home_page.welcome_image %}{{ home_page.welcome_image.url }}{% else %}{% static 'img/kids.jpg' %}{% endif %}" alt="" width="1400" height="499" loading="lazy">
+      </div>
+    </div>
+  </section>
+{% if sponsors %}
+  <!-- Спонсори -->
+  <section class="block section-sponsors" id="sponsors" aria-labelledby="sponsors-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <p class="eyebrow c-green">{{ home_page.sponsors_eyebrow }}</p>
+          <h2 id="sponsors-title">{{ home_page.sponsors_title }}</h2>
+          <p>{{ home_page.sponsors_text }}</p>
+        </div>
+        <a class="more" href="/prozorist-ta-vidkrytist/finansova-zvitnist/">Звіт про благодійну допомогу <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <ul class="sponsors">
+{% for s in sponsors %}{% if s.url and s.has_logo %}        <li><a class="sponsor" href="{{ s.url }}" target="_blank" rel="noopener"><img src="{{ s.logo.url }}" alt="{{ s.name }}" loading="lazy"></a></li>
+{% elif s.has_logo %}        <li class="sponsor"><img src="{{ s.logo.url }}" alt="{{ s.name }}" loading="lazy"></li>
+{% elif s.url %}        <li><a class="sponsor" href="{{ s.url }}" target="_blank" rel="noopener"><span class="sponsor-ph"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg>{{ s.name }}</span></a></li>
+{% else %}        <li class="sponsor"><span class="sponsor-ph"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg>{{ s.name }}</span></li>
+{% endif %}{% endfor %}      </ul>
+{% if home_page.sponsors_note %}      <p class="sponsors-note">{{ home_page.sponsors_note }}</p>
+{% endif %}    </div>
+  </section>
+{% endif %}
+  <!-- Контакти -->
+  <section class="block section-contacts" id="contacts" aria-labelledby="contacts-title">
+    <div class="wrap">
+      <div class="contact">
+        <div class="contact-info">
+          <h2 id="contacts-title">Контакти</h2>
+          <dl>
+            <div><dt>Адреса</dt><dd>{{ site_settings.address }}</dd></div>
+            <div><dt>Телефон</dt><dd><a class="tel" href="tel:{{ site_settings.phone_tel }}">{{ site_settings.phone }}</a></dd></div>
+            <div><dt>Електронна пошта</dt><dd><a href="mailto:{{ site_settings.email }}">{{ site_settings.email }}</a></dd></div>
+            <div><dt>Директор</dt><dd>{{ site_settings.director_name }}</dd></div>
+          </dl>
+          <div class="map">
+            <a href="{{ site_settings.map_url }}" target="_blank" rel="noopener">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+              Відкрити на карті<span class="sr-only"> (відкриється в новій вкладці)</span>
+            </a>
+          </div>
+        </div>
+        <form class="form" id="ask-form" method="post" action="/kontakty/" novalidate>
+          {% csrf_token %}
+          <h2>Поставити запитання</h2>
+          <p class="hint">Відповімо на вказану електронну пошту.</p>
+          <div class="field"><label for="f-name">Ваше ім'я</label><input id="f-name" name="name" type="text" autocomplete="name" required></div>
+          <div class="field"><label for="f-email">Електронна пошта</label><input id="f-email" name="email" type="email" autocomplete="email" required></div>
+          <div class="field"><label for="f-msg">Запитання</label><textarea id="f-msg" name="message" required></textarea></div>
+          <label class="check"><input id="f-consent" name="consent" type="checkbox" required>Погоджуюся на обробку персональних даних для відповіді на запитання. Згоду можна відкликати будь-коли.</label>
+          <div><button class="btn btn-primary" type="submit">Надіслати</button></div>
+          <p class="form-status" id="form-status" role="status"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+

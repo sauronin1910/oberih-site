@@ -268,14 +268,9 @@ class Command(BaseCommand):
             else:
                 warnings.append(f"[{index_label} -> #about] Не знайдено абзаців опису.")
 
-            m_quote = re.search(r'<div class="quote">(.*?)</div>', sub, re.S)
-            if m_quote:
-                q_inner = m_quote.group(1)
-                m_small = re.search(r"<small>(.*?)</small>", q_inner, re.S)
-                if m_small:
-                    fields["about_quote_note"] = clean_html_text(m_small.group(1))
-                    q_inner = q_inner.replace(m_small.group(0), "")
-                fields["about_quote"] = clean_html_text(q_inner)
+            # Не заповнюємо about_quote та about_quote_note демо-текстом макета
+            fields["about_quote"] = ""
+            fields["about_quote_note"] = ""
 
         # 3. #news (заголовок секції)
         news_sec = self._extract_section(index_html, "news", index_label, warnings)
@@ -338,9 +333,8 @@ class Command(BaseCommand):
             fields["sponsors_text"] = self._extract_tag_text(
                 sponsors_sec, r"<h2[^>]*>.*?</h2>\s*<p>(.*?)</p>", f"{index_label} -> #sponsors -> p", warnings
             )
-            fields["sponsors_note"] = self._extract_tag_text(
-                sponsors_sec, r'<p class="sponsors-note">(.*?)</p>', f"{index_label} -> #sponsors -> .sponsors-note", warnings
-            )
+            # Не заповнюємо sponsors_note демо-текстом макета
+            fields["sponsors_note"] = ""
 
         return fields
 
@@ -448,16 +442,13 @@ class Command(BaseCommand):
                     not raw_name or raw_name.lower() == "логотип спонсора"
                 )
                 if is_placeholder_sponsor:
-                    sponsor_name = f"Спонсор {idx} (приклад)"
-                else:
-                    sponsor_name = raw_name
+                    placeholder_sponsors_count += 1
+                    continue
 
+                sponsor_name = raw_name
                 if Sponsor.objects.filter(name=sponsor_name).exists():
                     stats["sponsors_skipped"] += 1
                     continue
-
-                if is_placeholder_sponsor:
-                    placeholder_sponsors_count += 1
 
                 Sponsor.objects.create(
                     name=sponsor_name,
@@ -469,8 +460,8 @@ class Command(BaseCommand):
 
             if placeholder_sponsors_count:
                 warnings_list.append(
-                    f"[{index_label} -> #sponsors] Усі {placeholder_sponsors_count} карток спонсорів у макеті є "
-                    f"заглушками («Логотип спонсора») без зображень і посилань — створено записи без файлів логотипів."
+                    f"[{index_label} -> #sponsors] Пропущено {placeholder_sponsors_count} демо-заглушок спонсорів "
+                    f"(«Логотип спонсора») — демо-спонсори не створюються в базі."
                 )
 
             # 4. Новини (NewsItem)

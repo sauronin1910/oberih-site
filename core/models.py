@@ -237,6 +237,25 @@ class SiteSettings(models.Model):
             return f"+{digits}"
         return f"+{digits}"
 
+    @property
+    def street_address(self) -> str:
+        """Повертає вулицю та номер будинку (частина до ', м.') із запасним варіантом."""
+        addr = (self.address or "").strip()
+        if not addr:
+            return "вул. Гната Хоткевича, 52-А"
+        if ", м." in addr:
+            part = addr.split(", м.", 1)[0].strip()
+            if part:
+                return part
+        return addr
+
+    @property
+    def postal_code(self) -> str:
+        """Повертає 5-значний поштовий індекс із адреси або порожній рядок, якщо індексу немає."""
+        addr = (self.address or "").strip()
+        m = re.search(r"\b(\d{5})\b", addr)
+        return m.group(1) if m else ""
+
     def clean(self):
         super().clean()
         if not self.pk and SiteSettings.objects.exists():
@@ -1106,6 +1125,14 @@ class HomePage(models.Model):
 
     def __str__(self) -> str:
         return "Вміст головної сторінки НРЦ «Оберіг»"
+
+    @property
+    def about_paragraphs(self) -> list[str]:
+        """Розбиває основний текст блоку «Про нас» за порожнім рядком на окремі абзаци (без HTML та |safe)."""
+        text = (self.about_text or "").replace("\r\n", "\n").replace("\r", "\n").strip()
+        if not text:
+            return []
+        return [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
 
     def clean(self):
         super().clean()

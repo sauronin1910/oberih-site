@@ -6,6 +6,8 @@ from . import views
 app_name = "core"
 
 urlpatterns = [
+    # 0. Головна сторінка
+    path("", views.home, name="home"),
     # 1. Постійні 301-редіректи зі старих статичних .html адрес (спочатку конкретні маршрути)
     path("index.html", views.redirect_index_html, name="redirect_index_html"),
     path(

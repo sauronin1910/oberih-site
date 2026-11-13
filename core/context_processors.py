@@ -2,7 +2,7 @@
 from django.conf import settings
 from django.db.models import Prefetch
 
-from .models import Page, Section, SiteSettings
+from .models import Page, Section, SiteSettings, Sponsor
 
 
 def site_context(request) -> dict:
@@ -19,9 +19,11 @@ def site_context(request) -> dict:
             .order_by("order", "id")
             .prefetch_related(published_pages_prefetch)
         )
+        has_sponsors = Sponsor.objects.exists()
         request._cached_site_context = {
             "site_settings": site_settings,
             "menu_sections": menu_sections,
+            "has_sponsors": has_sponsors,
         }
     site_url = getattr(settings, "SITE_URL", "")
     canonical_url = (
