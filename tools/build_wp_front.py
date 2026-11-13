@@ -50,6 +50,12 @@ def main():
     examples = track.group(2)
     main_html = main_html.replace(track.group(0), track.group(1) + '<?php oberih_front_news(); ?>\n' + track.group(3))
 
+    contact = re.search(r'(      <div class="contact">.*?\n        </form>\n      </div>)', main_html, re.S)
+    assert contact, 'не знайдено блок контактів <div class="contact">'
+    main_html = main_html.replace(
+        contact.group(1),
+        "      <?php get_template_part( 'template-parts/contact-block', null, array( 'title' => 'Контакти' ) ); ?>")
+
     front = ('<?php\n/**\n * Головна сторінка. ' + NOTE + '\n *\n * @package oberih\n */\n\nget_header();\n?>'
              + php_links(main_html) + '<?php\nget_footer();\n')
     (THEME / 'front-page.php').write_text(front, encoding='utf-8', newline='\n')
@@ -59,12 +65,22 @@ def main():
     ex = ('<?php\n/**\n * Новини-приклади з макета: показуються на головній, поки в WordPress немає записів.\n * '
           + NOTE + '\n *\n * @package oberih\n */\n\n?>\n' + php_links(examples, news_to_list=True))
     (parts / 'news-examples.php').write_text(ex, encoding='utf-8', newline='\n')
-    contact = re.search(r'(      <div class="contact">.*?\n        </form>\n      </div>)', main_html, re.S)
-    assert contact, 'не знайдено блок контактів <div class="contact">'
     block = contact.group(1).replace(
         '<h2 id="contacts-title">Контакти</h2>',
         "<h2 id=\"contacts-title\"><?php echo esc_html( isset( $args['title'] ) ? $args['title'] : 'Контакти' ); ?></h2>")
     assert 'isset( $args' in block, 'не знайдено заголовок контактів'
+    # Форма надсилається на сервер (inc/forms.php); id інший, щоб нею керував js/form.js, а не js/main.js макета.
+    for old, new in [
+        ('<form class="form" id="ask-form" novalidate>',
+         '<form class="form" id="ask-form-wp" method="post" '
+         'action="<?php echo esc_url( admin_url( \'admin-post.php\' ) ); ?>" novalidate>\n'
+         '          <?php oberih_ask_form_fields(); ?>'),
+        ('<input id="f-consent" type="checkbox" required>', '<input id="f-consent" name="consent" type="checkbox" value="1" required>'),
+        ('<p class="form-status" id="form-status" role="status"></p>',
+         '<p class="form-status" id="form-status" role="status"><?php echo esc_html( oberih_ask_status() ); ?></p>'),
+    ]:
+        assert block.count(old) == 1, f'у формі не знайдено: {old}'
+        block = block.replace(old, new)
     cb = ('<?php\n/**\n * Контакти й форма запитання. Параметр $args[\'title\'] — заголовок блоку.\n * '
           + NOTE + '\n *\n * @package oberih\n */\n\n?>\n' + php_links(block) + '\n')
     (parts / 'contact-block.php').write_text(cb, encoding='utf-8', newline='\n')

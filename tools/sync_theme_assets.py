@@ -6,7 +6,7 @@
     python tools/sync_theme_assets.py --check  лише перевірити, чи копії збігаються
 
 Файли в assets/ вручну не правити: джерело — css/, js/, fonts/, img/ у корені.
-Власні стилі теми лежать окремо: wp-theme/oberih/assets/css/wp.css (скрипт їх не чіпає).
+Власні файли теми лежать окремо: assets/css/wp.css, assets/js/form.js (скрипт їх не чіпає).
 """
 import filecmp
 import shutil
@@ -16,7 +16,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 DEST = ROOT / 'wp-theme' / 'oberih' / 'assets'
 DIRS = ['css', 'js', 'fonts', 'img']
-KEEP = {Path('css/wp.css')}          # файли теми, яких немає в макеті
+KEEP = {Path('css/wp.css'), Path('js/form.js')}  # файли теми, яких немає в макеті
 SKIP = set()                         # файли макета, які в тему не потрібні
 
 

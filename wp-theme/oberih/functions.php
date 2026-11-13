@@ -14,6 +14,7 @@ require get_template_directory() . '/inc/menu.php';
 require get_template_directory() . '/inc/navigation.php';
 require get_template_directory() . '/inc/content.php';
 require get_template_directory() . '/inc/front.php';
+require get_template_directory() . '/inc/forms.php';
 
 /**
  * Можливості теми й області меню.
@@ -60,6 +61,20 @@ function oberih_assets() {
 			'in_footer' => false,
 		)
 	);
+
+	// Форма запитання — на головній і на сторінці «Контакти».
+	if ( is_front_page() || is_page( 'kontakty' ) ) {
+		wp_enqueue_script(
+			'oberih-form',
+			oberih_asset( 'js/form.js' ),
+			array(),
+			oberih_asset_ver( 'js/form.js' ),
+			array(
+				'strategy'  => 'defer',
+				'in_footer' => false,
+			)
+		);
+	}
 }
 add_action( 'wp_enqueue_scripts', 'oberih_assets' );
 

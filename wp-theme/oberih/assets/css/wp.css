@@ -35,3 +35,7 @@
 .page-body .data-table.has-fixed-layout{table-layout:auto}
 .page-body .data-table thead{border-bottom:0}
 .page-body .data-table th,.page-body .data-table td{border:0;border-top:1px solid var(--line)}
+
+/* Форма запитання: поле-пастка для ботів (людям не видно) */
+.form .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.form[aria-busy="true"] button[type="submit"]{opacity:.6;cursor:progress}

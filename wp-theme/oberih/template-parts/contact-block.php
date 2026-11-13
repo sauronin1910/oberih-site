@@ -23,14 +23,15 @@
             </a>
           </div>
         </div>
-        <form class="form" id="ask-form" novalidate>
+        <form class="form" id="ask-form-wp" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" novalidate>
+          <?php oberih_ask_form_fields(); ?>
           <h2>Поставити запитання</h2>
           <p class="hint">Відповімо на вказану електронну пошту.</p>
           <div class="field"><label for="f-name">Ваше ім'я</label><input id="f-name" name="name" type="text" autocomplete="name" required></div>
           <div class="field"><label for="f-email">Електронна пошта</label><input id="f-email" name="email" type="email" autocomplete="email" required></div>
           <div class="field"><label for="f-msg">Запитання</label><textarea id="f-msg" name="message" required></textarea></div>
-          <label class="check"><input id="f-consent" type="checkbox" required>Погоджуюся на обробку персональних даних для відповіді на запитання. Згоду можна відкликати будь-коли.</label>
+          <label class="check"><input id="f-consent" name="consent" type="checkbox" value="1" required>Погоджуюся на обробку персональних даних для відповіді на запитання. Згоду можна відкликати будь-коли.</label>
           <div><button class="btn btn-primary" type="submit">Надіслати</button></div>
-          <p class="form-status" id="form-status" role="status"></p>
+          <p class="form-status" id="form-status" role="status"><?php echo esc_html( oberih_ask_status() ); ?></p>
         </form>
       </div>
