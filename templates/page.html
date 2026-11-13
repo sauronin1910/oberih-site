@@ -5,7 +5,7 @@
 {% block og_description %}{{ page.seo_description }}{% endblock %}
 {% block content %}  <section class="page-hero" aria-labelledby="page-title">
     <div class="wrap">
-      {% block breadcrumbs %}<nav class="crumbs" aria-label="Хлібні крихти"><ol><li><a href="/">Головна</a></li><li><a href="/{{ section.slug }}/">{{ section.title }}</a></li><li><span aria-current="page">{{ page.title }}</span></li></ol></nav>{% endblock %}
+      {% block breadcrumbs %}<nav class="crumbs" aria-label="Хлібні крихти"><ol><li><a href="/">Головна</a></li><li><a href="{% url 'core:section_detail' section_slug=section.slug %}">{{ section.title }}</a></li><li><span aria-current="page">{{ page.title }}</span></li></ol></nav>{% endblock %}
       <p class="eyebrow c-{{ section.color }}">{{ section.title }}</p>
       <h1 id="page-title">{{ page.title }}</h1>
       {% if page.lead %}<p class="lead">{{ page.lead }}</p>{% endif %}
@@ -15,7 +15,7 @@
     <div class="page-body">
 {% if people %}      <ul class="people">{% for person in people %}<li class="person"><span class="person-photo">{% if person.photo %}<img src="{{ person.photo.url }}" alt="{{ person.full_name }}" width="56" height="56">{% else %}<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>{% endif %}</span><span class="person-text"><span class="person-role">{{ person.position }}</span><span class="person-name">{{ person.full_name }}</span></span></li>{% endfor %}</ul>
 {% endif %}{% if page.docs_first %}{% include "includes/page_documents.html" %}{% include "includes/page_blocks.html" %}{% else %}{% include "includes/page_blocks.html" %}{% include "includes/page_documents.html" %}{% endif %}    </div>
-    <nav class="side-nav c-{{ section.color }}" aria-label="Розділ «{{ section.title }}»"><p class="side-title"><a href="/{{ section.slug }}/">{{ section.title }}</a></p><ul>{% for sp in section_pages %}<li><a href="{% url 'core:page_detail' section_slug=section.slug page_slug=sp.slug %}"{% if sp.slug == page.slug %} aria-current="page"{% endif %}>{{ sp.title }}</a></li>{% endfor %}</ul></nav>
+    <nav class="side-nav c-{{ section.color }}" aria-label="Розділ «{{ section.title }}»"><p class="side-title"><a href="{% url 'core:section_detail' section_slug=section.slug %}">{{ section.title }}</a></p><ul>{% for sp in section_pages %}<li><a href="{% url 'core:page_detail' section_slug=section.slug page_slug=sp.slug %}"{% if sp.slug == page.slug %} aria-current="page"{% endif %}>{{ sp.title }}</a></li>{% endfor %}</ul></nav>
   </div>
 {% endblock %}
 

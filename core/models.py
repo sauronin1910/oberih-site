@@ -251,6 +251,34 @@ class SiteSettings(models.Model):
 
 
 # --- 2. Розділ сайту ---
+RESERVED_SECTION_SLUGS = frozenset(
+    {
+        "admin-panel",
+        "admin",
+        "media",
+        "static",
+        "staticfiles",
+        "novyny",
+        "kontakty",
+        "index",
+        "404",
+        "robots",
+        "sitemap",
+        "favicon",
+    }
+)
+
+
+def validate_section_slug(value: str) -> None:
+    """Забороняє використовувати системні адреси як slug розділу."""
+    cleaned = (value or "").strip().lower()
+    if cleaned in RESERVED_SECTION_SLUGS:
+        raise ValidationError(
+            f"Адреса «{value}» зарезервована системою (службовий розділ сайту). "
+            "Будь ласка, оберіть іншу назву латиницею."
+        )
+
+
 class Section(models.Model):
     """Основний розділ меню сайту."""
 
@@ -258,6 +286,7 @@ class Section(models.Model):
         "Адреса розділу (slug)",
         max_length=100,
         unique=True,
+        validators=[validate_section_slug],
         help_text="Частина веб-адреси латиницею без пробілів (наприклад: pro-nas). Не змінюйте без потреби.",
     )
     title = models.CharField(
@@ -307,6 +336,26 @@ class Section(models.Model):
 
     def get_absolute_url(self) -> str:
         return f"/{self.slug}/"
+
+    def clean(self):
+        super().clean()
+        if self.slug:
+            validate_section_slug(self.slug)
+
+    @property
+    def seo_title(self) -> str:
+        full_title = f"{self.title} — НРЦ «Оберіг»"
+        return full_title if len(full_title) <= 70 else self.title
+
+    @property
+    def seo_description(self) -> str:
+        desc = (self.lead or "").strip()
+        if len(desc) < 70:
+            if "Оберіг" in desc:
+                desc = f"{desc} Офіційний сайт закладу, м. Івано-Франківськ."
+            else:
+                desc = f"{desc} НРЦ «Оберіг», м. Івано-Франківськ."
+        return desc.replace("\u00a0", " ").strip()
 
     @property
     def menu_lines(self) -> tuple[str, str] | None:
@@ -776,6 +825,58 @@ class NewsItem(models.Model):
 
     def __str__(self) -> str:
         return f"{self.published_date:%d.%m.%Y} — {self.title}"
+
+    def get_absolute_url(self) -> str:
+        return f"/novyny/{self.slug}/"
+
+    @property
+    def published_date_uk(self) -> str:
+        """Повертає дату українською мовою у родовому відмінку (наприклад: 28 жовтня 2026)."""
+        if not self.published_date:
+            return ""
+        months = {
+            1: "січня",
+            2: "лютого",
+            3: "березня",
+            4: "квітня",
+            5: "травня",
+            6: "червня",
+            7: "липня",
+            8: "серпня",
+            9: "вересня",
+            10: "жовтня",
+            11: "листопада",
+            12: "грудня",
+        }
+        month_name = months.get(self.published_date.month, "")
+        return f"{self.published_date.day} {month_name} {self.published_date.year}"
+
+    @property
+    def body_paragraphs(self) -> list[str]:
+        """Розбиває текст новини за порожнім рядком на окремі абзаци (без HTML та |safe)."""
+        text = (self.body or "").replace("\r\n", "\n").replace("\r", "\n").strip()
+        if not text:
+            return []
+        return [
+            p.strip()
+            for p in re.split(r"\n\s*\n", text)
+            if p.strip()
+        ]
+
+    @property
+    def seo_title(self) -> str:
+        full_title = f"{self.title} — НРЦ «Оберіг»"
+        return full_title if len(full_title) <= 70 else self.title
+
+    @property
+    def seo_description(self) -> str:
+        desc = (self.summary or "").strip()
+        if len(desc) < 70:
+            if "Оберіг" in desc:
+                desc = f"{desc} Офіційний сайт закладу, м. Івано-Франківськ."
+            else:
+                desc = f"{desc} НРЦ «Оберіг», м. Івано-Франківськ."
+        return desc.replace("\u00a0", " ").strip()
 
     def save(self, *args, **kwargs):
         if self.photo:

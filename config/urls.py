@@ -6,8 +6,11 @@ from django.urls import include, path
 
 urlpatterns = [
     path("admin-panel/", admin.site.urls),
-    path("", include("core.urls")),
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+urlpatterns += [
+    path("", include("core.urls")),
+]

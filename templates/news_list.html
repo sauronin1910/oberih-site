@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Новини — НРЦ «Оберіг»{% endblock %}
+{% block meta_description %}Події, оголошення та новини НРЦ «Оберіг». Офіційний сайт закладу, м. Івано-Франківськ.{% endblock %}
+{% block og_title %}Новини{% endblock %}
+{% block og_description %}Події, оголошення та новини НРЦ «Оберіг». Офіційний сайт закладу, м. Івано-Франківськ.{% endblock %}
+{% block content %}  <section class="page-hero" aria-labelledby="page-title">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="Хлібні крихти"><ol><li><a href="/">Головна</a></li><li><span aria-current="page">Новини</span></li></ol></nav>
+      <p class="eyebrow c-coral">Життя НРЦ «Оберіг»</p>
+      <h1 id="page-title">Новини</h1>
+      <p class="lead">Події, оголошення та новини закладу.</p>
+    </div>
+  </section>
+  <div class="wrap page-section">
+{% if news_items %}    <ul class="news-grid">
+{% for item in news_items %}        <li class="news-card c-{{ item.accent_color }}">
+{% if item.photo %}          <div class="news-img">
+            <img src="{{ item.photo.url }}" alt="{{ item.title }}" loading="lazy">
+          </div>
+{% else %}          <div class="news-img" role="img" aria-label="Місце для фото новини">
+{% for d in item.placeholder_dots %}            <i class="{{ d }}"></i>
+{% endfor %}          </div>
+{% endif %}          <div class="news-body">
+            <div class="news-meta"><span class="cat">{{ item.category }}</span><time datetime="{{ item.published_date|date:'Y-m-d' }}">{{ item.published_date_uk }}</time></div>
+            <h2><a href="{% url 'core:news_detail' slug=item.slug %}">{{ item.title }}</a></h2>
+            <p>{{ item.summary }}</p>
+          </div>
+        </li>
+{% endfor %}    </ul>
+{% if page_obj.paginator.num_pages > 1 %}    <nav class="slider-foot" aria-label="Сторінки новин">
+      <ul class="err-links">
+{% if page_obj.has_previous %}        <li><a href="?page={{ page_obj.previous_page_number }}">← Попередні</a></li>
+{% endif %}{% for num in page_obj.paginator.page_range %}        <li><a href="?page={{ num }}"{% if page_obj.number == num %} aria-current="page"{% endif %}>{{ num }}</a></li>
+{% endfor %}{% if page_obj.has_next %}        <li><a href="?page={{ page_obj.next_page_number }}">Наступні →</a></li>
+{% endif %}      </ul>
+    </nav>
+{% endif %}{% else %}    <p class="notice"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg><span>Поки що новин немає.</span></p>
+{% endif %}  </div>
+{% endblock %}
+

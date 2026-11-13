@@ -5,8 +5,9 @@
 Запуск із кореня проєкту:
     python tools/compare_html.py
 або для конкретних файлів:
-    python tools/compare_html.py pro-nas/struktura-ta-orhany-upravlinnia.html
+    python tools/compare_html.py pro-nas/index.html novyny/index.html novyny/pryklad-novyny.html
 """
+from datetime import date
 import difflib
 import os
 from pathlib import Path
@@ -23,12 +24,18 @@ import django  # noqa: E402
 django.setup()
 
 from django.conf import settings  # noqa: E402
+from django.db import transaction  # noqa: E402
 from django.test import Client  # noqa: E402
+
+from core.models import NewsItem  # noqa: E402
 
 DEFAULT_PAGES = [
     "pro-nas/struktura-ta-orhany-upravlinnia.html",
     "pro-nas/administratsiia.html",
     "ofitsiina-storinka/statut.html",
+    "pro-nas/index.html",
+    "novyny/index.html",
+    "novyny/pryklad-novyny.html",
 ]
 
 # Обов'язкові хуки для js/main.js та js/prefs.js на кожній внутрішній сторінці
@@ -100,10 +107,53 @@ def normalize_html(raw: str) -> list[str]:
         s,
     )
     # 4. Прибираємо пробіли між тегами та розбиваємо по одному тегу/блоку на рядок
+    s = s.replace("&#x27;", "'").replace("\u00a0", " ")
     s = re.sub(r">\s+<", "><", s.strip())
     s = re.sub(r"[ \t]+", " ", s)
     s = s.replace("><", ">\n<")
     return [line.strip() for line in s.splitlines() if line.strip()]
+
+
+def resolve_urls(rel_html_path: str) -> tuple[str, str]:
+    """Повертає (новий_чистий_url, старий_html_url) для відносного шляху еталонного файлу."""
+    norm = rel_html_path.replace("\\", "/")
+    if norm == "index.html":
+        return "/", "/index.html"
+    parts = Path(norm).with_suffix("").parts
+    if len(parts) == 2:
+        section_slug, page_slug = parts[0], parts[1]
+        if page_slug == "index":
+            return f"/{section_slug}/", f"/{section_slug}/index.html"
+        return f"/{section_slug}/{page_slug}/", f"/{section_slug}/{page_slug}.html"
+    raise ValueError(f"Непідтримуваний шлях еталонного файлу: {rel_html_path}")
+
+
+def fetch_with_temp_news_if_needed(client: Client, rel_html_path: str, url: str, old_url: str):
+    """Виконує запит до Django у відкочуваній транзакції, якщо потрібно тимчасово опублікувати демо-новини."""
+    norm = rel_html_path.replace("\\", "/")
+    with transaction.atomic():
+        if norm == "novyny/index.html":
+            NewsItem.objects.all().update(is_published=True)
+        elif norm == "novyny/pryklad-novyny.html":
+            NewsItem.objects.update_or_create(
+                slug="pryklad-novyny",
+                defaults={
+                    "title": "Приклад новини",
+                    "category": "Події",
+                    "accent_color": "coral",
+                    "published_date": date(2026, 10, 28),
+                    "summary": "Шаблон сторінки новини НРЦ «Оберіг».",
+                    "body": (
+                        "Перший абзац новини: коротко про подію — що, де і коли відбулося.\n\n"
+                        "Другий абзац: подробиці, хто брав участь, що вдалося зробити."
+                    ),
+                    "is_published": True,
+                },
+            )
+        response = client.get(url, HTTP_HOST="127.0.0.1:8000", secure=True)
+        redirect_resp = client.get(old_url, HTTP_HOST="127.0.0.1:8000", secure=True)
+        transaction.set_rollback(True)
+    return response, redirect_resp
 
 
 def compare_page(client: Client, rel_html_path: str) -> None:
@@ -112,18 +162,16 @@ def compare_page(client: Client, rel_html_path: str) -> None:
         print(f"[ПОМИЛКА] Еталонний файл не знайдено: {ref_file}")
         return
 
-    parts = Path(rel_html_path).with_suffix("").parts
-    if len(parts) != 2:
-        print(f"[ПОМИЛКА] Очікується шлях вигляду <section>/<page>.html: {rel_html_path}")
+    try:
+        url, old_url = resolve_urls(rel_html_path)
+    except ValueError as exc:
+        print(f"[ПОМИЛКА] {exc}")
         return
 
-    section_slug, page_slug = parts[0], parts[1]
-    url = f"/{section_slug}/{page_slug}/"
-    old_url = f"/{section_slug}/{page_slug}.html"
-
     ref_html = ref_file.read_text(encoding="utf-8")
-    response = client.get(url, HTTP_HOST="127.0.0.1:8000", secure=True)
-    redirect_resp = client.get(old_url, HTTP_HOST="127.0.0.1:8000", secure=True)
+    response, redirect_resp = fetch_with_temp_news_if_needed(
+        client, rel_html_path, url, old_url
+    )
 
     print("=" * 78)
     print(f"СТОРІНКА: {rel_html_path}  --->  URL: {url}")
@@ -168,6 +216,23 @@ def compare_page(client: Client, rel_html_path: str) -> None:
             print(f"[{zone_name}] ЗНАЙДЕНО РОЗБІЖНОСТІ:")
             for line in diff:
                 print(f"  {line}")
+    print("-" * 78)
+    print("Пояснення очікуваних розбіжностей із демо-еталоном:")
+    print("  • <head>: додано бойові теги <link rel=\"canonical\"> та <meta property=\"og:url\">.")
+    print("  • Меню: сторінка «Медичний супровід» має is_published=False (чернетка), тому прихована.")
+    norm_path = rel_html_path.replace("\\", "/")
+    if norm_path == "pro-nas/administratsiia.html":
+        print("  • <main>: картки працівників мають consent_given=False до отримання письмових згод.")
+    elif norm_path == "novyny/index.html":
+        print(
+            "  • <main>: у бойовому шаблоні прибрано демо-мітки <span class=\"tag\">Приклад</span>, "
+            "демо-плашку p.notice про WordPress, а кожна картка веде на власний чистий URL /novyny/<slug>/."
+        )
+    elif norm_path == "novyny/pryklad-novyny.html":
+        print(
+            "  • <main>: у бойовому шаблоні прибрано демо-мітку <span class=\"tag\">Приклад</span> "
+            "та демо-плашку p.notice «Це шаблон сторінки новини...»."
+        )
     print()
 
 
@@ -183,4 +248,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
