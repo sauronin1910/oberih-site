@@ -75,11 +75,36 @@ fonts/          шрифти Nunito і Unbounded (SIL Open Font License)
 
 ## Тема WordPress (гілка `wordpress`)
 
-Тема лежить у `wp-theme/oberih/`. Щоб побачити її на локальному WordPress (LocalWP), папку підключають у `wp-content/themes` як зв’язок (junction) — тоді правки в репозиторії одразу видно на сайті:
+Тема лежить у `wp-theme/oberih/`:
+
+```
+style.css, functions.php   опис теми, підключення стилів і скриптів
+header.php, footer.php     шапка, меню й підвал — розмітка з макета
+index.php                  запасний шаблон (оформлення внутрішньої сторінки)
+inc/menu.php               меню: кнопки-підменю, назви у два рядки, меню підвалу
+inc/helpers.php            контакти, адреси сторінок і файлів
+assets/                    копії css, js, fonts, img з кореня репозиторію + wp.css (стилі лише для WordPress)
+```
+
+Файли в `assets/` (крім `css/wp.css`) вручну не правити. Після оновлення дизайну з `main`:
+
+```
+python tools/sync_theme_assets.py
+```
+
+Локальний сайт (LocalWP). Папку теми підключають у `wp-content/themes` як зв’язок (junction) — правки в репозиторії одразу видно на сайті:
 
 ```
 mklink /J "<сайт>\app\public\wp-content\themes\oberih" "D:\site\oberih-site\wp-theme\oberih"
 ```
+
+Сторінки й меню за структурою ТЗ створює скрипт (у Local: Site shell). Повторний запуск нічого не дублює і не видаляє:
+
+```
+wp eval-file D:\site\oberih-site\tools\wp-seed\seed.php
+```
+
+Якщо змінився `tools/site_map.py`, спершу оновіть дані для скрипта: `python tools/export_site_map.py`.
 
 ## Як оновити сторінки
 
