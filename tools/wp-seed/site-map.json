@@ -9,27 +9,32 @@
         {
           "slug": "misiya-i-viziya",
           "title": "Місія і візія закладу",
-          "lead": "Для чого існує НРЦ «Оберіг» і яким ми бачимо його розвиток."
+          "lead": "Для чого існує НРЦ «Оберіг» і яким ми бачимо його розвиток.",
+          "content": "<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Зміст сторінки надасть адміністрація НРЦ «Оберіг». Нижче — структура-приклад.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:heading -->\n<h2 class=\"wp-block-heading\">Місія</h2>\n<!-- /wp:heading -->\n\n<!-- wp:paragraph -->\n<p>Текст місії закладу.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:heading -->\n<h2 class=\"wp-block-heading\">Візія</h2>\n<!-- /wp:heading -->\n\n<!-- wp:paragraph -->\n<p>Текст візії закладу.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:heading -->\n<h2 class=\"wp-block-heading\">Цінності</h2>\n<!-- /wp:heading -->\n\n<!-- wp:list -->\n<ul class=\"wp-block-list\"><!-- wp:list-item -->\n<li>Цінність 1</li>\n<!-- /wp:list-item --><!-- wp:list-item -->\n<li>Цінність 2</li>\n<!-- /wp:list-item --><!-- wp:list-item -->\n<li>Цінність 3</li>\n<!-- /wp:list-item --></ul>\n<!-- /wp:list -->"
         },
         {
           "slug": "struktura-ta-orhany-upravlinnia",
           "title": "Структура та органи управління",
-          "lead": "Як організовано управління закладом."
+          "lead": "Як організовано управління закладом.",
+          "content": "<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Структура та органи управління закладу<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Документ оприлюднюється відповідно до ст. 30 Закону України «Про освіту» не пізніше ніж через 10 робочих днів після затвердження.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Зміст сторінки надасть адміністрація НРЦ «Оберіг». Нижче — структура-приклад.</p>\n<!-- /wp:paragraph -->"
         },
         {
           "slug": "administratsiia",
           "title": "Адміністрація",
-          "lead": "Керівництво НРЦ «Оберіг»."
+          "lead": "Керівництво НРЦ «Оберіг».",
+          "content": "<!-- wp:html -->\n<ul class=\"people\"><li class=\"person\"><span class=\"person-photo\"><svg class=\"icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6\"/></svg></span><span class=\"person-text\"><span class=\"person-role\">Директор</span><span class=\"person-name\">Шестопалова Галина Любомирівна</span></span></li><li class=\"person\"><span class=\"person-photo\"><svg class=\"icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6\"/></svg></span><span class=\"person-text\"><span class=\"person-role\">Заступник директора</span><span class=\"person-name\">ПІБ <span class=\"tag-example\">приклад</span></span></span></li><li class=\"person\"><span class=\"person-photo\"><svg class=\"icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6\"/></svg></span><span class=\"person-text\"><span class=\"person-role\">Заступник директора</span><span class=\"person-name\">ПІБ <span class=\"tag-example\">приклад</span></span></span></li></ul>\n<!-- /wp:html -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Фото і ПІБ працівників публікуються лише з їхньої письмової згоди. Контакти — тільки робочі.</p>\n<!-- /wp:paragraph -->"
         },
         {
           "slug": "pedahohichnyi-kolektyv",
           "title": "Педагогічний колектив",
-          "lead": "Вчителі та фахівці, які працюють з дітьми."
+          "lead": "Вчителі та фахівці, які працюють з дітьми.",
+          "content": "<!-- wp:html -->\n<ul class=\"people\"><li class=\"person\"><span class=\"person-photo\"><svg class=\"icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6\"/></svg></span><span class=\"person-text\"><span class=\"person-role\">Вчитель</span><span class=\"person-name\">ПІБ <span class=\"tag-example\">приклад</span></span></span></li><li class=\"person\"><span class=\"person-photo\"><svg class=\"icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6\"/></svg></span><span class=\"person-text\"><span class=\"person-role\">Асистент вчителя</span><span class=\"person-name\">ПІБ <span class=\"tag-example\">приклад</span></span></span></li><li class=\"person\"><span class=\"person-photo\"><svg class=\"icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6\"/></svg></span><span class=\"person-text\"><span class=\"person-role\">Вчитель-логопед</span><span class=\"person-name\">ПІБ <span class=\"tag-example\">приклад</span></span></span></li><li class=\"person\"><span class=\"person-photo\"><svg class=\"icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6\"/></svg></span><span class=\"person-text\"><span class=\"person-role\">Практичний психолог</span><span class=\"person-name\">ПІБ <span class=\"tag-example\">приклад</span></span></span></li><li class=\"person\"><span class=\"person-photo\"><svg class=\"icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6\"/></svg></span><span class=\"person-text\"><span class=\"person-role\">Фізичний терапевт</span><span class=\"person-name\">ПІБ <span class=\"tag-example\">приклад</span></span></span></li><li class=\"person\"><span class=\"person-photo\"><svg class=\"icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6\"/></svg></span><span class=\"person-text\"><span class=\"person-role\">Вихователь</span><span class=\"person-name\">ПІБ <span class=\"tag-example\">приклад</span></span></span></li></ul>\n<!-- /wp:html -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Фото і ПІБ працівників публікуються лише з їхньої письмової згоди. Перелік посад — приклад.</p>\n<!-- /wp:paragraph -->"
         },
         {
           "slug": "kadrovyi-sklad",
           "title": "Кадровий склад",
-          "lead": "Кадровий склад закладу згідно з ліцензійними умовами."
+          "lead": "Кадровий склад закладу згідно з ліцензійними умовами.",
+          "content": "<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Кадровий склад згідно з ліцензійними умовами<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Документ оприлюднюється відповідно до ст. 30 Закону України «Про освіту» не пізніше ніж через 10 робочих днів після затвердження.</p>\n<!-- /wp:paragraph -->"
         }
       ]
     },
@@ -42,52 +47,62 @@
         {
           "slug": "statut",
           "title": "Статут",
-          "lead": "Основний установчий документ закладу."
+          "lead": "Основний установчий документ закладу.",
+          "content": "<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Статут<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Документ оприлюднюється відповідно до ст. 30 Закону України «Про освіту» не пізніше ніж через 10 робочих днів після затвердження.</p>\n<!-- /wp:paragraph -->"
         },
         {
           "slug": "rishennia-pro-stvorennia",
           "title": "Рішення про створення закладу",
-          "lead": "Рішення засновника про створення закладу."
+          "lead": "Рішення засновника про створення закладу.",
+          "content": "<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Рішення про створення закладу<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->"
         },
         {
           "slug": "svidotstvo-pro-reiestratsiiu",
           "title": "Свідоцтво про державну реєстрацію",
-          "lead": "Документ про державну реєстрацію закладу."
+          "lead": "Документ про державну реєстрацію закладу.",
+          "content": "<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Свідоцтво про державну реєстрацію<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->"
         },
         {
           "slug": "litsenziia",
           "title": "Ліцензія",
-          "lead": "Ліцензія на провадження освітньої діяльності."
+          "lead": "Ліцензія на провадження освітньої діяльності.",
+          "content": "<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Ліцензія на провадження освітньої діяльності<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Документ оприлюднюється відповідно до ст. 30 Закону України «Про освіту» не пізніше ніж через 10 робочих днів після затвердження.</p>\n<!-- /wp:paragraph -->"
         },
         {
           "slug": "polozhennia-pro-akademichnu-dobrochesnist",
           "title": "Положення про академічну доброчесність",
-          "lead": "Правила академічної доброчесності для педагогів і здобувачів освіти (ст. 42 Закону України «Про освіту»)."
+          "lead": "Правила академічної доброчесності для педагогів і здобувачів освіти (ст. 42 Закону України «Про освіту»).",
+          "content": "<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Положення про академічну доброчесність<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->"
         },
         {
           "slug": "vnutrishnia-systema-yakosti-osvity",
           "title": "Положення про внутрішню систему забезпечення якості освіти",
-          "lead": "Як заклад стежить за якістю освіти і покращує її."
+          "lead": "Як заклад стежить за якістю освіти і покращує її.",
+          "content": "<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Положення про внутрішню систему забезпечення якості освіти<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->"
         },
         {
           "slug": "osvitnia-prohrama",
           "title": "Освітня програма",
-          "lead": "Освітня програма та перелік освітніх компонентів."
+          "lead": "Освітня програма та перелік освітніх компонентів.",
+          "content": "<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Освітня програма<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Документ оприлюднюється відповідно до ст. 30 Закону України «Про освіту» не пізніше ніж через 10 робочих днів після затвердження.</p>\n<!-- /wp:paragraph -->"
         },
         {
           "slug": "terytoriia-obsluhovuvannia",
           "title": "Територія обслуговування",
-          "lead": "Територія обслуговування, закріплена за закладом засновником."
+          "lead": "Територія обслуговування, закріплена за закладом засновником.",
+          "content": "<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Територія обслуговування<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Документ оприлюднюється відповідно до ст. 30 Закону України «Про освіту» не пізніше ніж через 10 робочих днів після затвердження.</p>\n<!-- /wp:paragraph -->"
         },
         {
           "slug": "pravyla-pryiomu",
           "title": "Правила прийому до закладу освіти",
-          "lead": "Порядок і умови зарахування дітей."
+          "lead": "Порядок і умови зарахування дітей.",
+          "content": "<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Правила прийому до закладу освіти<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Документ оприлюднюється відповідно до ст. 30 Закону України «Про освіту» не пізніше ніж через 10 робочих днів після затвердження.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Зміст сторінки надасть адміністрація НРЦ «Оберіг». Нижче — структура-приклад.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:heading -->\n<h2 class=\"wp-block-heading\">Документи для вступу</h2>\n<!-- /wp:heading -->\n\n<!-- wp:list -->\n<ul class=\"wp-block-list\"><!-- wp:list-item -->\n<li>Документ 1</li>\n<!-- /wp:list-item --><!-- wp:list-item -->\n<li>Документ 2</li>\n<!-- /wp:list-item --><!-- wp:list-item -->\n<li>Документ 3</li>\n<!-- /wp:list-item --></ul>\n<!-- /wp:list -->"
         },
         {
           "slug": "mova-navchannia",
           "title": "Мова навчання",
-          "lead": "Мова освітнього процесу."
+          "lead": "Мова освітнього процесу.",
+          "content": "<!-- wp:paragraph -->\n<p>Мова освітнього процесу в закладах освіти — державна (ст. 7 Закону України «Про освіту»).</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Мова освітнього процесу<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Документ оприлюднюється відповідно до ст. 30 Закону України «Про освіту» не пізніше ніж через 10 робочих днів після затвердження.</p>\n<!-- /wp:paragraph -->"
         }
       ]
     },
@@ -100,42 +115,50 @@
         {
           "slug": "vakansii",
           "title": "Вакансії",
-          "lead": "Вакантні посади, порядок і умови конкурсу (за наявності)."
+          "lead": "Вакантні посади, порядок і умови конкурсу (за наявності).",
+          "content": "<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Перелік вакантних посад<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Документ оприлюднюється відповідно до ст. 30 Закону України «Про освіту» не пізніше ніж через 10 робочих днів після затвердження.</p>\n<!-- /wp:paragraph -->"
         },
         {
           "slug": "materialno-tekhnichne-zabezpechennia",
           "title": "Матеріально-технічне забезпечення",
-          "lead": "Матеріально-технічне забезпечення закладу згідно з ліцензійними умовами."
+          "lead": "Матеріально-технічне забезпечення закладу згідно з ліцензійними умовами.",
+          "content": "<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Матеріально-технічне забезпечення<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Документ оприлюднюється відповідно до ст. 30 Закону України «Про освіту» не пізніше ніж через 10 робочих днів після затвердження.</p>\n<!-- /wp:paragraph -->"
         },
         {
           "slug": "richnyi-zvit",
           "title": "Річний звіт",
-          "lead": "Річний звіт про діяльність закладу."
+          "lead": "Річний звіт про діяльність закладу.",
+          "content": "<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Річний звіт про діяльність закладу<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Документ оприлюднюється відповідно до ст. 30 Закону України «Про освіту» не пізніше ніж через 10 робочих днів після затвердження.</p>\n<!-- /wp:paragraph -->"
         },
         {
           "slug": "finansova-zvitnist",
           "title": "Фінансова звітність",
-          "lead": "Кошторис, фінансові звіти та інформація про благодійну допомогу."
+          "lead": "Кошторис, фінансові звіти та інформація про благодійну допомогу.",
+          "content": "<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Кошторис<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Фінансовий звіт про надходження і використання коштів<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Перелік товарів, робіт і послуг, отриманих як благодійна допомога<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Документ оприлюднюється відповідно до ст. 30 Закону України «Про освіту» не пізніше ніж через 10 робочих днів після затвердження.</p>\n<!-- /wp:paragraph -->"
         },
         {
           "slug": "litsenzovanyi-obsiah",
           "title": "Ліцензований обсяг і кількість здобувачів освіти",
-          "lead": "Ліцензований обсяг і фактична кількість осіб, які навчаються в закладі."
+          "lead": "Ліцензований обсяг і фактична кількість осіб, які навчаються в закладі.",
+          "content": "<!-- wp:table {\"hasFixedLayout\":true} -->\n<figure class=\"wp-block-table\"><table class=\"has-fixed-layout\"><thead><tr><th>Рівень освіти</th><th>Ліцензований обсяг</th><th>Фактична кількість</th></tr></thead><tbody><tr><td>Дошкільна освіта</td><td>—</td><td>—</td></tr><tr><td>Загальна середня освіта</td><td>—</td><td>—</td></tr></tbody></table><figcaption class=\"wp-element-caption\">Ліцензований обсяг і фактична кількість (приклад)</figcaption></figure>\n<!-- /wp:table -->\n\n<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Ліцензований обсяг і фактична кількість здобувачів освіти<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Документ оприлюднюється відповідно до ст. 30 Закону України «Про освіту» не пізніше ніж через 10 робочих днів після затвердження.</p>\n<!-- /wp:paragraph -->"
         },
         {
           "slug": "dostupnist-dlia-osib-z-oop",
           "title": "Доступність для навчання осіб з ООП",
-          "lead": "Умови доступності закладу для навчання осіб з особливими освітніми потребами."
+          "lead": "Умови доступності закладу для навчання осіб з особливими освітніми потребами.",
+          "content": "<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Умови доступності закладу для навчання осіб з ООП<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Документ оприлюднюється відповідно до ст. 30 Закону України «Про освіту» не пізніше ніж через 10 робочих днів після затвердження.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Зміст сторінки надасть адміністрація НРЦ «Оберіг». Нижче — структура-приклад.</p>\n<!-- /wp:paragraph -->"
         },
         {
           "slug": "kharchuvannia",
           "title": "Харчування",
-          "lead": "Організація харчування дітей."
+          "lead": "Організація харчування дітей.",
+          "content": "<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Зміст сторінки надасть адміністрація НРЦ «Оберіг». Нижче — структура-приклад.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Організація харчування<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Меню<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->"
         },
         {
           "slug": "bf-bo-nrts-oberih",
           "title": "БФ «БО НРЦ-Оберіг»",
-          "lead": "Інформація про благодійну організацію та звіти про її діяльність."
+          "lead": "Інформація про благодійну організацію та звіти про її діяльність.",
+          "content": "<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Зміст сторінки надасть адміністрація НРЦ «Оберіг». Нижче — структура-приклад.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Звіт про діяльність<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->"
         }
       ]
     },
@@ -148,37 +171,44 @@
         {
           "slug": "rezhym-roboty",
           "title": "Режим роботи",
-          "lead": "Режим роботи закладу."
+          "lead": "Режим роботи закладу.",
+          "content": "<!-- wp:table {\"hasFixedLayout\":true} -->\n<figure class=\"wp-block-table\"><table class=\"has-fixed-layout\"><thead><tr><th>Дні</th><th>Час</th></tr></thead><tbody><tr><td>Понеділок — п’ятниця</td><td>—</td></tr><tr><td>Субота, неділя</td><td>вихідні</td></tr></tbody></table><figcaption class=\"wp-element-caption\">Режим роботи (приклад)</figcaption></figure>\n<!-- /wp:table -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Зміст сторінки надасть адміністрація НРЦ «Оберіг». Нижче — структура-приклад.</p>\n<!-- /wp:paragraph -->"
         },
         {
           "slug": "rozklad-zaniat",
           "title": "Розклад занять",
-          "lead": "Розклад уроків і занять."
+          "lead": "Розклад уроків і занять.",
+          "content": "<!-- wp:table {\"hasFixedLayout\":true} -->\n<figure class=\"wp-block-table\"><table class=\"has-fixed-layout\"><thead><tr><th>№</th><th>Понеділок</th><th>Вівторок</th><th>Середа</th><th>Четвер</th><th>П’ятниця</th></tr></thead><tbody><tr><td>1</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>2</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>3</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>4</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>5</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr></tbody></table><figcaption class=\"wp-element-caption\">Розклад (приклад)</figcaption></figure>\n<!-- /wp:table -->\n\n<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Розклад занять<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->"
         },
         {
           "slug": "richnyi-plan",
           "title": "Річний план",
-          "lead": "Річний план роботи закладу."
+          "lead": "Річний план роботи закладу.",
+          "content": "<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Річний план роботи<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->"
         },
         {
           "slug": "forma-zdobuttia-osvity",
           "title": "Форма здобуття освіти",
-          "lead": "Форми здобуття освіти в закладі."
+          "lead": "Форми здобуття освіти в закладі.",
+          "content": "<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Зміст сторінки надасть адміністрація НРЦ «Оберіг». Нижче — структура-приклад.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Форми здобуття освіти<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->"
         },
         {
           "slug": "kryterii-otsiniuvannia",
           "title": "Критерії оцінювання",
-          "lead": "Критерії оцінювання навчальних досягнень."
+          "lead": "Критерії оцінювання навчальних досягнень.",
+          "content": "<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Критерії оцінювання навчальних досягнень<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->"
         },
         {
           "slug": "monitorynh-yakosti-osvity",
           "title": "Моніторинг якості освіти",
-          "lead": "Результати моніторингу якості освіти."
+          "lead": "Результати моніторингу якості освіти.",
+          "content": "<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Результати моніторингу якості освіти<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Документ оприлюднюється відповідно до ст. 30 Закону України «Про освіту» не пізніше ніж через 10 робочих днів після затвердження.</p>\n<!-- /wp:paragraph -->"
         },
         {
           "slug": "psykholoho-pedahohichnyi-konsylium",
           "title": "Психолого-педагогічний консиліум",
-          "lead": "Склад, план роботи та рішення психолого-педагогічного консиліуму."
+          "lead": "Склад, план роботи та рішення психолого-педагогічного консиліуму.",
+          "content": "<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Зміст сторінки надасть адміністрація НРЦ «Оберіг». Нижче — структура-приклад.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Положення про психолого-педагогічний консиліум<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>План роботи<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->"
         }
       ]
     },
@@ -191,27 +221,32 @@
         {
           "slug": "klasnomu-kerivnyku",
           "title": "Класному керівнику",
-          "lead": "Нормативні й методичні матеріали для класних керівників."
+          "lead": "Нормативні й методичні матеріали для класних керівників.",
+          "content": "<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Методичні рекомендації<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>План виховної роботи<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->"
         },
         {
           "slug": "pravyla-povedinky",
           "title": "Правила поведінки здобувачів освіти",
-          "lead": "Правила поведінки здобувачів освіти в закладі."
+          "lead": "Правила поведінки здобувачів освіти в закладі.",
+          "content": "<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Правила поведінки здобувачів освіти<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Документ оприлюднюється відповідно до ст. 30 Закону України «Про освіту» не пізніше ніж через 10 робочих днів після затвердження.</p>\n<!-- /wp:paragraph -->"
         },
         {
           "slug": "natsionalno-patriotychne-vykhovannia",
           "title": "Національно-патріотичне виховання",
-          "lead": "Заходи з національно-патріотичного виховання."
+          "lead": "Заходи з національно-патріотичного виховання.",
+          "content": "<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Зміст сторінки надасть адміністрація НРЦ «Оберіг». Нижче — структура-приклад.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>План заходів<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->"
         },
         {
           "slug": "pravovykhovna-robota",
           "title": "Правовиховна робота",
-          "lead": "Заходи з правового виховання дітей."
+          "lead": "Заходи з правового виховання дітей.",
+          "content": "<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Зміст сторінки надасть адміністрація НРЦ «Оберіг». Нижче — структура-приклад.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>План заходів<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->"
         },
         {
           "slug": "hurtkova-robota",
           "title": "Гурткова робота",
-          "lead": "Гуртки та їх розклад."
+          "lead": "Гуртки та їх розклад.",
+          "content": "<!-- wp:table {\"hasFixedLayout\":true} -->\n<figure class=\"wp-block-table\"><table class=\"has-fixed-layout\"><thead><tr><th>Гурток</th><th>Керівник</th><th>Розклад</th></tr></thead><tbody><tr><td>Гурток 1</td><td>—</td><td>—</td></tr><tr><td>Гурток 2</td><td>—</td><td>—</td></tr></tbody></table><figcaption class=\"wp-element-caption\">Гуртки (приклад)</figcaption></figure>\n<!-- /wp:table -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Зміст сторінки надасть адміністрація НРЦ «Оберіг». Нижче — структура-приклад.</p>\n<!-- /wp:paragraph -->"
         }
       ]
     },
@@ -224,17 +259,20 @@
         {
           "slug": "polozhennia",
           "title": "Положення про дошкільне відділення",
-          "lead": "Положення, що визначає роботу дошкільного відділення."
+          "lead": "Положення, що визначає роботу дошкільного відділення.",
+          "content": "<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Положення про дошкільне відділення<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->"
         },
         {
           "slug": "rezhym-roboty",
           "title": "Режим роботи дошкільного відділення",
-          "lead": "Режим роботи дошкільного відділення."
+          "lead": "Режим роботи дошкільного відділення.",
+          "content": "<!-- wp:table {\"hasFixedLayout\":true} -->\n<figure class=\"wp-block-table\"><table class=\"has-fixed-layout\"><thead><tr><th>Дні</th><th>Час</th></tr></thead><tbody><tr><td>Понеділок — п’ятниця</td><td>—</td></tr><tr><td>Субота, неділя</td><td>вихідні</td></tr></tbody></table><figcaption class=\"wp-element-caption\">Режим роботи (приклад)</figcaption></figure>\n<!-- /wp:table -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Зміст сторінки надасть адміністрація НРЦ «Оберіг». Нижче — структура-приклад.</p>\n<!-- /wp:paragraph -->"
         },
         {
           "slug": "plan-roboty",
           "title": "План роботи",
-          "lead": "План роботи дошкільного відділення."
+          "lead": "План роботи дошкільного відділення.",
+          "content": "<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>План роботи дошкільного відділення<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->"
         }
       ]
     },
@@ -247,22 +285,26 @@
         {
           "slug": "polozhennia",
           "title": "Положення про реабілітаційне відділення",
-          "lead": "Положення, що визначає роботу реабілітаційного відділення."
+          "lead": "Положення, що визначає роботу реабілітаційного відділення.",
+          "content": "<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Положення про реабілітаційне відділення<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->"
         },
         {
           "slug": "korektsiino-rozvytkova-robota",
           "title": "Корекційно-розвиткова робота",
-          "lead": "Індивідуальні та групові корекційно-розвиткові заняття."
+          "lead": "Індивідуальні та групові корекційно-розвиткові заняття.",
+          "content": "<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Зміст сторінки надасть адміністрація НРЦ «Оберіг». Нижче — структура-приклад.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>План корекційно-розвиткової роботи<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->"
         },
         {
           "slug": "psykholohichna-sluzhba",
           "title": "Психологічна служба",
-          "lead": "Психологічна підтримка дітей і батьків."
+          "lead": "Психологічна підтримка дітей і батьків.",
+          "content": "<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Зміст сторінки надасть адміністрація НРЦ «Оберіг». Нижче — структура-приклад.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:heading -->\n<h2 class=\"wp-block-heading\">Як записатися на консультацію</h2>\n<!-- /wp:heading -->\n\n<!-- wp:paragraph -->\n<p>Записатися можна за телефоном НРЦ «Оберіг»: (0342) 55-05-24.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>План роботи психологічної служби<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->"
         },
         {
           "slug": "medychnyi-suprovid",
           "title": "Медичний супровід",
-          "lead": "Організація медичного супроводу дітей у закладі."
+          "lead": "Організація медичного супроводу дітей у закладі.",
+          "content": "<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Зміст сторінки надасть адміністрація НРЦ «Оберіг». Нижче — структура-приклад.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Відомості про здоров’я дітей на сайті не публікуються.</p>\n<!-- /wp:paragraph -->"
         }
       ]
     },
@@ -275,22 +317,26 @@
         {
           "slug": "buling",
           "title": "Булінг",
-          "lead": "Запобігання та протидія булінгу (цькуванню) в закладі."
+          "lead": "Запобігання та протидія булінгу (цькуванню) в закладі.",
+          "content": "<!-- wp:paragraph -->\n<p>Повідомити про булінг можна класному керівнику, практичному психологу або директору НРЦ «Оберіг». Заяви розглядаються конфіденційно.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>План заходів, спрямованих на запобігання та протидію булінгу<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Порядок подання та розгляду заяв про випадки булінгу<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Порядок реагування на доведені випадки булінгу<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Документ оприлюднюється відповідно до ст. 30 Закону України «Про освіту» не пізніше ніж через 10 робочих днів після затвердження.</p>\n<!-- /wp:paragraph -->"
         },
         {
           "slug": "bezpeka-v-interneti",
           "title": "Безпека в інтернеті",
-          "lead": "Як захистити себе і дітей в інтернеті."
+          "lead": "Як захистити себе і дітей в інтернеті.",
+          "content": "<!-- wp:list -->\n<ul class=\"wp-block-list\"><!-- wp:list-item -->\n<li>Не повідомляйте незнайомцям свою адресу, телефон, номер школи.</li>\n<!-- /wp:list-item --><!-- wp:list-item -->\n<li>Не надсилайте свої фото й відео людям, яких не знаєте особисто.</li>\n<!-- /wp:list-item --><!-- wp:list-item -->\n<li>Використовуйте складні паролі і не передавайте їх іншим.</li>\n<!-- /wp:list-item --><!-- wp:list-item -->\n<li>Якщо в мережі вас ображають чи погрожують — розкажіть батькам або вчителю.</li>\n<!-- /wp:list-item --><!-- wp:list-item -->\n<li>Не переходьте за підозрілими посиланнями і не встановлюйте невідомі програми.</li>\n<!-- /wp:list-item --></ul>\n<!-- /wp:list -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Зміст сторінки надасть адміністрація НРЦ «Оберіг». Нижче — структура-приклад.</p>\n<!-- /wp:paragraph -->"
         },
         {
           "slug": "povitriana-tryvoha",
           "title": "Увага! Повітряна тривога!",
-          "lead": "Як діяти під час повітряної тривоги."
+          "lead": "Як діяти під час повітряної тривоги.",
+          "content": "<!-- wp:list {\"ordered\":true} -->\n<ol class=\"wp-block-list\"><!-- wp:list-item -->\n<li>Почувши сигнал тривоги, зберігайте спокій.</li>\n<!-- /wp:list-item --><!-- wp:list-item -->\n<li>Виконуйте вказівки педагогів і працівників закладу.</li>\n<!-- /wp:list-item --><!-- wp:list-item -->\n<li>Організовано пройдіть до укриття.</li>\n<!-- /wp:list-item --><!-- wp:list-item -->\n<li>Перебувайте в укритті до сигналу відбою тривоги.</li>\n<!-- /wp:list-item --></ol>\n<!-- /wp:list -->\n\n<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Порядок дій, схему евакуації та місце укриття затверджує заклад — їх додасть адміністрація.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Порядок дій під час повітряної тривоги<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->"
         },
         {
           "slug": "posyleni-zakhody-bezpeky",
           "title": "Посилені заходи безпеки",
-          "lead": "Заходи безпеки, що діють у закладі."
+          "lead": "Заходи безпеки, що діють у закладі.",
+          "content": "<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Зміст сторінки надасть адміністрація НРЦ «Оберіг». Нижче — структура-приклад.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:html -->\n<ul class=\"doc-list doc-list-page\"><li><div class=\"doc-item\"><svg class=\"icon ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5M10 13h6M10 17h6\"/></svg><span>Наказ про посилення заходів безпеки<small>PDF · додасть адміністрація</small></span><em class=\"pdf\">PDF</em></div></li></ul>\n<!-- /wp:html -->"
         }
       ]
     }
@@ -303,7 +349,9 @@
   "contacts": {
     "slug": "kontakty",
     "title": "Контакти",
-    "color": "sky"
+    "color": "sky",
+    "lead": "Адреса, телефон, електронна пошта та форма запитання.",
+    "content": "<!-- wp:paragraph {\"className\":\"is-style-notice\"} -->\n<p class=\"is-style-notice\">Графік роботи та прийому громадян надасть адміністрація.</p>\n<!-- /wp:paragraph -->"
   },
   "footer": [
     {

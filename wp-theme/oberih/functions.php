@@ -11,6 +11,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require get_template_directory() . '/inc/helpers.php';
 require get_template_directory() . '/inc/menu.php';
+require get_template_directory() . '/inc/navigation.php';
+require get_template_directory() . '/inc/content.php';
+require get_template_directory() . '/inc/front.php';
 
 /**
  * Можливості теми й області меню.

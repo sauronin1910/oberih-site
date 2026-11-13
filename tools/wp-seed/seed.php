@@ -6,7 +6,7 @@
  * Запуск (WP-CLI):  wp eval-file tools/wp-seed/seed.php
  *
  * Можна запускати повторно: наявні сторінки й меню не змінюються і не дублюються, додається лише те, чого бракує.
- * Нічого не видаляє.
+ * Зміст-заготовку отримують лише сторінки з порожнім змістом. Нічого не видаляє.
  *
  * @package oberih
  */
@@ -25,6 +25,7 @@ $oberih_stats = array(
 	'pages_old' => 0,
 	'menus_new' => 0,
 	'menus_old' => 0,
+	'filled'    => 0,
 );
 
 /**
@@ -36,13 +37,23 @@ $oberih_stats = array(
  * @param int    $parent ID батьківської сторінки.
  * @param int    $order  Порядок серед сусідніх сторінок.
  * @param array  $stats  Лічильники.
+ * @param string $content Зміст-заготовка (розмітка редактора); ставиться лише в порожню сторінку.
  * @return int ID сторінки.
  */
-function oberih_seed_page( $slug, $title, $lead, $parent, $order, &$stats ) {
+function oberih_seed_page( $slug, $title, $lead, $parent, $order, &$stats, $content = '' ) {
 	$path = $parent ? get_page_uri( $parent ) . '/' . $slug : $slug;
 	$page = get_page_by_path( $path );
 	if ( $page ) {
 		++$stats['pages_old'];
+		if ( '' !== $content && '' === trim( $page->post_content ) ) {
+			wp_update_post(
+				array(
+					'ID'           => $page->ID,
+					'post_content' => wp_slash( $content ),
+				)
+			);
+			++$stats['filled'];
+		}
 		return (int) $page->ID;
 	}
 	$id = wp_insert_post(
@@ -52,6 +63,7 @@ function oberih_seed_page( $slug, $title, $lead, $parent, $order, &$stats ) {
 			'post_title'     => $title,
 			'post_name'      => $slug,
 			'post_excerpt'   => $lead,
+			'post_content'   => wp_slash( $content ),
 			'post_parent'    => $parent,
 			'menu_order'     => $order,
 			'comment_status' => 'closed',
@@ -63,6 +75,9 @@ function oberih_seed_page( $slug, $title, $lead, $parent, $order, &$stats ) {
 		WP_CLI::error( "Сторінка «{$title}»: " . $id->get_error_message() );
 	}
 	++$stats['pages_new'];
+	if ( '' !== $content ) {
+		++$stats['filled'];
+	}
 	return (int) $id;
 }
 
@@ -101,14 +116,23 @@ foreach ( $oberih_map['sections'] as $oberih_i => $oberih_s ) {
 	$oberih_ids[ $oberih_s['slug'] ] = $oberih_sid;
 	$oberih_children                 = array();
 	foreach ( $oberih_s['pages'] as $oberih_j => $oberih_p ) {
-		$oberih_pid        = oberih_seed_page( $oberih_p['slug'], $oberih_p['title'], $oberih_p['lead'], $oberih_sid, $oberih_j + 1, $oberih_stats );
+		$oberih_pid        = oberih_seed_page( $oberih_p['slug'], $oberih_p['title'], $oberih_p['lead'], $oberih_sid, $oberih_j + 1, $oberih_stats, isset( $oberih_p['content'] ) ? $oberih_p['content'] : '' );
 		$oberih_children[] = $oberih_pid;
 		$oberih_ids[ $oberih_s['slug'] . '/' . $oberih_p['slug'] ] = $oberih_pid;
 	}
 	$oberih_sections[] = array( $oberih_sid, $oberih_children );
 }
 $oberih_news     = oberih_seed_page( $oberih_map['news']['slug'], $oberih_map['news']['title'], '', 0, 20, $oberih_stats );
-$oberih_contacts = oberih_seed_page( $oberih_map['contacts']['slug'], $oberih_map['contacts']['title'], '', 0, 21, $oberih_stats );
+$oberih_contacts = oberih_seed_page( $oberih_map['contacts']['slug'], $oberih_map['contacts']['title'], $oberih_map['contacts']['lead'], 0, 21, $oberih_stats, $oberih_map['contacts']['content'] );
+// Короткий опис «Контактів» — і для сторінки, створеної раніше без нього.
+if ( ! has_excerpt( $oberih_contacts ) ) {
+	wp_update_post(
+		array(
+			'ID'           => $oberih_contacts,
+			'post_excerpt' => $oberih_map['contacts']['lead'],
+		)
+	);
+}
 $oberih_ids[ $oberih_map['news']['slug'] ]     = $oberih_news;
 $oberih_ids[ $oberih_map['contacts']['slug'] ] = $oberih_contacts;
 
@@ -183,9 +207,10 @@ set_theme_mod( 'nav_menu_locations', $oberih_locations );
 
 WP_CLI::success(
 	sprintf(
-		'Сторінки: створено %d, уже були %d. Меню: створено %d, уже були %d.',
+		'Сторінки: створено %d, уже були %d, заповнено змістом-заготовкою %d. Меню: створено %d, уже були %d.',
 		$oberih_stats['pages_new'],
 		$oberih_stats['pages_old'],
+		$oberih_stats['filled'],
 		$oberih_stats['menus_new'],
 		$oberih_stats['menus_old']
 	)

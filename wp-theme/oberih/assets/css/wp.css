@@ -13,3 +13,19 @@
 @media (max-width:600px){
   #wpadminbar{position:fixed}
 }
+
+/* Фото новини (мініатюра запису) */
+.news-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+
+/* Блок «Файл» (PDF-документ) — у вигляді документа з макета */
+.page-body .wp-block-file{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem 1rem;margin:0;padding:.85rem 1rem;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink)}
+.page-body .wp-block-file > a:not(.wp-block-file__button){flex:1 1 14rem;min-width:0;color:var(--ink);font-weight:700;text-decoration:none;overflow-wrap:anywhere}
+.page-body .wp-block-file > a:not(.wp-block-file__button):hover{text-decoration:underline}
+.page-body .wp-block-file .wp-block-file__button{display:inline-flex;align-items:center;min-height:44px;padding:.45rem 1.1rem;border-radius:999px;background:var(--accent);color:var(--on-accent);font-weight:800;font-size:max(.9rem,var(--min-small));text-decoration:none}
+.page-body .wp-block-file .wp-block-file__embed{flex:1 1 100%;width:100%;border-radius:8px;border:1px solid var(--line)}
+
+/* Зображення у змісті сторінки */
+.page-body img{max-width:100%;height:auto;border-radius:12px}
+.page-body figure{margin:0}
+.page-body .wp-element-caption{color:var(--muted);font-size:max(.9rem,var(--min-small));margin-top:.4rem}
+.section-intro-text{margin-bottom:1.5rem}
