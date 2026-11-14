@@ -70,6 +70,47 @@ function oberih_ask_ip() {
 /**
  * Обробка надісланої форми.
  */
+/**
+ * Куди надсилати запитання: адреса з «Налаштування → Загальні», інакше — пошта закладу.
+ *
+ * @return string
+ */
+function oberih_ask_recipient_email() {
+	$email = sanitize_email( (string) get_option( 'oberih_ask_email', '' ) );
+	return is_email( $email ) ? $email : oberih_contact( 'email' );
+}
+
+/**
+ * Поле «Пошта для запитань з сайту» у «Налаштування → Загальні».
+ * Адреса зберігається в базі сайту, а не в коді теми.
+ */
+function oberih_ask_settings() {
+	register_setting(
+		'general',
+		'oberih_ask_email',
+		array(
+			'type'              => 'string',
+			'sanitize_callback' => 'sanitize_email',
+			'default'           => '',
+		)
+	);
+	add_settings_field(
+		'oberih_ask_email',
+		__( 'Пошта для запитань з сайту', 'oberih' ),
+		static function () {
+			printf(
+				'<input name="oberih_ask_email" type="email" id="oberih_ask_email" value="%1$s" class="regular-text" aria-describedby="oberih-ask-email-desc"><p class="description" id="oberih-ask-email-desc">%2$s</p>',
+				esc_attr( get_option( 'oberih_ask_email', '' ) ),
+				esc_html( sprintf( /* translators: %s: пошта закладу */ __( 'Сюди приходять листи з форми «Поставити запитання». Якщо поле порожнє — на пошту закладу %s.', 'oberih' ), oberih_contact( 'email' ) ) )
+			);
+		},
+		'general',
+		'default',
+		array( 'label_for' => 'oberih_ask_email' )
+	);
+}
+add_action( 'admin_init', 'oberih_ask_settings' );
+
 function oberih_handle_ask() {
 	// phpcs:disable WordPress.Security.NonceVerification.Missing -- ключ перевіряється нижче.
 	$post    = wp_unslash( $_POST );
@@ -120,7 +161,7 @@ function oberih_handle_ask() {
 	}
 
 	if ( 'ok' === $code ) {
-		$to      = apply_filters( 'oberih_ask_recipient', oberih_contact( 'email' ) );
+		$to      = apply_filters( 'oberih_ask_recipient', oberih_ask_recipient_email() );
 		$subject = sprintf( /* translators: %s: ім'я */ __( 'Запитання з сайту НРЦ «Оберіг» від %s', 'oberih' ), mb_substr( $name, 0, 80 ) );
 		$page    = wp_get_referer() ? esc_url_raw( wp_get_referer() ) : home_url( '/' );
 		$body    = implode(
