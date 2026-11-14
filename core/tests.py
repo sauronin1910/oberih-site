@@ -1,18 +1,27 @@
 """Автоматичні тести публічної частини та моделей сайту КЗ «НРЦ «Оберіг»»."""
 from datetime import date
-from io import StringIO
+from io import BytesIO, StringIO
 import json
 import logging
+from pathlib import Path
 import re
+import tempfile
+from unittest.mock import patch
+import xml.etree.ElementTree as ET
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import mail
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.mail.backends.base import BaseEmailBackend
 from django.core.management import call_command
-from django.test import Client, TestCase, override_settings
+from django.core.management.base import CommandError
+from django.test import Client, RequestFactory, TestCase, override_settings
+from PIL import Image
 
+from .context_processors import site_context
 from .models import (
     Block,
     ContactMessage,
@@ -24,7 +33,9 @@ from .models import (
     Section,
     SiteSettings,
     Sponsor,
+    validate_image_file,
 )
+from .views import error_400, error_403, error_500
 
 
 class FailingEmailBackend(BaseEmailBackend):
@@ -859,6 +870,11 @@ class ContactsAndFormTests(TestCase):
         self.assertEqual(ContactMessage.objects.count(), 0)
         self.assertEqual(len(mail.outbox), 0)
 
+    @override_settings(
+        CONTACT_RATE_LIMIT_COUNT=3,
+        CONTACT_RATE_LIMIT_PERIOD=600,
+        TRUST_X_FORWARDED_FOR=False,
+    )
     def test_rate_limit_and_x_forwarded_for_and_cache_fail_open(self):
         """Перевищення ліміту (3 за 10 хв) дає 429; перевірка останнього IP у X-Forwarded-For та відкритої відмови кешу."""
         valid_data = {
@@ -1065,3 +1081,346 @@ class ContactsAndFormTests(TestCase):
         )
         self.assertEqual(resp_del.status_code, 302)
         self.assertFalse(ContactMessage.objects.filter(pk=msg.pk).exists())
+
+
+class Stage8SecurityAndDeployTests(TestCase):
+    """Тести 8-го кроку: сторінки помилок (404/500/403/400), CSP, захист входу в адмінку, ліміт фото, SEO та backup_site."""
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("createcachetable", stdout=StringIO())
+        call_command("import_site_map", stdout=StringIO())
+        call_command("import_home", stdout=StringIO())
+
+    def setUp(self):
+        cache.clear()
+
+    def test_404_page_matches_reference_and_survives_db_failure(self):
+        """Неіснуючий URL повертає 404 у дизайні сайту з <meta name="robots" content="noindex"> та переживає збій БД."""
+        resp = self.client.get("/neisnuiucha-storinka-404/")
+        self.assertEqual(resp.status_code, 404)
+        html = resp.content.decode("utf-8")
+        self.assertIn('<meta name="robots" content="noindex">', html)
+        self.assertIn('<section class="page-hero err404"', html)
+        self.assertIn('<p class="err-code" aria-hidden="true">404</p>', html)
+        self.assertIn('<h1 id="page-title">Сторінку не знайдено</h1>', html)
+        self.assertIn('<ul class="err-links">', html)
+        self.assertIn('href="/pro-nas/"', html)
+
+        # Навіть якщо БД недоступна під час роботи context processor, сторінка 404 не падає з 500
+        rf = RequestFactory()
+        req = rf.get("/neisnuiucha-storinka-404/")
+        with (
+            patch(
+                "core.context_processors.SiteSettings.objects.first",
+                side_effect=RuntimeError("БД тимчасово недоступна"),
+            ),
+            self.assertLogs("core.context_processors", level=logging.ERROR),
+        ):
+            ctx = site_context(req)
+        self.assertEqual(ctx["menu_sections"], [])
+        self.assertFalse(ctx["has_sponsors"])
+
+    def test_500_page_is_autonomous_zero_db_queries_and_uses_static_prefix(self):
+        """Сторінка 500 не робить жодного запиту до БД і підключає статику через {% get_static_prefix %}."""
+        rf = RequestFactory()
+        req = rf.get("/500-test/")
+        with self.assertNumQueries(0):
+            resp = error_500(req)
+        self.assertEqual(resp.status_code, 500)
+        html = resp.content.decode("utf-8")
+        self.assertIn('<p class="err-code" aria-hidden="true">500</p>', html)
+        self.assertIn("Тимчасова технічна помилка", html)
+        self.assertIn('/static/css/style.css"', html)
+        self.assertIn('/static/js/main.js"', html)
+
+    def test_403_and_400_pages_render_in_ukrainian(self):
+        """Сторінки 403 (зокрема CSRF) та 400 відображаються українською в дизайні сайту."""
+        rf = RequestFactory()
+        resp_403 = error_403(rf.get("/403/"))
+        self.assertEqual(resp_403.status_code, 403)
+        html_403 = resp_403.content.decode("utf-8")
+        self.assertIn('<p class="err-code" aria-hidden="true">403</p>', html_403)
+        self.assertIn("Доступ обмежено", html_403)
+
+        resp_400 = error_400(rf.get("/400/"))
+        self.assertEqual(resp_400.status_code, 400)
+        html_400 = resp_400.content.decode("utf-8")
+        self.assertIn('<p class="err-code" aria-hidden="true">400</p>', html_400)
+        self.assertIn("Некоректний запит", html_400)
+
+        # Звичайний не-AJAX POST без CSRF-токена отримує українську сторінку 403
+        csrf_client = Client(enforce_csrf_checks=True)
+        resp_csrf = csrf_client.post("/kontakty/", data={"name": "Тест"})
+        self.assertEqual(resp_csrf.status_code, 403)
+        self.assertIn("Доступ обмежено", resp_csrf.content.decode("utf-8"))
+
+    def test_csp_header_and_no_inline_scripts_on_public_pages(self):
+        """На публічних сторінках присутній CSP без 'unsafe-inline' у script-src і немає вбудованих скриптів, крім application/ld+json."""
+        first_news = NewsItem.objects.first()
+        if first_news:
+            first_news.is_published = True
+            first_news.save(update_fields=["is_published"])
+
+        public_urls = [
+            "/",
+            "/kontakty/",
+            "/novyny/",
+            f"/novyny/{first_news.slug}/",
+            "/pro-nas/",
+            "/pro-nas/struktura-ta-orhany-upravlinnia/",
+            "/neisnuiucha-storinka-404/",
+        ]
+        script_pattern = re.compile(r"<script\b([^>]*)>(.*?)</script>", re.S | re.I)
+
+        for url in public_urls:
+            with self.subTest(url=url):
+                resp = self.client.get(url)
+                self.assertIn("Content-Security-Policy", resp.headers)
+                csp = resp.headers["Content-Security-Policy"]
+                self.assertIn("script-src 'self'", csp)
+                self.assertNotIn("script-src 'self' 'unsafe-inline'", csp)
+
+                html = resp.content.decode("utf-8")
+                for attrs, body in script_pattern.findall(html):
+                    has_src = bool(re.search(r'\bsrc\s*=\s*["\'][^"\']+["\']', attrs))
+                    is_json_ld = bool(
+                        re.search(
+                            r'\btype\s*=\s*["\']application/ld\+json["\']', attrs
+                        )
+                    )
+                    self.assertTrue(
+                        has_src or is_json_ld,
+                        f"Знайдено недозволений вбудований <script> на {url}: <script{attrs}>{body[:80]}</script>",
+                    )
+
+        # На /admin-panel/login/ заголовок CSP НЕ застосовується
+        resp_admin = self.client.get("/admin-panel/login/")
+        self.assertNotIn("Content-Security-Policy", resp_admin.headers)
+
+        # При CSP_ENABLED=False заголовок вимикається
+        with override_settings(CSP_ENABLED=False):
+            resp_no_csp = self.client.get("/")
+            self.assertNotIn("Content-Security-Policy", resp_no_csp.headers)
+
+    @override_settings(
+        ADMIN_LOGIN_RATE_LIMIT_COUNT=5,
+        ADMIN_LOGIN_IP_RATE_LIMIT_COUNT=20,
+        ADMIN_LOGIN_RATE_LIMIT_PERIOD=900,
+        TRUST_X_FORWARDED_FOR=False,
+    )
+    def test_admin_login_rate_limit_pair_and_ip_and_fail_open(self):
+        """Вхід в адмінку обмежує 5 спроб на (IP+логін) та 20 спроб на IP (повертає 429 українською) і має відкриту відмову."""
+        User.objects.create_superuser(
+            username="editor_user",
+            email="editor@example.com",
+            password="ValidAdminPassword123!",
+        )
+
+        # 1. Ліміт на пару (адреса + логін): 5 невдалих спроб -> 200, 6-та -> 429
+        for i in range(5):
+            resp = self.client.post(
+                "/admin-panel/login/",
+                data={"username": "editor_user", "password": "wrong_password"},
+                REMOTE_ADDR="198.51.100.10",
+            )
+            self.assertEqual(
+                resp.status_code, 200, f"Спроба #{i + 1} мала повернути 200"
+            )
+
+        resp_blocked = self.client.post(
+            "/admin-panel/login/",
+            data={"username": "editor_user", "password": "ValidAdminPassword123!"},
+            REMOTE_ADDR="198.51.100.10",
+        )
+        self.assertEqual(resp_blocked.status_code, 429)
+        blocked_html = resp_blocked.content.decode("utf-8")
+        self.assertIn("Забагато невдалих спроб входу", blocked_html)
+
+        # 2. Загальний ліміт на IP (20 за 15 хв) при переборі різних логінів з однієї адреси
+        cache.clear()
+        for i in range(20):
+            resp_ip = self.client.post(
+                "/admin-panel/login/",
+                data={"username": f"attacker_login_{i}", "password": "wrong"},
+                REMOTE_ADDR="198.51.100.77",
+            )
+            self.assertEqual(resp_ip.status_code, 200)
+
+        # 21-ша спроба з цього ж IP (навіть з новим логіном) блокується зі статусом 429
+        resp_ip_blocked = self.client.post(
+            "/admin-panel/login/",
+            data={"username": "brand_new_login", "password": "wrong"},
+            REMOTE_ADDR="198.51.100.77",
+        )
+        self.assertEqual(resp_ip_blocked.status_code, 429)
+
+        # 3. Відкрита відмова при недоступному кеші: вхід працює навіть при збої таблиці кешу
+        broken_caches = {
+            "default": {
+                "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+                "LOCATION": "nonexistent_admin_cache_table_xyz",
+            }
+        }
+        with (
+            override_settings(CACHES=broken_caches),
+            self.assertLogs("core.middleware", level=logging.ERROR),
+        ):
+            resp_ok = self.client.post(
+                "/admin-panel/login/",
+                data={
+                    "username": "editor_user",
+                    "password": "ValidAdminPassword123!",
+                },
+                REMOTE_ADDR="198.51.100.99",
+            )
+        self.assertEqual(resp_ok.status_code, 302)
+
+    def test_image_max_pixels_decompression_bomb_validation(self):
+        """Перевищення ліміту IMAGE_MAX_PIXELS (DecompressionBombWarning та DecompressionBombError) видає зрозумілу українську помилку."""
+        buf = BytesIO()
+        Image.new("RGB", (200, 200), color=(40, 80, 120)).save(buf, format="JPEG")
+        uploaded = SimpleUploadedFile(
+            "large_dim.jpg", buf.getvalue(), content_type="image/jpeg"
+        )
+
+        # 1. Ліміт 10 000 пікселів для картинки 200x200 (40 000 пікселів -> DecompressionBombError)
+        with override_settings(IMAGE_MAX_PIXELS=10_000):
+            with self.assertRaises(ValidationError) as ctx_err:
+                validate_image_file(uploaded)
+            self.assertIn(
+                "Фото завелике. Зменшіть його розмір і спробуйте ще раз.",
+                str(ctx_err.exception),
+            )
+
+        # 2. Ліміт 30 000 пікселів для картинки 200x200 (40 000 пікселів -> між N і 2N Pillow кидає DecompressionBombWarning)
+        with override_settings(IMAGE_MAX_PIXELS=30_000):
+            with self.assertRaises(ValidationError) as ctx_warn:
+                validate_image_file(uploaded)
+            self.assertIn(
+                "Фото завелике. Зменшіть його розмір і спробуйте ще раз.",
+                str(ctx_warn.exception),
+            )
+
+    @override_settings(SITE_URL="https://oberih.if.ua")
+    def test_robots_txt_and_sitemap_xml(self):
+        """Перевірка /robots.txt та /sitemap.xml: валідний XML, наявність опублікованих сторінок і відсутність чернеток та адмінки."""
+        resp_robots = self.client.get("/robots.txt")
+        self.assertEqual(resp_robots.status_code, 200)
+        self.assertTrue(resp_robots["Content-Type"].startswith("text/plain"))
+        robots_text = resp_robots.content.decode("utf-8")
+        self.assertIn("User-agent: *", robots_text)
+        self.assertIn("Disallow: /admin-panel/", robots_text)
+        self.assertIn("Sitemap: https://oberih.if.ua/sitemap.xml", robots_text)
+
+        # Опублікуємо одну новину, а решту залишимо чернетками
+        pub_news = NewsItem.objects.first()
+        pub_news.is_published = True
+        pub_news.save(update_fields=["is_published"])
+        draft_news = NewsItem.objects.exclude(pk=pub_news.pk).first()
+
+        resp_sitemap = self.client.get("/sitemap.xml")
+        self.assertEqual(resp_sitemap.status_code, 200)
+        self.assertTrue(
+            resp_sitemap["Content-Type"].startswith("application/xml")
+        )
+        xml_text = resp_sitemap.content.decode("utf-8")
+
+        # Перевіряємо валідність XML
+        root = ET.fromstring(xml_text)
+        ns = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+        locs = [el.text for el in root.findall("sm:url/sm:loc", ns)]
+
+        self.assertIn("https://oberih.if.ua/", locs)
+        self.assertIn("https://oberih.if.ua/kontakty/", locs)
+        self.assertIn("https://oberih.if.ua/novyny/", locs)
+        self.assertIn("https://oberih.if.ua/pro-nas/", locs)
+        self.assertIn(
+            "https://oberih.if.ua/pro-nas/struktura-ta-orhany-upravlinnia/",
+            locs,
+        )
+        self.assertIn(f"https://oberih.if.ua/novyny/{pub_news.slug}/", locs)
+
+        # Чернетки сторінок, чернетки новин і /admin-panel/ НЕ потрапляють у sitemap.xml
+        self.assertNotIn(
+            "https://oberih.if.ua/reabilitatsiine-viddilennia/medychnyi-suprovid/",
+            locs,
+        )
+        if draft_news:
+            self.assertNotIn(
+                f"https://oberih.if.ua/novyny/{draft_news.slug}/", locs
+            )
+        for loc in locs:
+            self.assertNotIn("/admin-panel/", loc)
+
+    def test_import_commands_require_yes_when_data_exists(self):
+        """Команди import_site_map та import_home зупиняються без ключа --yes, якщо в базі вже є сторінки або новини."""
+        out_map = StringIO()
+        call_command("import_site_map", stdout=out_map)
+        self.assertIn("--yes", out_map.getvalue())
+        self.assertIn("Зміни НЕ внесено", out_map.getvalue())
+
+        out_home = StringIO()
+        call_command("import_home", stdout=out_home)
+        self.assertIn("--yes", out_home.getvalue())
+        self.assertIn("Зміни НЕ внесено", out_home.getvalue())
+
+    def test_backup_site_safety_checks_and_rotation(self):
+        """Команда backup_site відхиляє каталоги всередині MEDIA_ROOT та проєкту, коректно повідомляє про відсутність pg_dump і ротує лише власні файли."""
+        # 1. Відмова, якщо BACKUP_DIR всередині MEDIA_ROOT
+        inside_media = Path(settings.MEDIA_ROOT) / "backups"
+        with self.assertRaises(CommandError) as err_media:
+            call_command("backup_site", dir=str(inside_media), stdout=StringIO())
+        self.assertIn("MEDIA_ROOT", str(err_media.exception))
+
+        # 2. Відмова, якщо BACKUP_DIR всередині каталогу проєкту (BASE_DIR)
+        inside_project = Path(settings.BASE_DIR) / "backups_in_repo"
+        with self.assertRaises(CommandError) as err_proj:
+            call_command(
+                "backup_site", dir=str(inside_project), stdout=StringIO()
+            )
+        self.assertIn("каталогу проєкту", str(err_proj.exception))
+
+        # 3. Якщо pg_dump не знайдено — зрозуміла помилка українською через CommandError
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            with patch("shutil.which", return_value=None):
+                with self.assertRaises(CommandError) as err_pg:
+                    call_command("backup_site", dir=tmp_dir, stdout=StringIO())
+                self.assertIn("pg_dump не знайдено", str(err_pg.exception))
+
+            # 4. Перевірка створення файлів і ротації лише за власним шаблоном імені
+            tmp_path = Path(tmp_dir)
+            unrelated_file = tmp_path / "important_notes.txt"
+            unrelated_file.write_text("не чіпати", encoding="utf-8")
+            old_dump_1 = tmp_path / "oberih_db_20250101_030000.dump"
+            old_dump_2 = tmp_path / "oberih_db_20250102_030000.dump"
+            old_dump_1.write_bytes(b"old1")
+            old_dump_2.write_bytes(b"old2")
+
+            def fake_run(cmd, env=None, **kwargs):
+                # Створюємо файл дампу за шляхом аргументу -f
+                f_idx = cmd.index("-f") + 1
+                Path(cmd[f_idx]).write_bytes(b"PGDMP_TEST")
+
+                class Res:
+                    returncode = 0
+                    stderr = ""
+                    stdout = ""
+
+                return Res()
+
+            with (
+                patch("shutil.which", return_value="/usr/bin/pg_dump"),
+                patch("subprocess.run", side_effect=fake_run),
+            ):
+                call_command(
+                    "backup_site", dir=tmp_dir, keep=2, stdout=StringIO()
+                )
+
+            # Сторонній файл залишився недоторканим, найстаріший дамп видалено, залишилося рівно 2 дампи
+            self.assertTrue(unrelated_file.exists())
+            self.assertFalse(old_dump_1.exists())
+            self.assertTrue(old_dump_2.exists())
+            dumps = list(tmp_path.glob("oberih_db_*.dump"))
+            self.assertEqual(len(dumps), 2)
+

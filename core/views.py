@@ -12,13 +12,16 @@ from django.core.paginator import Paginator
 from django.core.validators import validate_email
 from django.db import transaction
 from django.http import (
+    HttpResponse,
     HttpResponsePermanentRedirect,
     HttpResponseRedirect,
     JsonResponse,
 )
 from django.shortcuts import get_object_or_404, render
+from django.template import loader
 from django.templatetags.static import static
 from django.utils import timezone
+from django.utils.html import escape
 from django.views.decorators.cache import never_cache
 
 from .models import (
@@ -204,7 +207,7 @@ def _is_ajax(request) -> bool:
     return "application/json" in accept
 
 
-def _get_client_ip(request) -> str:
+def get_client_ip(request) -> str:
     """Безпечно визначає адресу клієнта (бере останній запис X-Forwarded-For лише коли TRUST_X_FORWARDED_FOR=True)."""
     if getattr(settings, "TRUST_X_FORWARDED_FOR", False):
         xff = request.META.get("HTTP_X_FORWARDED_FOR", "")
@@ -215,9 +218,12 @@ def _get_client_ip(request) -> str:
     return (request.META.get("REMOTE_ADDR") or "").strip() or "unknown"
 
 
+_get_client_ip = get_client_ip
+
+
 def _rate_limit_key(request) -> str:
     """Формує незворотний SHA-256 ключ для ліміту запитів без збереження сирого IP."""
-    client_ip = _get_client_ip(request)
+    client_ip = get_client_ip(request)
     raw = f"{client_ip}:{settings.SECRET_KEY}".encode("utf-8")
     return f"contact_rl:{hashlib.sha256(raw).hexdigest()}"
 
@@ -444,6 +450,8 @@ def contacts(request):
             message=form_values["message"],
             consent_given=True,
         )
+        # У журнал записуємо лише ідентифікатор запису (без тексту звернення та без email відвідувача)
+        logger.info("Збережено нове звернення #%s", contact_msg.pk)
 
         # 5. Надсилаємо сповіщення на пошту (збій пошти не скасовує запис і не повертає помилку)
         _send_contact_notification(contact_msg)
@@ -496,3 +504,128 @@ def redirect_section_index_html(request, section_slug: str):
 def redirect_page_html(request, section_slug: str, page_slug: str):
     """Постійний 301-редірект зі старої адреси /<section>/<page>.html на /<section>/<page>/."""
     return HttpResponsePermanentRedirect(f"/{section_slug}/{page_slug}/")
+
+
+def robots_txt(request):
+    """Віддає текстовий файл /robots.txt із посиланням на sitemap.xml та закритою адмінкою."""
+    site_url = getattr(settings, "SITE_URL", "").rstrip("/")
+    base_url = (
+        site_url if site_url else request.build_absolute_uri("/").rstrip("/")
+    )
+    lines = [
+        "User-agent: *",
+        "Disallow: /admin-panel/",
+        f"Sitemap: {base_url}/sitemap.xml",
+        "",
+    ]
+    return HttpResponse(
+        "\n".join(lines), content_type="text/plain; charset=utf-8"
+    )
+
+
+def sitemap_xml(request):
+    """Формує /sitemap.xml для всіх публічних опублікованих сторінок сайту."""
+    site_url = getattr(settings, "SITE_URL", "").rstrip("/")
+    base_url = (
+        site_url if site_url else request.build_absolute_uri("/").rstrip("/")
+    )
+
+    entries: list[tuple[str, str | None]] = [
+        (f"{base_url}/", None),
+        (f"{base_url}/kontakty/", None),
+        (f"{base_url}/novyny/", None),
+    ]
+
+    for section in Section.objects.order_by("order", "id"):
+        entries.append((f"{base_url}/{section.slug}/", None))
+
+    for page in (
+        Page.objects.filter(is_published=True)
+        .select_related("section")
+        .order_by("section__order", "order", "id")
+    ):
+        lastmod = (
+            page.updated_at.strftime("%Y-%m-%d") if page.updated_at else None
+        )
+        entries.append(
+            (f"{base_url}/{page.section.slug}/{page.slug}/", lastmod)
+        )
+
+    for news in NewsItem.objects.filter(is_published=True).order_by(
+        "-published_date", "-id"
+    ):
+        lastmod = (
+            news.published_date.strftime("%Y-%m-%d")
+            if news.published_date
+            else None
+        )
+        entries.append((f"{base_url}/novyny/{news.slug}/", lastmod))
+
+    xml_lines = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ]
+    for loc, lastmod in entries:
+        xml_lines.append("  <url>")
+        xml_lines.append(f"    <loc>{escape(loc)}</loc>")
+        if lastmod:
+            xml_lines.append(f"    <lastmod>{escape(lastmod)}</lastmod>")
+        xml_lines.append("  </url>")
+    xml_lines.append("</urlset>")
+    xml_lines.append("")
+
+    return HttpResponse(
+        "\n".join(xml_lines), content_type="application/xml; charset=utf-8"
+    )
+
+
+def error_404(request, exception=None):
+    """Відображає сторінку 404 у дизайні сайту."""
+    context = {
+        "current_section_slug": None,
+        "current_page_slug": None,
+    }
+    return render(request, "404.html", context, status=404)
+
+
+def error_500(request):
+    """Відображає повністю автономну сторінку 500 без звернень до бази даних чи context processors."""
+    template = loader.get_template("500.html")
+    html = template.render({}, None)
+    return HttpResponse(html, status=500)
+
+
+def error_403(request, exception=None):
+    """Відображає сторінку 403 (доступ обмежено) у дизайні сайту."""
+    context = {
+        "current_section_slug": None,
+        "current_page_slug": None,
+    }
+    return render(request, "403.html", context, status=403)
+
+
+def csrf_failure(request, reason=""):
+    """Обробляє помилку перевірки CSRF-токена українською мовою у дизайні сайту (або JSON для fetch)."""
+    if _is_ajax(request):
+        return JsonResponse(
+            {
+                "ok": False,
+                "message": "Сесія застаріла. Оновіть сторінку та спробуйте ще раз.",
+            },
+            status=403,
+        )
+    context = {
+        "current_section_slug": None,
+        "current_page_slug": None,
+    }
+    return render(request, "403.html", context, status=403)
+
+
+def error_400(request, exception=None):
+    """Відображає сторінку 400 (некоректний запит) у дизайні сайту."""
+    context = {
+        "current_section_slug": None,
+        "current_page_slug": None,
+    }
+    return render(request, "400.html", context, status=400)
+

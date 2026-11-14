@@ -3,7 +3,9 @@ from io import BytesIO
 from pathlib import Path
 import re
 import uuid
+import warnings
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.core.validators import FileExtensionValidator
@@ -12,6 +14,10 @@ from PIL import Image, UnidentifiedImageError
 from simple_history.models import HistoricalRecords
 
 # --- Константні обмеження для завантажуваних файлів ---
+DEFAULT_IMAGE_MAX_PIXELS = 50_000_000
+Image.MAX_IMAGE_PIXELS = getattr(
+    settings, "IMAGE_MAX_PIXELS", DEFAULT_IMAGE_MAX_PIXELS
+)
 MAX_PDF_SIZE_MB = 20
 MAX_PDF_SIZE_BYTES = MAX_PDF_SIZE_MB * 1024 * 1024
 
@@ -112,7 +118,7 @@ def validate_pdf_file(value):
 
 
 def validate_image_file(value):
-    """Перевіряє розмір і формат зображення (лише JPG або PNG)."""
+    """Перевіряє розмір, роздільну здатність і формат зображення (лише JPG або PNG)."""
     if not value:
         return
     if value.size > MAX_IMAGE_SIZE_BYTES:
@@ -120,14 +126,31 @@ def validate_image_file(value):
             f"Зображення занадто велике ({value.size / (1024 * 1024):.1f} МБ). "
             f"Максимальний дозволений розмір — {MAX_IMAGE_SIZE_MB} МБ."
         )
+    max_pixels = getattr(
+        settings, "IMAGE_MAX_PIXELS", DEFAULT_IMAGE_MAX_PIXELS
+    )
+    Image.MAX_IMAGE_PIXELS = max_pixels
     file_obj = value.file if hasattr(value, "file") else value
     pos = file_obj.tell() if hasattr(file_obj, "tell") else 0
     try:
         if hasattr(file_obj, "seek"):
             file_obj.seek(0)
-        with Image.open(file_obj) as img:
-            img.verify()
-            fmt = (img.format or "").upper()
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", Image.DecompressionBombWarning)
+            with Image.open(file_obj) as img:
+                if max_pixels and (img.width * img.height > max_pixels):
+                    raise Image.DecompressionBombError(
+                        "Перевищено максимально допустиму кількість пікселів."
+                    )
+                img.verify()
+                fmt = (img.format or "").upper()
+    except (
+        Image.DecompressionBombError,
+        Image.DecompressionBombWarning,
+    ) as exc:
+        raise ValidationError(
+            "Фото завелике. Зменшіть його розмір і спробуйте ще раз."
+        ) from exc
     except (UnidentifiedImageError, OSError) as exc:
         raise ValidationError(
             "Файл пошкоджений або не є зображенням. Завантажте фото у форматі JPG або PNG."

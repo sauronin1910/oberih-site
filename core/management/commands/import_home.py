@@ -89,6 +89,12 @@ class Command(BaseCommand):
             default="novyny/pryklad-novyny.html",
             help="Шлях до файлу шаблону/сторінки новини (за замовчуванням: novyny/pryklad-novyny.html).",
         )
+        parser.add_argument(
+            "--yes",
+            action="store_true",
+            default=False,
+            help="Підтвердити виконання імпорту, якщо в базі даних вже є новини або головна сторінка.",
+        )
 
     def _resolve_file(self, path_str: str, fallback_rel: str | None = None) -> Path:
         base = Path(settings.BASE_DIR)
@@ -369,6 +375,19 @@ class Command(BaseCommand):
         return "\n\n".join(paragraphs)
 
     def handle(self, *args, **options):
+        if (HomePage.objects.exists() or NewsItem.objects.exists()) and not options.get("yes"):
+            self.stdout.write(
+                self.style.WARNING(
+                    "УВАГА: У базі даних вже є дані головної сторінки або новини. Команда import_home "
+                    "призначена для початкового наповнення сайту і при повторному запуску може знову "
+                    "створити стартові чернетки новин.\n"
+                    "Зміни НЕ внесено. Якщо ви справді хочете виконати імпорт поверх наявних даних, "
+                    "запустіть команду з ключем підтвердження --yes:\n"
+                    "  python manage.py import_home --yes"
+                )
+            )
+            return
+
         index_path = self._resolve_file(options["index"], "index.html")
         news_path = self._resolve_file(options["news"], "novyny/pryklad-novyny.html")
 

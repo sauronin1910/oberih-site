@@ -6,8 +6,10 @@ from . import views
 app_name = "core"
 
 urlpatterns = [
-    # 0. Головна сторінка
+    # 0. Головна сторінка та пошукові службові файли
     path("", views.home, name="home"),
+    path("robots.txt", views.robots_txt, name="robots_txt"),
+    path("sitemap.xml", views.sitemap_xml, name="sitemap_xml"),
     # 1. Постійні 301-редіректи зі старих статичних .html адрес (спочатку конкретні маршрути)
     path("index.html", views.redirect_index_html, name="redirect_index_html"),
     path(

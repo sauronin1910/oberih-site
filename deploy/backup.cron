@@ -1,0 +1,9 @@
+# Приклад розкладу cron для автоматичного резервного копіювання та обслуговування
+# Відкрийте crontab користувача oberih (crontab -e) або покладіть у /etc/cron.d/oberih:
+
+# 1. Щоденне резервне копіювання бази даних PostgreSQL і папки media/ о 03:15 ночі
+15 3 * * * cd /var/www/oberih-site && /var/www/oberih-site/.venv/bin/python manage.py backup_site >> /var/www/oberih-site/logs/backup.log 2>&1
+
+# 2. Щотижневе очищення застарілих сесій із бази даних (щонеділі о 04:00 ночі)
+0 4 * * 0 cd /var/www/oberih-site && /var/www/oberih-site/.venv/bin/python manage.py clearsessions >> /var/www/oberih-site/logs/backup.log 2>&1
+

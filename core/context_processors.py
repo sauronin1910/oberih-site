@@ -1,25 +1,38 @@
 """Контекстний процесор для глобальних даних шаблонів сайту НРЦ «Оберіг»."""
+import logging
+
 from django.conf import settings
+from django.db import transaction
 from django.db.models import Prefetch
 
 from .models import Page, Section, SiteSettings, Sponsor
+
+logger = logging.getLogger(__name__)
 
 
 def site_context(request) -> dict:
     """Додає в усі шаблони налаштування сайту (SiteSettings), меню та канонічну URL-адресу."""
     if not hasattr(request, "_cached_site_context"):
-        site_settings = SiteSettings.objects.first() or SiteSettings()
-        published_pages_prefetch = Prefetch(
-            "pages",
-            queryset=Page.objects.filter(is_published=True).order_by("order", "id"),
-            to_attr="published_pages",
-        )
-        menu_sections = list(
-            Section.objects.filter(show_in_menu=True)
-            .order_by("order", "id")
-            .prefetch_related(published_pages_prefetch)
-        )
-        has_sponsors = Sponsor.objects.exists()
+        try:
+            with transaction.atomic():
+                site_settings = SiteSettings.objects.first() or SiteSettings()
+                published_pages_prefetch = Prefetch(
+                    "pages",
+                    queryset=Page.objects.filter(is_published=True).order_by("order", "id"),
+                    to_attr="published_pages",
+                )
+                menu_sections = list(
+                    Section.objects.filter(show_in_menu=True)
+                    .order_by("order", "id")
+                    .prefetch_related(published_pages_prefetch)
+                )
+                has_sponsors = Sponsor.objects.exists()
+        except Exception:
+            logger.exception("Не вдалося завантажити глобальний контекст сайту з БД.")
+            site_settings = SiteSettings()
+            menu_sections = []
+            has_sponsors = False
+
         request._cached_site_context = {
             "site_settings": site_settings,
             "menu_sections": menu_sections,
@@ -36,5 +49,3 @@ def site_context(request) -> dict:
         "site_url": site_url,
         "canonical_url": canonical_url,
     }
-
-

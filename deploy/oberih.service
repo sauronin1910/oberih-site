@@ -1,0 +1,30 @@
+# Приклад systemd-юніта для автозапуску Gunicorn на Linux VPS
+# Скопіюйте файл у /etc/systemd/system/oberih.service, підставте свій шлях і користувача,
+# після чого виконайте:
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now oberih.service
+
+[Unit]
+Description=Gunicorn daemon for NRC Oberih Django website
+After=network.target postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=notify
+# Непривілейований системний користувач, від якого працює сайт (НЕ root!)
+User=oberih
+Group=www-data
+WorkingDirectory=/var/www/oberih-site
+EnvironmentFile=/var/www/oberih-site/.env
+ExecStart=/var/www/oberih-site/.venv/bin/gunicorn config.wsgi:application --config /var/www/oberih-site/deploy/gunicorn.conf.py
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+NoNewPrivileges=true
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+

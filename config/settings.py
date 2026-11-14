@@ -32,12 +32,15 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "core.middleware.AdminLoginRateLimitMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "core.middleware.ContentSecurityPolicyMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
+CSRF_FAILURE_VIEW = "core.views.csrf_failure"
 
 TEMPLATES = [
     {
@@ -74,10 +77,13 @@ DATABASES = {
     }
 }
 
-# --- Перевірка паролів ---
+# --- Перевірка паролів (мінімальна довжина — 12 символів) ---
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "OPTIONS": {"min_length": 12},
+    },
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
@@ -101,11 +107,17 @@ STORAGES = {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "core.storage.NonStrictCompressedManifestStaticFilesStorage",
     },
 }
 
-# --- Кеш у базі даних PostgreSQL (спільний для всіх процесів Gunicorn, зокрема для ліміту форми) ---
+# --- Обмеження розміру завантажень і зображень ---
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024  # 5 МБ
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024  # 5 МБ
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000
+IMAGE_MAX_PIXELS = config("IMAGE_MAX_PIXELS", default=50_000_000, cast=int)
+
+# --- Кеш у базі даних PostgreSQL (спільний для всіх процесів Gunicorn) ---
 # Таблиця створюється командою: python manage.py createcachetable
 CACHES = {
     "default": {
@@ -114,9 +126,14 @@ CACHES = {
     }
 }
 
-# --- Захист форми звернень від спаму та перевантаження ---
+# --- Захист форми звернень та входу в адмінку від спаму і перебору паролів ---
 CONTACT_RATE_LIMIT_COUNT = config("CONTACT_RATE_LIMIT_COUNT", default=3, cast=int)
 CONTACT_RATE_LIMIT_PERIOD = config("CONTACT_RATE_LIMIT_PERIOD", default=600, cast=int)
+
+ADMIN_LOGIN_RATE_LIMIT_COUNT = config("ADMIN_LOGIN_RATE_LIMIT_COUNT", default=5, cast=int)
+ADMIN_LOGIN_IP_RATE_LIMIT_COUNT = config("ADMIN_LOGIN_IP_RATE_LIMIT_COUNT", default=20, cast=int)
+ADMIN_LOGIN_RATE_LIMIT_PERIOD = config("ADMIN_LOGIN_RATE_LIMIT_PERIOD", default=900, cast=int)
+
 # Увімкніть True на сервері за довіреним reverse-proxy (Nginx), який передає X-Forwarded-For,
 # щоб брати останній IP із заголовка замість 127.0.0.1 проксі-сервера.
 TRUST_X_FORWARDED_FOR = config("TRUST_X_FORWARDED_FOR", default=False, cast=bool)
@@ -143,20 +160,98 @@ CONTACT_NOTIFY_EMAIL = config("CONTACT_NOTIFY_EMAIL", default="").strip()
 X_FRAME_OPTIONS = "DENY"
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_REFERRER_POLICY = "same-origin"
+CSP_ENABLED = config("CSP_ENABLED", default=True, cast=bool)
 
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_AGE = config("SESSION_COOKIE_AGE", default=28800, cast=int)  # 8 годин
+SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", default=not DEBUG, cast=bool)
 CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", default=not DEBUG, cast=bool)
 
+# УВАГА: на сервері за Nginx або на PaaS увімкніть USE_X_FORWARDED_PROTO=True у .env,
+# інакше при SECURE_SSL_REDIRECT=True виникне нескінченний цикл перенаправлень!
+USE_X_FORWARDED_PROTO = config("USE_X_FORWARDED_PROTO", default=False, cast=bool)
+SECURE_PROXY_SSL_HEADER = (
+    ("HTTP_X_FORWARDED_PROTO", "https") if USE_X_FORWARDED_PROTO else None
+)
+
 SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default=not DEBUG, cast=bool)
 SECURE_HSTS_SECONDS = config(
-    "SECURE_HSTS_SECONDS", default=0 if DEBUG else 31536000, cast=int
+    "SECURE_HSTS_SECONDS", default=0 if DEBUG else 3600, cast=int
 )
-SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
-SECURE_HSTS_PRELOAD = not DEBUG
+SECURE_HSTS_INCLUDE_SUBDOMAINS = config(
+    "SECURE_HSTS_INCLUDE_SUBDOMAINS", default=False, cast=bool
+)
+SECURE_HSTS_PRELOAD = config("SECURE_HSTS_PRELOAD", default=False, cast=bool)
+
+# --- Резервне копіювання (каталог має бути ПОЗА проєктом та ПОЗА MEDIA_ROOT) ---
+BACKUP_DIR = Path(
+    config("BACKUP_DIR", default=str(BASE_DIR.parent / "oberih_backups"))
+)
+BACKUP_KEEP_COUNT = config("BACKUP_KEEP_COUNT", default=7, cast=int)
+
+# --- Журналювання (LOGGING) ---
+LOG_FILE = config("LOG_FILE", default="").strip()
+LOG_LEVEL = config("LOG_LEVEL", default="INFO").strip().upper()
+
+_log_handlers: dict = {
+    "console": {
+        "class": "logging.StreamHandler",
+        "formatter": "standard",
+    },
+}
+_active_handlers = ["console"]
+
+if LOG_FILE:
+    _log_path = Path(LOG_FILE)
+    if not _log_path.is_absolute():
+        _log_path = BASE_DIR / _log_path
+    try:
+        _log_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(_log_path, "a", encoding="utf-8"):
+            pass
+        _log_handlers["file"] = {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": str(_log_path),
+            "maxBytes": 5 * 1024 * 1024,  # 5 МБ
+            "backupCount": 5,
+            "encoding": "utf-8",
+            "formatter": "standard",
+        }
+        _active_handlers.append("file")
+    except OSError:
+        # Якщо каталог або файл журналу недоступний для запису, працюємо лише з консоллю без падіння
+        pass
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "standard": {
+            "format": "[{asctime}] {levelname} {name}: {message}",
+            "style": "{",
+        },
+    },
+    "handlers": _log_handlers,
+    "root": {
+        "handlers": _active_handlers,
+        "level": LOG_LEVEL,
+    },
+    "loggers": {
+        "django": {
+            "handlers": _active_handlers,
+            "level": LOG_LEVEL,
+            "propagate": False,
+        },
+        "core": {
+            "handlers": _active_handlers,
+            "level": LOG_LEVEL,
+            "propagate": False,
+        },
+    },
+}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-

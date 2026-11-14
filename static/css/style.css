@@ -605,3 +605,6 @@ html.preload-out body::after{animation:pl-spin 1.4s linear infinite,pl-out-logo 
 /* Додано для Django: фото новини заповнює рамку */
 .news-img img{width:100%;height:100%;object-fit:cover;display:block}
 
+/* Додано для Django: відступ під формою, коли немає плашки графіка */
+.page-contacts .contact:last-child{padding-bottom:4.5rem}
+

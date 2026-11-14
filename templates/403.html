@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Доступ обмежено — НРЦ «Оберіг»{% endblock %}
+{% block robots %}
+<meta name="robots" content="noindex">{% endblock %}
+{% block meta_description %}Доступ обмежено. Перейдіть на головну або скористайтеся меню. НРЦ «Оберіг», м. Івано-Франківськ.{% endblock %}
+{% block canonical %}{% endblock %}
+{% block og_title %}Доступ обмежено{% endblock %}
+{% block og_description %}Доступ обмежено. Перейдіть на головну або скористайтеся меню. НРЦ «Оберіг», м. Івано-Франківськ.{% endblock %}
+{% block og_url %}{% endblock %}
+{% block content %}  <section class="page-hero err404" aria-labelledby="page-title">
+    <div class="wrap">
+      <p class="err-code" aria-hidden="true">403</p>
+      <h1 id="page-title">Доступ обмежено</h1>
+      <p class="lead">Сесія застаріла або у вас немає прав для перегляду цієї сторінки. Оновіть сторінку та спробуйте ще раз.</p>
+      <div class="actions"><a class="btn btn-primary" href="/">На головну</a><a class="btn btn-ghost" href="/kontakty/">Контакти</a></div>
+      <ul class="err-links">{% for sec in menu_sections %}<li><a href="{% url 'core:section_detail' section_slug=sec.slug %}">{{ sec.title }}</a></li>{% empty %}<li><a href="/pro-nas/">Про нас</a></li><li><a href="/ofitsiina-storinka/">Офіційна сторінка</a></li><li><a href="/prozorist-ta-vidkrytist/">Прозорість та відкритість</a></li><li><a href="/osvitnia-diialnist/">Освітня діяльність</a></li><li><a href="/vykhovna-robota/">Виховна робота</a></li><li><a href="/doshkilne-viddilennia/">Дошкільне відділення</a></li><li><a href="/reabilitatsiine-viddilennia/">Реабілітаційне відділення</a></li><li><a href="/bezpeka-ta-zakhyst/">Безпека та захист</a></li>{% endfor %}</ul>
+    </div>
+  </section>
+{% endblock %}
+

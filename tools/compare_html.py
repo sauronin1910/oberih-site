@@ -39,6 +39,7 @@ DEFAULT_PAGES = [
     "pro-nas/index.html",
     "novyny/index.html",
     "novyny/pryklad-novyny.html",
+    "404.html",
 ]
 
 # Обов'язкові базові хуки для js/main.js та js/prefs.js на кожній сторінці
@@ -155,6 +156,8 @@ def resolve_urls(rel_html_path: str) -> tuple[str, str]:
     norm = rel_html_path.replace("\\", "/")
     if norm == "index.html":
         return "/", "/index.html"
+    if norm == "404.html":
+        return "/neisnuiucha-storinka-404/", "/neisnuiucha-storinka-404/"
     parts = Path(norm).with_suffix("").parts
     if len(parts) == 2:
         section_slug, page_slug = parts[0], parts[1]
@@ -306,19 +309,25 @@ def compare_page(client: Client, rel_html_path: str) -> None:
 
     print("=" * 78)
     print(f"СТОРІНКА: {rel_html_path}  --->  URL: {url}")
-    print(
-        f"Статус відповіді: {response.status_code} | "
-        f"Перевірка 301 зі старої адреси ({old_url}): {redirect_resp.status_code} -> {redirect_resp.headers.get('Location', '')}"
-    )
+    norm_path = rel_html_path.replace("\\", "/")
+    expected_status = 404 if norm_path == "404.html" else 200
+    if norm_path == "404.html":
+        print(f"Статус відповіді: {response.status_code} (очікується 404)")
+    else:
+        print(
+            f"Статус відповіді: {response.status_code} | "
+            f"Перевірка 301 зі старої адреси ({old_url}): {redirect_resp.status_code} -> {redirect_resp.headers.get('Location', '')}"
+        )
 
-    if response.status_code != 200:
-        print(f"[ПОМИЛКА] Сторінка повернула код {response.status_code}")
+    if response.status_code != expected_status:
+        print(
+            f"[ПОМИЛКА] Сторінка повернула код {response.status_code} (очікувався {expected_status})"
+        )
         return
 
     gen_html = response.content.decode("utf-8")
 
     # Перевірка JS-хуків
-    norm_path = rel_html_path.replace("\\", "/")
     if norm_path == "index.html":
         hooks_to_check = REQUIRED_JS_HOOKS + HOME_JS_HOOKS
     elif norm_path == "kontakty/index.html":
@@ -360,7 +369,8 @@ def compare_page(client: Client, rel_html_path: str) -> None:
 
     print("-" * 78)
     print("Пояснення очікуваних розбіжностей із демо-еталоном:")
-    print("  • <head>: додано бойові теги <link rel=\"canonical\"> та <meta property=\"og:url\">.")
+    if norm_path != "404.html":
+        print("  • <head>: додано бойові теги <link rel=\"canonical\"> та <meta property=\"og:url\">.")
     print("  • Меню: сторінка «Медичний супровід» має is_published=False (чернетка), тому прихована.")
     if norm_path == "index.html":
         print(
@@ -395,6 +405,7 @@ def compare_page(client: Client, rel_html_path: str) -> None:
 
 
 def main():
+    settings.DEBUG = False
     if "127.0.0.1" not in settings.ALLOWED_HOSTS and "*" not in settings.ALLOWED_HOSTS:
         settings.ALLOWED_HOSTS.append("127.0.0.1")
 

@@ -23,6 +23,12 @@ class Command(BaseCommand):
             default="tools/site_map.py",
             help="Шлях до файлу site_map.py (за замовчуванням: tools/site_map.py).",
         )
+        parser.add_argument(
+            "--yes",
+            action="store_true",
+            default=False,
+            help="Підтвердити виконання імпорту, якщо в базі даних вже є сторінки.",
+        )
 
     def _load_site_map(self, path_str: str):
         path = Path(path_str)
@@ -100,6 +106,19 @@ class Command(BaseCommand):
         return True
 
     def handle(self, *args, **options):
+        if Page.objects.exists() and not options.get("yes"):
+            self.stdout.write(
+                self.style.WARNING(
+                    "УВАГА: У базі даних вже є сторінки. Команда import_site_map призначена для "
+                    "початкового наповнення сайту і при повторному запуску може відновити видалені "
+                    "сторінки або скинути налаштування порядку документів.\n"
+                    "Зміни НЕ внесено. Якщо ви справді хочете виконати імпорт поверх наявних даних, "
+                    "запустіть команду з ключем підтвердження --yes:\n"
+                    "  python manage.py import_site_map --yes"
+                )
+            )
+            return
+
         site_map, resolved_path = self._load_site_map(options["path"])
         sections_data = getattr(site_map, "SECTIONS", None)
         todo_text = getattr(site_map, "TODO", "")

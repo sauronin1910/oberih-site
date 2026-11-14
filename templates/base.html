@@ -3,17 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>{% block title %}НРЦ «Оберіг» — навчання та реабілітація дітей, Івано-Франківськ{% endblock %}</title>
+<title>{% block title %}НРЦ «Оберіг» — навчання та реабілітація дітей, Івано-Франківськ{% endblock %}</title>{% block robots %}{% endblock %}
 <meta name="description" content="{% block meta_description %}Комунальний заклад «НРЦ „Оберіг“» Івано-Франківської міської ради: навчання та комплексна реабілітація дітей з особливими освітніми потребами.{% endblock %}">
 <meta name="theme-color" content="#263763">
-<meta name="format-detection" content="telephone=no">
-<link rel="canonical" href="{{ canonical_url }}">
+<meta name="format-detection" content="telephone=no">{% block canonical %}
+<link rel="canonical" href="{{ canonical_url }}">{% endblock %}
 {% block og %}<meta property="og:type" content="website">
 <meta property="og:locale" content="uk_UA">
 <meta property="og:site_name" content="НРЦ «Оберіг»">
 <meta property="og:title" content="{% block og_title %}Навчально-реабілітаційний центр «Оберіг»{% endblock %}">
-<meta property="og:description" content="{% block og_description %}Навчання та комплексна реабілітація дітей з особливими освітніми потребами. Івано-Франківськ, вул. Гната Хоткевича, 52-А.{% endblock %}">
-<meta property="og:url" content="{{ canonical_url }}">
+<meta property="og:description" content="{% block og_description %}Навчання та комплексна реабілітація дітей з особливими освітніми потребами. Івано-Франківськ, вул. Гната Хоткевича, 52-А.{% endblock %}">{% block og_url %}
+<meta property="og:url" content="{{ canonical_url }}">{% endblock %}
 <meta property="og:image" content="{% static 'img/og-image.jpg' %}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
