@@ -16,6 +16,7 @@ require get_template_directory() . '/inc/content.php';
 require get_template_directory() . '/inc/front.php';
 require get_template_directory() . '/inc/forms.php';
 require get_template_directory() . '/inc/translit.php';
+require get_template_directory() . '/inc/documents.php';
 
 /**
  * Можливості теми й області меню.

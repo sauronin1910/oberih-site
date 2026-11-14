@@ -53,3 +53,8 @@
 
 /* Прихований текст для читачів екрана (так його називає ядро WordPress) */
 .screen-reader-text{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Документи на сторінці (тип «Документ»): посилання на файл у вигляді документа з макета */
+.page-body .doc-list-page{margin-bottom:1.25rem}
+.page-body .doc-list-page a{background:var(--surface)}
+.page-body .doc-list-page a:hover span{text-decoration:underline}

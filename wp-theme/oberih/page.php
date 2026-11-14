@@ -4,6 +4,7 @@
  * — Розділ (сторінка верхнього рівня з підсторінками): шапка і плитки підсторінок.
  * — Сторінка розділу: шапка з «хлібними крихтами», зміст і бічне меню розділу.
  * — Окрема сторінка: шапка і зміст на всю ширину.
+ * Документи сторінки (тип «Документ», inc/documents.php) виводяться автоматично.
  *
  * @package oberih
  */
@@ -21,8 +22,10 @@ if ( $oberih_is_section ) :
 	?>
 	<div class="wrap page-section">
 		<?php
-		if ( '' !== trim( get_the_content() ) ) {
+		$oberih_docs = oberih_docs_before_content( $oberih_id );
+		if ( '' !== trim( get_the_content() ) || $oberih_docs ) {
 			echo '<div class="page-body section-intro-text">';
+			echo $oberih_docs; // phpcs:ignore WordPress.Security.EscapeOutput -- екрановано в oberih_docs_list().
 			the_content();
 			echo '</div>';
 		}
@@ -36,6 +39,7 @@ else :
 	?>
 	<div class="wrap page-layout<?php echo $oberih_nav ? '' : ' page-layout-single'; ?>">
 		<div class="page-body">
+			<?php echo oberih_docs_before_content( $oberih_id ); // phpcs:ignore WordPress.Security.EscapeOutput -- екрановано в oberih_docs_list(). ?>
 			<?php the_content(); ?>
 		</div>
 		<?php echo $oberih_nav; // phpcs:ignore WordPress.Security.EscapeOutput -- екрановано в oberih_side_nav(). ?>
