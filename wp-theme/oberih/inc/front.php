@@ -28,7 +28,7 @@ add_filter( 'the_title', 'oberih_untitled_post', 10, 2 );
 add_filter( 'single_post_title', 'oberih_untitled_post', 10, 2 );
 
 /**
- * Рубрика новини для підпису (крім рубрики за замовчуванням «Без рубрики»).
+ * Рубрика новини для підпису (крім категорії за замовчуванням, «Uncategorized»).
  *
  * @param int|WP_Post $post Запис.
  * @return string
@@ -44,7 +44,7 @@ function oberih_news_category( $post ) {
 }
 
 /**
- * Фото новини: «Зображення запису», а якщо його не задано — перше зображення, завантажене в новину.
+ * Фото новини: «Головне зображення», а якщо його не задано — перше зображення, завантажене в новину.
  *
  * @param int|WP_Post $post Запис.
  * @param string      $size Розмір.
