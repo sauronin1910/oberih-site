@@ -6,6 +6,10 @@
  * @package oberih
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 ?>
         <li class="news-card c-coral">
           <div class="news-img" role="img" aria-label="Місце для фото новини">

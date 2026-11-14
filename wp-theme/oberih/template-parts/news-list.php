@@ -8,6 +8,10 @@
  * @package oberih
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 $oberih_args   = wp_parse_args(
 	isset( $args ) ? $args : array(),
 	array(

@@ -5,6 +5,10 @@
  * @package oberih
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 get_header();
 ?>
 	<section class="page-hero err404" aria-labelledby="page-title">

@@ -6,6 +6,10 @@
  * @package oberih
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 ?>
       <div class="contact">
         <div class="contact-info">

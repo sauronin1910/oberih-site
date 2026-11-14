@@ -6,6 +6,10 @@
  * @package oberih
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 get_header();
 
 if ( is_singular() ) {

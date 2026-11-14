@@ -68,10 +68,7 @@ function oberih_ask_ip() {
 }
 
 /**
- * Обробка надісланої форми.
- */
-/**
- * Куди надсилати запитання: адреса з «Налаштування → Загальні», інакше — пошта закладу.
+ * Куди надсилати запитання: адреса з «Налаштування → Загальне», інакше — пошта закладу.
  *
  * @return string
  */
@@ -81,7 +78,7 @@ function oberih_ask_recipient_email() {
 }
 
 /**
- * Поле «Пошта для запитань з сайту» у «Налаштування → Загальні».
+ * Поле «Пошта для запитань з сайту» у «Налаштування → Загальне».
  * Адреса зберігається в базі сайту, а не в коді теми.
  */
 function oberih_ask_settings() {
@@ -111,6 +108,9 @@ function oberih_ask_settings() {
 }
 add_action( 'admin_init', 'oberih_ask_settings' );
 
+/**
+ * Обробка надісланої форми.
+ */
 function oberih_handle_ask() {
 	// phpcs:disable WordPress.Security.NonceVerification.Missing -- ключ перевіряється нижче.
 	$post    = wp_unslash( $_POST );

@@ -37,7 +37,7 @@ function oberih_news_category( $post ) {
 	$cats = array_filter(
 		get_the_category( get_post( $post )->ID ),
 		static function ( $cat ) {
-			return (int) $cat->term_id !== (int) get_option( 'default_category' );
+			return (int) get_option( 'default_category' ) !== (int) $cat->term_id;
 		}
 	);
 	return $cats ? reset( $cats )->name : '';
@@ -52,8 +52,19 @@ function oberih_news_category( $post ) {
  * @return string Розмітка img або порожній рядок.
  */
 function oberih_news_image( $post, $size = 'medium_large', $attr = array( 'loading' => 'lazy' ) ) {
+	$id = oberih_news_image_id( $post );
+	return $id ? wp_get_attachment_image( $id, $size, false, $attr ) : '';
+}
+
+/**
+ * ID фото новини: «Головне зображення» або перше зображення, завантажене в новину; 0 — фото немає.
+ *
+ * @param int|WP_Post $post Запис.
+ * @return int
+ */
+function oberih_news_image_id( $post ) {
 	$post = get_post( $post );
-	$id   = get_post_thumbnail_id( $post );
+	$id   = (int) get_post_thumbnail_id( $post );
 	if ( ! $id ) {
 		$images = get_children(
 			array(
@@ -67,7 +78,7 @@ function oberih_news_image( $post, $size = 'medium_large', $attr = array( 'loadi
 		);
 		$id     = $images ? (int) array_key_first( $images ) : 0;
 	}
-	return $id ? wp_get_attachment_image( $id, $size, false, $attr ) : '';
+	return $id;
 }
 
 /**

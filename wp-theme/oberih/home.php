@@ -6,6 +6,10 @@
  * @package oberih
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 get_header();
 
 $oberih_page  = (int) get_option( 'page_for_posts' );

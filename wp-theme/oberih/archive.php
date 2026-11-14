@@ -5,6 +5,10 @@
  * @package oberih
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 get_header();
 
 $oberih_title = wp_strip_all_tags( get_the_archive_title() );

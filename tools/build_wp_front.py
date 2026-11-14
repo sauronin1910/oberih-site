@@ -19,6 +19,7 @@ from export_site_map import wp_path
 ROOT = Path(__file__).resolve().parent.parent
 THEME = ROOT / 'wp-theme' / 'oberih'
 NOTE = 'Згенеровано tools/build_wp_front.py з index.html — вручну не правити.'
+GUARD = "if ( ! defined( 'ABSPATH' ) ) {\n\texit;\n}\n\n"  # прямий виклик файлу шаблону — нічого не робити
 
 
 def php_links(html, news_to_list=False):
@@ -56,14 +57,14 @@ def main():
         contact.group(1),
         "      <?php get_template_part( 'template-parts/contact-block', null, array( 'title' => 'Контакти' ) ); ?>")
 
-    front = ('<?php\n/**\n * Головна сторінка. ' + NOTE + '\n *\n * @package oberih\n */\n\nget_header();\n?>'
+    front = ('<?php\n/**\n * Головна сторінка. ' + NOTE + '\n *\n * @package oberih\n */\n\n' + GUARD + 'get_header();\n?>'
              + php_links(main_html) + '<?php\nget_footer();\n')
     (THEME / 'front-page.php').write_text(front, encoding='utf-8', newline='\n')
 
     parts = THEME / 'template-parts'
     parts.mkdir(exist_ok=True)
     ex = ('<?php\n/**\n * Новини-приклади з макета: показуються на головній, поки в WordPress немає записів.\n * '
-          + NOTE + '\n *\n * @package oberih\n */\n\n?>\n' + php_links(examples, news_to_list=True))
+          + NOTE + '\n *\n * @package oberih\n */\n\n' + GUARD + '?>\n' + php_links(examples, news_to_list=True))
     (parts / 'news-examples.php').write_text(ex, encoding='utf-8', newline='\n')
     block = contact.group(1).replace(
         '<h2 id="contacts-title">Контакти</h2>',
@@ -82,7 +83,7 @@ def main():
         assert block.count(old) == 1, f'у формі не знайдено: {old}'
         block = block.replace(old, new)
     cb = ('<?php\n/**\n * Контакти й форма запитання. Параметр $args[\'title\'] — заголовок блоку.\n * '
-          + NOTE + '\n *\n * @package oberih\n */\n\n?>\n' + php_links(block) + '\n')
+          + NOTE + '\n *\n * @package oberih\n */\n\n' + GUARD + '?>\n' + php_links(block) + '\n')
     (parts / 'contact-block.php').write_text(cb, encoding='utf-8', newline='\n')
     print('front-page.php і template-parts (news-examples, contact-block) оновлено; новин-прикладів:',
           examples.count('<li class="news-card'))
