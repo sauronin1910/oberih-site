@@ -39,3 +39,17 @@
 /* Форма запитання: поле-пастка для ботів (людям не видно) */
 .form .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 .form[aria-busy="true"] button[type="submit"]{opacity:.6;cursor:progress}
+
+/* Новина: фото («Зображення запису») під датою */
+.article-photo{margin:0 0 1.25rem}
+.article-photo img{display:block;width:100%;height:auto;border-radius:var(--radius)}
+
+/* Посторінкова навігація списку новин */
+.pager ul{list-style:none;margin:1.5rem 0 0;padding:0;display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center}
+.pager li > .page-numbers{display:inline-flex;align-items:center;justify-content:center;gap:.35rem;min-width:44px;min-height:44px;padding:.4rem .9rem;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:800;text-decoration:none}
+.pager li > a.page-numbers:hover{border-color:var(--accent);text-decoration:underline}
+.pager li > .current{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.pager li > .dots{border-color:transparent;background:none}
+
+/* Прихований текст для читачів екрана (так його називає ядро WordPress) */
+.screen-reader-text{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
