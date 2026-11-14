@@ -135,6 +135,7 @@ python manage.py runserver
    - `SITE_URL=https://ваш-домен.if.ua`
    - **`USE_X_FORWARDED_PROTO=True`** — **критично важливо за Nginx та на PaaS!** Nginx приймає HTTPS-з'єднання і передає запит у Gunicorn по локальному HTTP із заголовком `X-Forwarded-Proto: https`. Якщо залишити `USE_X_FORWARDED_PROTO=False`, то при `SECURE_SSL_REDIRECT=True` Django вважатиме кожен запит незахищеним і виникне **нескінченний цикл перенаправлень (redirect loop)**.
    - **`TRUST_X_FORWARDED_FOR=True`** (при порожньому `CLIENT_IP_HEADER=`) — вмикайте на VPS за власним Nginx, який передає `X-Forwarded-For`, щоб ліміт форми звернень і ліміт входу в адмінку визначали реальну адресу клієнта (береться останній запис із заголовка), а не `127.0.0.1`.
+   - **`SERVE_MEDIA=False`** — на VPS залишайте `False`, оскільки `/media/` роздає безпосередньо Nginx за `deploy/nginx-oberih.conf`.
    - **`SECURE_HSTS_SECONDS`**: під час першого запуску залиште `3600` (1 година), переконайтеся, що HTTPS-сертифікат працює бездоганно, і лише після цього збільште до `31536000` (1 рік).
 3. **Підготовка бази, кешу, статики та початкового вмісту:**
    ```bash
@@ -163,12 +164,13 @@ python manage.py runserver
    ```bash
    gunicorn config.wsgi:application --config deploy/gunicorn.conf.py
    ```
-   *(Файл `deploy/gunicorn.conf.py` автоматично підхоплює змінну середовища `$PORT`, яку передає PaaS, і слухає `0.0.0.0:$PORT`, а кількість воркерів бере зі змінної `GUNICORN_WORKERS` або `WEB_CONCURRENCY`).*
-3. **Збереження завантажених файлів (`media/`) на PaaS:**
-   Файлова система контейнерів на PaaS є тимчасовою (ефемерною) і очищується при кожному перезапуску чи оновленні. Щоб завантажені PDF-документи та фотографії не зникали, **обов'язково підключіть постійний диск (Persistent Volume / Disk)** і вкажіть шлях до нього у змінній `MEDIA_ROOT` у `.env`.
+   *(Файл `deploy/gunicorn.conf.py` автоматично підхоплює змінну середовища `$PORT`, яку передає PaaS, і слухає `0.0.0.0:$PORT`; використовує потоковий клас `worker_class="gthread"` із `GUNICORN_THREADS=4` за замовчуванням, щоб віддача великих PDF не блокувала воркер. Враховуйте, що максимальна кількість одночасних з'єднань із базою даних дорівнює **воркери × потоки** (`workers × threads`)).*
+3. **Збереження та роздача завантажених файлів (`media/`) на PaaS:**
+   - Файлова система контейнерів на PaaS є тимчасовою (ефемерною) і очищується при кожному перезапуску чи оновленні. Щоб завантажені PDF-документи та фотографії не зникали, **обов'язково підключіть постійний диск (Persistent Volume / Disk)** і вкажіть шлях до нього у змінній `MEDIA_ROOT` у `.env`.
+   - Оскільки на PaaS (Render) немає окремого Nginx для віддачі медіафайлів з диска, обов'язково увімкніть **`SERVE_MEDIA=True`** у `.env` (тоді Django безпечно роздаватиме `/media/` із перевіркою дозволених розширень `pdf/jpg/jpeg/png`, захистом від виходу за межі `MEDIA_ROOT` і заголовками `nosniff` та `Content-Security-Policy: default-src 'none'; sandbox`).
 4. **Змінні середовища на PaaS (зокрема Render):**
-   - Увімкніть `USE_X_FORWARDED_PROTO=True`, оскільки трафік на PaaS проходить через вбудований балансувальник навантаження.
-   - Для визначення реальної IP-адреси клієнта на **Render** встановіть `CLIENT_IP_HEADER=HTTP_TRUE_CLIENT_IP`, а `TRUST_X_FORWARDED_FOR=False` (на VPS за власним Nginx навпаки: `CLIENT_IP_HEADER=` залишається порожнім, а `TRUST_X_FORWARDED_FOR=True`).
+   - Увімкніть `USE_X_FORWARDED_PROTO=True` та `SERVE_MEDIA=True`.
+   - Для визначення реальної IP-адреси клієнта на **Render** встановіть `CLIENT_IP_HEADER=HTTP_TRUE_CLIENT_IP`, а `TRUST_X_FORWARDED_FOR=False` (на VPS за власним Nginx навпаки: `CLIENT_IP_HEADER=` залишається порожнім, `TRUST_X_FORWARDED_FOR=True`, `SERVE_MEDIA=False`).
 
 ---
 

@@ -3,6 +3,7 @@ from datetime import date
 from io import BytesIO, StringIO
 import json
 import logging
+import os
 from pathlib import Path
 import re
 import tempfile
@@ -1482,5 +1483,170 @@ class Stage8SecurityAndDeployTests(TestCase):
                 HTTP_X_FORWARDED_FOR="203.0.113.77",
             )
             self.assertEqual(get_client_ip(req_xff_ignored), "10.0.0.4")
+
+    def _read_and_close_streaming(self, response) -> bytes:
+        """Читає та закриває потокову відповідь (FileResponse) через closing_iterator_wrapper тестового клієнта."""
+        if getattr(response, "streaming", False):
+            return b"".join(response.streaming_content)
+        return response.content
+
+    def test_serve_media_behavior_headers_extensions_and_traversal(self):
+        """Перевірка безпечної роздачі /media/: SERVE_MEDIA, DEBUG, заголовки, If-Modified-Since, розширення та вихід за межі."""
+        with tempfile.TemporaryDirectory() as tmp_media:
+            media_dir = Path(tmp_media)
+            (media_dir / "documents").mkdir(parents=True, exist_ok=True)
+            (media_dir / "news").mkdir(parents=True, exist_ok=True)
+
+            pdf_file = media_dir / "documents" / "statut.pdf"
+            pdf_file.write_bytes(b"%PDF-1.4\nTest PDF content")
+
+            jpg_file = media_dir / "news" / "photo.jpg"
+            buf = BytesIO()
+            Image.new("RGB", (20, 20), color=(10, 20, 30)).save(
+                buf, format="JPEG"
+            )
+            jpg_file.write_bytes(buf.getvalue())
+
+            # Створюємо файли із забороненими розширеннями всередині MEDIA_ROOT
+            for bad_name in ("xss.html", "icon.svg", "script.py", "notes.txt"):
+                (media_dir / bad_name).write_text("forbidden content", encoding="utf-8")
+
+            # 1. При SERVE_MEDIA=True та DEBUG=False: PDF і JPG віддаються (200), HEAD і 304 працюють, заголовки не перезаписуються CSP-middleware
+            with override_settings(
+                MEDIA_ROOT=media_dir,
+                SERVE_MEDIA=True,
+                DEBUG=False,
+                CSP_ENABLED=True,
+            ):
+                resp_pdf = self.client.get("/media/documents/statut.pdf")
+                self.assertEqual(resp_pdf.status_code, 200)
+                self.assertEqual(
+                    resp_pdf["X-Content-Type-Options"], "nosniff"
+                )
+                self.assertEqual(
+                    resp_pdf["Content-Security-Policy"],
+                    "default-src 'none'; sandbox",
+                )
+                self.assertEqual(
+                    resp_pdf["Cache-Control"], "public, max-age=3600"
+                )
+                last_mod = resp_pdf["Last-Modified"]
+                self.assertEqual(
+                    self._read_and_close_streaming(resp_pdf),
+                    b"%PDF-1.4\nTest PDF content",
+                )
+
+                resp_jpg = self.client.get("/media/news/photo.jpg")
+                self.assertEqual(resp_jpg.status_code, 200)
+                self.assertEqual(
+                    resp_jpg["X-Content-Type-Options"], "nosniff"
+                )
+                self.assertEqual(
+                    resp_jpg["Content-Security-Policy"],
+                    "default-src 'none'; sandbox",
+                )
+                self.assertEqual(
+                    resp_jpg["Cache-Control"], "public, max-age=3600"
+                )
+                self._read_and_close_streaming(resp_jpg)
+
+                # HEAD працює і повертає ті самі заголовки безпеки
+                resp_head = self.client.head("/media/documents/statut.pdf")
+                self.assertEqual(resp_head.status_code, 200)
+                self.assertEqual(
+                    resp_head["Content-Security-Policy"],
+                    "default-src 'none'; sandbox",
+                )
+                self._read_and_close_streaming(resp_head)
+
+                # Умовний запит з If-Modified-Since повертає 304 Not Modified
+                resp_304 = self.client.get(
+                    "/media/documents/statut.pdf",
+                    HTTP_IF_MODIFIED_SINCE=last_mod,
+                )
+                self.assertEqual(resp_304.status_code, 304)
+
+                # Заборонені розширення (.html, .svg, .py, .txt) дають 404, навіть коли файл існує
+                for bad_name in (
+                    "xss.html",
+                    "icon.svg",
+                    "script.py",
+                    "notes.txt",
+                ):
+                    with self.subTest(bad_name=bad_name):
+                        resp_bad = self.client.get(f"/media/{bad_name}")
+                        self.assertEqual(resp_bad.status_code, 404)
+
+                # Спроби виходу за межі MEDIA_ROOT (../, %2e%2e/, //etc/passwd) дають 404
+                for traversal_url in (
+                    "/media/../manage.py",
+                    "/media/%2e%2e/manage.py",
+                    "/media/documents/%2e%2e/%2e%2e/manage.py",
+                    "/media//etc/passwd",
+                    "/media//documents/statut.pdf",
+                ):
+                    with self.subTest(traversal_url=traversal_url):
+                        resp_trav = self.client.get(traversal_url)
+                        self.assertEqual(resp_trav.status_code, 404)
+
+            # 2. При SERVE_MEDIA=False та DEBUG=False (режим VPS з Nginx): роздача через Django вимкнена (404)
+            with override_settings(
+                MEDIA_ROOT=media_dir,
+                SERVE_MEDIA=False,
+                DEBUG=False,
+            ):
+                resp_disabled = self.client.get("/media/documents/statut.pdf")
+                self.assertEqual(resp_disabled.status_code, 404)
+
+            # 3. При DEBUG=True та SERVE_MEDIA=False роздача йде тим самим маршрутом із тими самими обмеженнями
+            with override_settings(
+                MEDIA_ROOT=media_dir,
+                SERVE_MEDIA=False,
+                DEBUG=True,
+                CSP_ENABLED=True,
+            ):
+                resp_debug_ok = self.client.get("/media/documents/statut.pdf")
+                self.assertEqual(resp_debug_ok.status_code, 200)
+                self.assertEqual(
+                    resp_debug_ok["X-Content-Type-Options"], "nosniff"
+                )
+                self.assertEqual(
+                    resp_debug_ok["Content-Security-Policy"],
+                    "default-src 'none'; sandbox",
+                )
+                self.assertEqual(
+                    resp_debug_ok["Cache-Control"], "public, max-age=3600"
+                )
+                self._read_and_close_streaming(resp_debug_ok)
+
+                resp_debug_bad = self.client.get("/media/xss.html")
+                self.assertEqual(resp_debug_bad.status_code, 404)
+
+    def test_serve_media_symlink_outside_media_root_rejected(self):
+        """Символічне посилання всередині MEDIA_ROOT, що веде за його межі, повертає 404."""
+        with (
+            tempfile.TemporaryDirectory() as tmp_media,
+            tempfile.TemporaryDirectory() as tmp_outside,
+        ):
+            media_dir = Path(tmp_media)
+            outside_pdf = Path(tmp_outside) / "secret_outside.pdf"
+            outside_pdf.write_bytes(b"%PDF-1.4\nOutside secret PDF")
+
+            symlink_path = media_dir / "linked_secret.pdf"
+            try:
+                os.symlink(outside_pdf, symlink_path)
+            except (OSError, NotImplementedError) as exc:
+                self.skipTest(
+                    f"Створення символічних посилань недоступне в поточному середовищі ОС без прав адміністратора: {exc}"
+                )
+
+            with override_settings(
+                MEDIA_ROOT=media_dir,
+                SERVE_MEDIA=True,
+                DEBUG=False,
+            ):
+                resp = self.client.get("/media/linked_secret.pdf")
+                self.assertEqual(resp.status_code, 404)
+
 
 

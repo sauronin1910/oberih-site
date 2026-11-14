@@ -3,7 +3,9 @@ import hashlib
 import ipaddress
 import json
 import logging
+from pathlib import Path
 import unicodedata
+from urllib.parse import unquote
 
 from django.conf import settings
 from django.core.cache import cache
@@ -13,6 +15,7 @@ from django.core.paginator import Paginator
 from django.core.validators import validate_email
 from django.db import transaction
 from django.http import (
+    Http404,
     HttpResponse,
     HttpResponsePermanentRedirect,
     HttpResponseRedirect,
@@ -24,6 +27,8 @@ from django.templatetags.static import static
 from django.utils import timezone
 from django.utils.html import escape
 from django.views.decorators.cache import never_cache
+from django.views.decorators.http import require_safe
+from django.views.static import serve as static_serve
 
 from .models import (
     ContactMessage,
@@ -639,4 +644,72 @@ def error_400(request, exception=None):
         "current_page_slug": None,
     }
     return render(request, "400.html", context, status=400)
+
+
+ALLOWED_MEDIA_EXTENSIONS = {".pdf", ".jpg", ".jpeg", ".png"}
+
+
+@require_safe
+def serve_media(request, path: str):
+    """Безпечно роздає завантажені медіафайли (/media/<path>) при DEBUG=True або SERVE_MEDIA=True."""
+    if not (settings.DEBUG or getattr(settings, "SERVE_MEDIA", False)):
+        raise Http404
+
+    if not path or "\x00" in path or path.startswith(("/", "\\")):
+        raise Http404
+
+    decoded_path = unquote(path)
+    if (
+        not decoded_path
+        or "\x00" in decoded_path
+        or decoded_path.startswith(("/", "\\"))
+        or "\\" in path
+        or "\\" in decoded_path
+    ):
+        raise Http404
+
+    rel_parts = Path(decoded_path).parts
+    if not rel_parts or any(part in ("", ".", "..") for part in rel_parts):
+        raise Http404
+
+    ext = Path(rel_parts[-1]).suffix.lower()
+    if ext not in ALLOWED_MEDIA_EXTENSIONS:
+        raise Http404
+
+    try:
+        media_root = Path(settings.MEDIA_ROOT).resolve()
+    except OSError as exc:
+        raise Http404 from exc
+
+    # Перевіряємо кожен сегмент шляху на символічні посилання та вихід за межі MEDIA_ROOT
+    current = media_root
+    for part in rel_parts:
+        current = current / part
+        try:
+            if current.is_symlink():
+                raise Http404
+        except OSError as exc:
+            raise Http404 from exc
+
+    try:
+        resolved = current.resolve()
+    except OSError as exc:
+        raise Http404 from exc
+
+    if resolved == media_root or media_root not in resolved.parents:
+        raise Http404
+    if not resolved.is_file():
+        raise Http404
+
+    clean_rel = resolved.relative_to(media_root).as_posix()
+    response = static_serve(
+        request, path=clean_rel, document_root=str(media_root)
+    )
+    response["X-Content-Type-Options"] = "nosniff"
+    response["Content-Security-Policy"] = "default-src 'none'; sandbox"
+    # Кешування обмежено 1 годиною (3600 с): видалений файл (наприклад, фото працівника
+    # після відкликання згоди) не повинен довго лишатися доступним через кеш Cloudflare.
+    response["Cache-Control"] = "public, max-age=3600"
+    return response
+
 

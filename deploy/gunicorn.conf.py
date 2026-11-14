@@ -22,6 +22,11 @@ workers = int(
     )
 )
 
+# Потоковий воркер gthread (4 потоки за замовчуванням), щоб роздача великих PDF (до 20 МБ)
+# не блокувала воркер для інших відвідувачів. Загальна кількість з'єднань із БД = workers * threads.
+worker_class = "gthread"
+threads = int(os.environ.get("GUNICORN_THREADS", "4"))
+
 # Таймаут обробки запиту (30 секунд) та перезапуск воркерів для запобігання витокам пам'яті
 timeout = int(os.environ.get("GUNICORN_TIMEOUT", "30"))
 graceful_timeout = 30

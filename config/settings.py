@@ -101,6 +101,8 @@ STATIC_ROOT = Path(config("STATIC_ROOT", default=str(BASE_DIR / "staticfiles")))
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = Path(config("MEDIA_ROOT", default=str(BASE_DIR / "media")))
+# На PaaS без окремого Nginx (наприклад Render) увімкніть SERVE_MEDIA=True; на VPS з Nginx залиште False.
+SERVE_MEDIA = config("SERVE_MEDIA", default=False, cast=bool)
 
 STORAGES = {
     "default": {

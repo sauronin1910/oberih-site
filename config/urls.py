@@ -1,17 +1,12 @@
 """Маршрутизація проєкту КЗ «НРЦ «Оберіг»»."""
-from django.conf import settings
-from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+from core import views as core_views
+
 urlpatterns = [
     path("admin-panel/", admin.site.urls),
-]
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-urlpatterns += [
+    path("media/<path:path>", core_views.serve_media, name="serve_media"),
     path("", include("core.urls")),
 ]
 

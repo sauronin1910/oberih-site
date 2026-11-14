@@ -144,7 +144,7 @@ class ContentSecurityPolicyMiddleware:
         response = self.get_response(request)
         if not getattr(settings, "CSP_ENABLED", True):
             return response
-        if request.path.startswith("/admin-panel/"):
+        if request.path.startswith(("/admin-panel/", "/media/")):
             return response
         if "Content-Security-Policy" not in response:
             response["Content-Security-Policy"] = getattr(
