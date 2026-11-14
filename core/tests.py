@@ -35,7 +35,7 @@ from .models import (
     Sponsor,
     validate_image_file,
 )
-from .views import error_400, error_403, error_500
+from .views import error_400, error_403, error_500, get_client_ip
 
 
 class FailingEmailBackend(BaseEmailBackend):
@@ -873,6 +873,7 @@ class ContactsAndFormTests(TestCase):
     @override_settings(
         CONTACT_RATE_LIMIT_COUNT=3,
         CONTACT_RATE_LIMIT_PERIOD=600,
+        CLIENT_IP_HEADER="",
         TRUST_X_FORWARDED_FOR=False,
     )
     def test_rate_limit_and_x_forwarded_for_and_cache_fail_open(self):
@@ -1207,6 +1208,7 @@ class Stage8SecurityAndDeployTests(TestCase):
         ADMIN_LOGIN_RATE_LIMIT_COUNT=5,
         ADMIN_LOGIN_IP_RATE_LIMIT_COUNT=20,
         ADMIN_LOGIN_RATE_LIMIT_PERIOD=900,
+        CLIENT_IP_HEADER="",
         TRUST_X_FORWARDED_FOR=False,
     )
     def test_admin_login_rate_limit_pair_and_ip_and_fail_open(self):
@@ -1423,4 +1425,62 @@ class Stage8SecurityAndDeployTests(TestCase):
             self.assertTrue(old_dump_2.exists())
             dumps = list(tmp_path.glob("oberih_db_*.dump"))
             self.assertEqual(len(dumps), 2)
+
+    def test_client_ip_header_behavior(self):
+        """Перевірка CLIENT_IP_HEADER: валідний заголовок, некоректний заголовок, відсутній заголовок та ігнорування X-Forwarded-For."""
+        rf = RequestFactory()
+
+        # 1. Коли CLIENT_IP_HEADER задано і заголовок містить коректну IP-адресу (IPv4 або IPv6) — використовується він
+        with override_settings(
+            CLIENT_IP_HEADER="HTTP_TRUE_CLIENT_IP",
+            TRUST_X_FORWARDED_FOR=False,
+        ):
+            req_valid = rf.get(
+                "/",
+                REMOTE_ADDR="10.0.0.1",
+                HTTP_TRUE_CLIENT_IP="198.51.100.42",
+                HTTP_X_FORWARDED_FOR="203.0.113.99",
+            )
+            self.assertEqual(get_client_ip(req_valid), "198.51.100.42")
+
+            req_ipv6 = rf.get(
+                "/",
+                REMOTE_ADDR="10.0.0.1",
+                HTTP_TRUE_CLIENT_IP="2001:db8::1",
+            )
+            self.assertEqual(get_client_ip(req_ipv6), "2001:db8::1")
+
+        # 2. Некоректний заголовок ігнорується -> береться REMOTE_ADDR (НЕ X-Forwarded-For)
+        with override_settings(
+            CLIENT_IP_HEADER="HTTP_TRUE_CLIENT_IP",
+            TRUST_X_FORWARDED_FOR=True,
+        ):
+            req_invalid = rf.get(
+                "/",
+                REMOTE_ADDR="10.0.0.2",
+                HTTP_TRUE_CLIENT_IP="not-an-ip, 1.2.3.4",
+                HTTP_X_FORWARDED_FOR="203.0.113.88",
+            )
+            self.assertEqual(get_client_ip(req_invalid), "10.0.0.2")
+
+        # 3. Без заголовка береться REMOTE_ADDR
+        with override_settings(
+            CLIENT_IP_HEADER="HTTP_TRUE_CLIENT_IP",
+            TRUST_X_FORWARDED_FOR=False,
+        ):
+            req_missing = rf.get("/", REMOTE_ADDR="10.0.0.3")
+            self.assertEqual(get_client_ip(req_missing), "10.0.0.3")
+
+        # 4. X-Forwarded-For ігнорується, коли CLIENT_IP_HEADER задано (навіть якщо TRUST_X_FORWARDED_FOR=True і заголовок відсутній)
+        with override_settings(
+            CLIENT_IP_HEADER="HTTP_TRUE_CLIENT_IP",
+            TRUST_X_FORWARDED_FOR=True,
+        ):
+            req_xff_ignored = rf.get(
+                "/",
+                REMOTE_ADDR="10.0.0.4",
+                HTTP_X_FORWARDED_FOR="203.0.113.77",
+            )
+            self.assertEqual(get_client_ip(req_xff_ignored), "10.0.0.4")
+
 

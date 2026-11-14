@@ -134,8 +134,9 @@ ADMIN_LOGIN_RATE_LIMIT_COUNT = config("ADMIN_LOGIN_RATE_LIMIT_COUNT", default=5,
 ADMIN_LOGIN_IP_RATE_LIMIT_COUNT = config("ADMIN_LOGIN_IP_RATE_LIMIT_COUNT", default=20, cast=int)
 ADMIN_LOGIN_RATE_LIMIT_PERIOD = config("ADMIN_LOGIN_RATE_LIMIT_PERIOD", default=900, cast=int)
 
-# Увімкніть True на сервері за довіреним reverse-proxy (Nginx), який передає X-Forwarded-For,
-# щоб брати останній IP із заголовка замість 127.0.0.1 проксі-сервера.
+# На PaaS (наприклад Render) вкажіть CLIENT_IP_HEADER=HTTP_TRUE_CLIENT_IP і залиште TRUST_X_FORWARDED_FOR=False.
+# На VPS за власним Nginx залиште CLIENT_IP_HEADER порожнім і увімкніть TRUST_X_FORWARDED_FOR=True.
+CLIENT_IP_HEADER = config("CLIENT_IP_HEADER", default="").strip()
 TRUST_X_FORWARDED_FOR = config("TRUST_X_FORWARDED_FOR", default=False, cast=bool)
 
 # --- Електронна пошта ---

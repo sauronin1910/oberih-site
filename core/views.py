@@ -1,5 +1,6 @@
 """Представлення (views) для сторінок сайту КЗ «НРЦ «Оберіг»»."""
 import hashlib
+import ipaddress
 import json
 import logging
 import unicodedata
@@ -208,7 +209,17 @@ def _is_ajax(request) -> bool:
 
 
 def get_client_ip(request) -> str:
-    """Безпечно визначає адресу клієнта (бере останній запис X-Forwarded-For лише коли TRUST_X_FORWARDED_FOR=True)."""
+    """Безпечно визначає адресу клієнта (CLIENT_IP_HEADER для PaaS або останній X-Forwarded-For при TRUST_X_FORWARDED_FOR=True)."""
+    client_ip_header = (getattr(settings, "CLIENT_IP_HEADER", "") or "").strip()
+    if client_ip_header:
+        raw_ip = (request.META.get(client_ip_header) or "").strip()
+        if raw_ip:
+            try:
+                return str(ipaddress.ip_address(raw_ip))
+            except ValueError:
+                pass
+        return (request.META.get("REMOTE_ADDR") or "").strip() or "unknown"
+
     if getattr(settings, "TRUST_X_FORWARDED_FOR", False):
         xff = request.META.get("HTTP_X_FORWARDED_FOR", "")
         if xff:
